@@ -2,7 +2,7 @@ torch>=2.3.0
 torchvision
 transformers>=4.40.0
 accelerate
-faiss-gpu  # Usa faiss-cpu se sviluppi in locale senza scheda video Nvidia
+faiss-cpu  # Usa faiss-cpu se sviluppi in locale senza scheda video Nvidia
 pillow
 numpy
 tqdm
