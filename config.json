@@ -1,0 +1,9 @@
+{
+  "model_path": "modelli/qwen2.5-3b-instruct",
+  "retriever_path": "modelli/EVA-CLIP-8B",
+  "index_path": "dati/knn.index",
+  "index_json_path": "dati/knn.json",
+  "kb_wikipedia_path": "dati/encyclopedic_kb_wiki.json",
+  "input_path": "dati/domande_test.json",
+  "output_path": "risultati/output.json"
+}

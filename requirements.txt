@@ -1,6 +1,6 @@
-torch>=2.3.0
-torchvision
-transformers>=4.40.0
+torch==2.2.2
+torchvision==0.17.2
+torchaudio==2.2.2
 accelerate
 faiss-cpu  # Usa faiss-cpu se sviluppi in locale senza scheda video Nvidia
 pillow
