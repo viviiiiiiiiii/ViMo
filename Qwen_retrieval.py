@@ -7,6 +7,7 @@ import faiss
 import numpy as np
 import torch
 from tqdm import tqdm
+from load_config import load_config
 from qwen_vl_utils import process_vision_info
 from transformers import (
     AutoModel,
@@ -152,17 +153,24 @@ def main(args):
         else:
             outf.write("]")
 
-if __name__ == "__main__":
-    import json
-    with open("config.json", "r") as f:
-        config = json.load(f)
 
-    class Args:
-        pass
-    args = Args()
-    for key, value in config.items():
-        setattr(args, key, value)
+class Args:
+    pass
+
+if __name__ == "__main__":
+    # 1. Carichiamo la configurazione pulita dal file 
+    config_dict = load_config()
     
+    # 2. Trasformiamo il dizionario in un oggetto 'args' 
+    args = Args()
+    for key, value in config_dict.items():
+        # Convertiamo in stringa perché pathlib restituisce oggetti Path, 
+        # e alcune librerie vecchie preferiscono le stringhe pure
+        setattr(args, key, str(value)) 
+        
+    # 3. Aggiungiamo i parametri che non sono percorsi (come top_k)
     args.top_k = 3 
     
+    # 4. Facciamo partire il motore!
+    print("🚀 Avvio pipeline con configurazione caricata da config.json...")
     main(args)
