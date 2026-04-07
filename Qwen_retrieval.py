@@ -1,4 +1,3 @@
-import argparse
 import json
 import os
 from pathlib import Path
@@ -17,7 +16,7 @@ from transformers import (
 )
 import traceback
 
-def load_clip_and_index(args):
+"""def load_clip_and_index(args):
     clip_model = AutoModel.from_pretrained(
         args.retriever_path,
         torch_dtype=torch.float16,
@@ -29,16 +28,50 @@ def load_clip_and_index(args):
         index_map = json.load(f)
     with open(args.kb_wikipedia_path) as f:
         wiki = json.load(f)
+    return clip_model, clip_processor, index, index_map, wiki"""
+
+def load_clip_and_index(args):
+    # MOCK 1: Niente modelli pesanti
+    clip_model = None
+    clip_processor = None
+    
+    # MOCK 2: Finto database FAISS
+    class FakeIndex:
+        d = 512 # Dimensione finta del vettore
+        def search(self, features, k):
+            import numpy as np
+            # Restituisce distanze a caso e sempre l'indice 0
+            return np.zeros((1, k)), np.zeros((1, k), dtype=int)
+            
+    index = FakeIndex()
+    
+    # MOCK 3: Finto Mapping e Finta Wikipedia
+    index_map = [["http://finto-wiki.com/prova"]]
+    wiki = {
+        "http://finto-wiki.com/prova": {
+            "section_texts": ["Questo è un documento finto di Wikipedia. Il ReAct loop funziona benissimo!"]
+        }
+    }
+    
+    print("⚠️ [MOCK MODE] Caricato database vettoriale finto e Wikipedia finta.")
     return clip_model, clip_processor, index, index_map, wiki
 
-def extract_features(image_path, clip_model, clip_processor):
+"""def extract_features(image_path, clip_model, clip_processor):
     image = Image.open(image_path).convert("RGB")
     inputs = clip_processor(images=image, return_tensors="pt")
     pixel_values = inputs["pixel_values"].to(dtype=torch.float16, device=clip_model.device)
     with torch.no_grad():
         features = clip_model.encode_image(pixel_values=pixel_values)
         features = features / features.norm(p=2, dim=-1, keepdim=True)
-    return features.cpu().numpy().astype(np.float32)
+    return features.cpu().numpy().astype(np.float32)"""
+
+def extract_features(image_path, clip_model, clip_processor, dim):
+    # MOCK: Invece di usare CLIP, generiamo un vettore di numeri casuali
+    # della stessa grandezza che si aspetta il database FAISS (dim).
+    features = np.random.rand(1, dim).astype(np.float32)
+    # Normalizziamo il vettore come farebbe CLIP
+    features = features / np.linalg.norm(features, axis=1, keepdims=True)
+    return features
 
 def retrieve_topk_pages(features, index, index_map, wiki, k):
     _, I = index.search(features, k)
@@ -59,7 +92,7 @@ def build_chat_prompt(context, question, image):
 
 
 
-def generate_answer(model, processor, messages):
+"""def generate_answer(model, processor, messages):
     text = processor.apply_chat_template(
         messages, tokenize=False, add_generation_prompt=True
     )
@@ -82,18 +115,24 @@ def generate_answer(model, processor, messages):
         )
     generated_ids = outputs[0][inputs["input_ids"].shape[-1]:]
     answer = processor.tokenizer.decode(generated_ids, skip_special_tokens=True)
-    return answer.strip()
+    return answer.strip()"""
+
+def generate_answer(model, processor, messages):
+    # MOCK: Risposta fissa e istantanea per testare la pipeline
+    return "Risposta Mock: La pipeline funziona e il PC è salvo!"
 
 def main(args):
-    processor = AutoProcessor.from_pretrained(args.model_path, local_files_only=True)
-    model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
+    processor = None
+    model = None
+    #processor = AutoProcessor.from_pretrained(args.model_path, local_files_only=True)
+    """model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
         args.model_path,
         torch_dtype=torch.bfloat16,
         attn_implementation="eager",
         local_files_only=True,
         trust_remote_code=True
     ).to("cuda:0").eval()
-
+"""
     clip_model, clip_processor, index, index_map, wiki = load_clip_and_index(args)
     with open(args.input_path) as f:
         dataset = json.load(f)
@@ -106,17 +145,14 @@ def main(args):
         outf.write("[\n")
     
     print("Loaded dataset size:", len(dataset))
-    for i, sample in enumerate(tqdm(dataset[:10], desc="Generating"), 1):
+    for i, sample in enumerate(tqdm(dataset[:2], desc="Generating"), 1):
         q = sample["question"]
         img_path = sample.get("related_images", None)
         ref = sample["answer"] if isinstance(sample["answer"], list) else [sample["answer"]]
 
         try:
-            if not os.path.exists(img_path):
-                raise FileNotFoundError(f"Immagine non trovata: {img_path}")
-            with Image.open(img_path) as im:
-                im.verify()
-            feats = extract_features(img_path, clip_model, clip_processor)
+            #feats = extract_features(img_path, clip_model, clip_processor)
+            feats = extract_features(img_path, clip_model, clip_processor, index.d)
             ctx = retrieve_topk_pages(feats, index, index_map, wiki, k=args.top_k)
             messages = build_chat_prompt(ctx, q, img_path)
 
