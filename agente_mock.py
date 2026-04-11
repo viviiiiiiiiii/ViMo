@@ -3,6 +3,9 @@ from langchain_core.tools import tool
 from langchain_core.prompts import PromptTemplate
 from langchain.agents import create_react_agent, AgentExecutor
 from langchain_community.llms.fake import FakeListLLM
+import torch
+from PIL import Image
+from Qwen_retrieval import extract_features, retrieve_topk_pages
 
 # ==========================================
 # FUNZIONE DI SUPPORTO: DA IMMAGINE A TESTO
