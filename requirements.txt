@@ -1,9 +1,17 @@
 torch==2.2.2
 torchvision==0.17.2
 torchaudio==2.2.2
+
+torch==2.2.2
+torchvision==0.17.2
+torchaudio==2.2.2
+
 accelerate
-faiss-cpu  # Usa faiss-cpu se sviluppi in locale senza scheda video Nvidia
+transformers @ git+https://github.com/huggingface/transformers
+huggingface_hub[cli]
+
+faiss-gpu
 pillow
 numpy
 tqdm
-qwen-vl-utils
+qwen-vl-utils[decord]==0.0.8

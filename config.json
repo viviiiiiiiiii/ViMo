@@ -1,5 +1,5 @@
 {
-  "model_path": "modelli/qwen2.5-3b-instruct",
+  "model_path": "modelli/Qwen2.5-VL-3B-Instruct",
   "retriever_path": "modelli/EVA-CLIP-8B",
   "index_path": "dati/knn.index",
   "index_json_path": "dati/knn.json",

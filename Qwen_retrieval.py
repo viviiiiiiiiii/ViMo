@@ -21,10 +21,10 @@ def load_clip_and_index(args):
         args.retriever_path,
         torch_dtype=torch.float16,
         trust_remote_code=True
-    ).to("cuda:1").eval()
+    ).to("cuda:0").eval()
     clip_processor = CLIPImageProcessor.from_pretrained(args.retriever_path)
-    index = faiss.read_index(os.path.join(args.index_path, "knn.index"))
-    with open(os.path.join(args.index_json_path, "knn.json")) as f:
+    index = faiss.read_index(args.index_path)
+    with open(args.index_json_path) as f:
         index_map = json.load(f)
     with open(args.kb_wikipedia_path) as f:
         wiki = json.load(f)
@@ -91,7 +91,7 @@ def main(args):
         attn_implementation="eager",
         local_files_only=True,
         trust_remote_code=True
-    ).to("cuda:0").eval()
+    ).to("cuda:1").eval()
 
     clip_model, clip_processor, index, index_map, wiki = load_clip_and_index(args)
     with open(args.input_path) as f:
