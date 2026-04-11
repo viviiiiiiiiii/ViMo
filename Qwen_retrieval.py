@@ -21,8 +21,11 @@ def load_clip_and_index(args):
         args.retriever_path,
         torch_dtype=torch.float16,
         trust_remote_code=True
-    ).to("cuda:1").eval()
+    ).to("cuda:0").eval()
     clip_processor = CLIPImageProcessor.from_pretrained(args.retriever_path)
+    index = faiss.read_index(args.index_path)
+    with open(args.index_json_path) as f:
+        index_map = json.load(f)
     index = faiss.read_index(os.path.join(args.index_path, "knn.index"))
     with open(os.path.join(args.index_json_path, "knn.json")) as f:
         index_map = json.load(f) #trasformiamo file json in lista di vettori dove 
