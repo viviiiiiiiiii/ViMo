@@ -1,0 +1,27 @@
+{
+  "doc_leonardo": {
+    "title": "Leonardo da Vinci",
+    "url": "doc_leonardo",
+    "section_texts": [
+      "Leonardo da Vinci was an Italian Renaissance painter, engineer, and inventor.",
+      "He is widely associated with works such as the Mona Lisa and The Last Supper.",
+      "When a question asks who painted a famous Renaissance artwork, Leonardo da Vinci can be a relevant answer in some cases."
+    ]
+  },
+  "doc_cat": {
+    "title": "Cat",
+    "url": "doc_cat",
+    "section_texts": [
+      "The cat is a small domesticated carnivorous mammal.",
+      "Cats are common pets and are known for whiskers, pointed ears, and agile movement."
+    ]
+  },
+  "doc_eiffel": {
+    "title": "Eiffel Tower",
+    "url": "doc_eiffel",
+    "section_texts": [
+      "The Eiffel Tower is a wrought-iron tower in Paris, France.",
+      "It is one of the most recognizable landmarks in the world."
+    ]
+  }
+}
