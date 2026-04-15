@@ -17,20 +17,25 @@ from transformers import (
 import traceback
 
 def load_clip_and_index(args):
+    # Caricamento del modello CLIP (già corretto)
     clip_model = AutoModel.from_pretrained(
         args.retriever_path,
         torch_dtype=torch.float16,
         trust_remote_code=True
     ).to("cuda:0").eval()
     clip_processor = CLIPImageProcessor.from_pretrained(args.retriever_path)
-    index = faiss.read_index(args.index_path)
-    with open(args.index_json_path) as f:
+    
+    # Faiss richiede una stringa, quindi convertiamo il Path object in str
+    index = faiss.read_index(str(args.index_path)) 
+    
+    # Carichiamo il mapping JSON
+    with open(args.index_json_path, "r", encoding="utf-8") as f:
         index_map = json.load(f)
-    index = faiss.read_index(os.path.join(args.index_path, "knn.index"))
-    with open(os.path.join(args.index_json_path, "knn.json")) as f:
-        index_map = json.load(f) #trasformiamo file json in lista di vettori dove 
-    with open(args.kb_wikipedia_path) as f:
+        
+    # Carichiamo la Knowledge Base di Wikipedia
+    with open(args.kb_wikipedia_path, "r", encoding="utf-8") as f:
         wiki = json.load(f)  
+        
     return clip_model, clip_processor, index, index_map, wiki
 
 
