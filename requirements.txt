@@ -16,6 +16,8 @@ langchain
 langchain-core
 langchain-community
 
+timm>=0.9.0
+
 '''langchain==0.2.16
 langchain-community==0.2.17
 langchain-core==0.2.43'''
