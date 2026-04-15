@@ -5,7 +5,7 @@ from langchain_core.tools import tool
 from langchain_core.prompts import PromptTemplate
 from langchain.agents import create_react_agent, AgentExecutor
 from langchain_community.llms.fake import FakeListLLM
-import load_config
+from load_config import load_config
 
 
 from Qwen_retrieval import extract_features, retrieve_topk_pages
