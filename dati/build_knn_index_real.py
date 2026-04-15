@@ -1,84 +1,69 @@
-
 from pathlib import Path
 import json
 import numpy as np
 import torch
+import faiss
+from transformers import AutoModel, CLIPImageProcessor
 
-try:
-    import faiss
-except ModuleNotFoundError as e:
-    raise SystemExit(
-        "Manca faiss. Installa prima una delle due opzioni:\n"
-        "  pip install faiss-cpu\n"
-        "oppure usa il tuo requirements del progetto."
-    )
-
-from transformers import AutoModel, AutoTokenizer
-
-"""
-Base per costruire un knn.index reale.
-
-Questa versione indicizza il KB come TESTO.
-Se il tuo progetto usa EVA-CLIP in modo multimodale, devi adattare la parte
-di embedding al retriever reale che avete deciso di usare.
-"""
+from Qwen_retrieval import extract_features
 
 BASE = Path(__file__).resolve().parent
 KB_PATH = BASE / "encyclopedic_kb_wiki.json"
 INDEX_JSON_PATH = BASE / "knn.json"
 OUT_INDEX_PATH = BASE / "knn.index"
-
 MODEL_NAME = "modelli/EVA-CLIP-8B"
 
-def l2_normalize(x: np.ndarray) -> np.ndarray:
-    norms = np.linalg.norm(x, axis=1, keepdims=True)
-    norms[norms == 0] = 1.0
-    return x / norms
-
-def mean_pool(last_hidden_state, attention_mask):
-    mask = attention_mask.unsqueeze(-1).expand(last_hidden_state.size()).float()
-    summed = torch.sum(last_hidden_state * mask, dim=1)
-    counts = torch.clamp(mask.sum(dim=1), min=1e-9)
-    return summed / counts
-
 def main():
+    # 1. Caricamento dati (identico a prima)
     with open(KB_PATH, "r", encoding="utf-8") as f:
         kb = json.load(f)
-
     with open(INDEX_JSON_PATH, "r", encoding="utf-8") as f:
         index_map = json.load(f)
+
+    # 2. Caricamento Modello (Usiamo le stesse impostazioni del retriever)
+    device = "cuda:0" if torch.cuda.is_available() else "cpu"
+    model = AutoModel.from_pretrained(
+        MODEL_NAME, 
+        torch_dtype=torch.float16 if device == "cuda:0" else torch.float32,
+        trust_remote_code=True
+    ).to(device).eval()
+    
+    # Per il testo CLIP usa il tokenizer, ma noi usiamo il processor che lo include
+    processor = CLIPImageProcessor.from_pretrained(MODEL_NAME) 
 
     texts = []
     for item in index_map:
         doc_id = item[0]
         entry = kb[doc_id]
-        merged = entry.get("title", "") + "\\n" + "\\n".join(entry.get("section_texts", []))
+        # Pulizia testo
+        merged = entry.get("title", "") + " " + " ".join(entry.get("section_texts", []))
         texts.append(merged.strip())
 
-    tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
-    model = AutoModel.from_pretrained(MODEL_NAME)
-    model.eval()
-
+    # 3. ESTRAZIONE VETTORI (Usando la funzione condivisa!)
     all_embs = []
-    batch_size = 8
-    with torch.no_grad():
-        for i in range(0, len(texts), batch_size):
-            batch = texts[i:i+batch_size]
-            toks = tokenizer(batch, padding=True, truncation=True, return_tensors="pt")
-            out = model(**toks)
-            emb = mean_pool(out.last_hidden_state, toks["attention_mask"])
-            all_embs.append(emb.cpu().numpy().astype("float32"))
+    print(f"Generazione embedding per {len(texts)} documenti...")
+    
+    for t in texts:
+        # Usiamo extract_features di Qwen_retrieval per coerenza totale!
+        emb = extract_features(
+            image=None, 
+            text=[t], 
+            model=model, 
+            processor=processor
+        )
+        all_embs.append(emb)
 
     vecs = np.vstack(all_embs).astype("float32")
-    vecs = l2_normalize(vecs)
 
+    # 4. CREAZIONE INDICE FAISS
+    # IndexFlatIP + Normalizzazione = Cosine Similarity (perfetto per CLIP)
     index = faiss.IndexFlatIP(vecs.shape[1])
     index.add(vecs)
+    
     faiss.write_index(index, str(OUT_INDEX_PATH))
 
-    print(f"Creato indice reale: {OUT_INDEX_PATH}")
-    print(f"Documenti indicizzati: {len(texts)}")
-    print(f"Dimensione embedding: {vecs.shape[1]}")
+    print(f"✅ Indice sincronizzato creato: {OUT_INDEX_PATH}")
+    print(f"Dimensione vettori: {vecs.shape[1]}") # Sarà 512 o 768 a seconda di EVA-CLIP
 
 if __name__ == "__main__":
     main()
