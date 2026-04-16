@@ -1,17 +1,24 @@
+import sys
 from pathlib import Path
+
+# 📍 FIX PERCORSI: Aggiungiamo la cartella radice (VIMO) al cammino di Python
+BASE_DATI = Path(__file__).resolve().parent
+ROOT_VIMO = BASE_DATI.parent
+sys.path.append(str(ROOT_VIMO))
+
 import json
 import numpy as np
 import torch
 import faiss
-from transformers import AutoModel, CLIPImageProcessor
 
+# Ora questo funzionerà perché abbiamo aggiunto ROOT_VIMO al path!
 from Qwen_retrieval import extract_features
 
-BASE = Path(__file__).resolve().parent
-KB_PATH = BASE / "encyclopedic_kb_wiki.json"
-INDEX_JSON_PATH = BASE / "knn.json"
-OUT_INDEX_PATH = BASE / "knn.index"
-MODEL_NAME = str(BASE.parent / "modelli" / "EVA-CLIP-8B")
+# 📍 FIX MODELLO: Punta alla cartella modelli che è sorella di dati
+MODEL_NAME = str(ROOT_VIMO / "modelli" / "EVA-CLIP-8B")
+KB_PATH = BASE_DATI / "encyclopedic_kb_wiki.json"
+INDEX_JSON_PATH = BASE_DATI / "knn.json"
+OUT_INDEX_PATH = BASE_DATI / "knn.index"
 
 def main():
     # 1. Caricamento dati (identico a prima)
