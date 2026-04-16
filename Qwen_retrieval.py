@@ -42,15 +42,14 @@ def load_clip_and_index(args):
 def extract_features(image=None, text=None, model=None, processor=None, out_dim=512):
     with torch.no_grad():
         if image is not None:
-            # 1. RAMO VISIVO (Usato dal tool_ricerca_visiva)
+            # 1. RAMO VISIVO
             inputs = processor(images=image, return_tensors="pt")
-            # Assicurati di usare il tipo di dato e il device corretti del modello
             pixel_values = inputs["pixel_values"].to(dtype=model.dtype, device=model.device)
-            # A seconda della versione di CLIP, potrebbe chiamarsi encode_image o get_image_features
             features = model.encode_image(pixel_values=pixel_values)
             
         elif text is not None:
-            # Forziamo la troncatura a 77 token (limite standard di CLIP)
+            # 2. RAMO TESTUALE con TRONCAMENTO FORZATO
+            # 📍 Nota: Usiamo max_length=77 perché è lo standard rigido di CLIP
             inputs = processor(
                 text=text, 
                 return_tensors="pt", 
@@ -60,17 +59,15 @@ def extract_features(image=None, text=None, model=None, processor=None, out_dim=
             )
             input_ids = inputs["input_ids"].to(device=model.device)
             
-            # 📍 MANOVRA DI SICUREZZA: Taglio manuale dei tensor se superano il limite
+            # 📍 SICUREZZA EXTRA: Tagliamo manualmente se il processor ha ignorato il limite
             if input_ids.shape[1] > 77:
                 input_ids = input_ids[:, :77]
-            
-            # Ora il modello non può più andare fuori scala
+                
             features = model.encode_text(input_ids)
             
         else:
             raise ValueError("Devi fornire un'immagine o un testo!")
 
-        # Normalizzazione matematica L2 per la ricerca FAISS 
         features = features / features.norm(p=2, dim=-1, keepdim=True)
         
     return features.cpu().numpy().astype(np.float32)
