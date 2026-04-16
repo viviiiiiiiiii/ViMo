@@ -24,7 +24,6 @@ def load_clip_and_index(args):
         trust_remote_code=True
     ).to("cuda:0").eval()
     clip_processor = CLIPImageProcessor.from_pretrained(args.retriever_path)
-
     # Faiss richiede una stringa, quindi convertiamo il Path object in str
     index = faiss.read_index(str(args.index_path)) 
     
@@ -51,9 +50,21 @@ def extract_features(image=None, text=None, model=None, processor=None, out_dim=
             features = model.encode_image(pixel_values=pixel_values)
             
         elif text is not None:
-            # 2. RAMO TESTUALE (Usato dal tool_ricerca_testuale)
-            inputs = processor(text=text, return_tensors="pt", padding=True, truncation=True,max_length=77)
+            # Forziamo la troncatura a 77 token (limite standard di CLIP)
+            inputs = processor(
+                text=text, 
+                return_tensors="pt", 
+                padding='max_length', 
+                truncation=True, 
+                max_length=77
+            )
             input_ids = inputs["input_ids"].to(device=model.device)
+            
+            # 📍 MANOVRA DI SICUREZZA: Taglio manuale dei tensor se superano il limite
+            if input_ids.shape[1] > 77:
+                input_ids = input_ids[:, :77]
+            
+            # Ora il modello non può più andare fuori scala
             features = model.encode_text(input_ids)
             
         else:
