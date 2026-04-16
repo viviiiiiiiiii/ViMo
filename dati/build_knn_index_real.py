@@ -1,57 +1,59 @@
 import sys
 from pathlib import Path
-
-# 📍 FIX PERCORSI: Aggiungiamo la cartella radice (VIMO) al cammino di Python
-BASE_DATI = Path(__file__).resolve().parent
-ROOT_VIMO = BASE_DATI.parent
-sys.path.append(str(ROOT_VIMO))
-
 import json
 import numpy as np
 import torch
 import faiss
+from tqdm import tqdm
+from transformers import AutoModel, AutoProcessor
 
-# Ora questo funzionerà perché abbiamo aggiunto ROOT_VIMO al path!
+# 📍 CONFIGURAZIONE PERCORSI
+BASE_DATI = Path(__file__).resolve().parent
+ROOT_VIMO = BASE_DATI.parent
+sys.path.append(str(ROOT_VIMO)) # Permette di importare Qwen_retrieval
+
+# Importiamo la logica di estrazione dall'Agente
 from Qwen_retrieval import extract_features
 
-# 📍 FIX MODELLO: Punta alla cartella modelli che è sorella di dati
+# 📍 PUNTIAMO AL MODELLO NELLA TUA FOTO
 MODEL_NAME = str(ROOT_VIMO / "modelli" / "EVA-CLIP-8B")
 KB_PATH = BASE_DATI / "encyclopedic_kb_wiki.json"
 INDEX_JSON_PATH = BASE_DATI / "knn.json"
 OUT_INDEX_PATH = BASE_DATI / "knn.index"
 
 def main():
-    # 1. Caricamento dati (identico a prima)
+    # 1. Caricamento dati
     with open(KB_PATH, "r", encoding="utf-8") as f:
         kb = json.load(f)
     with open(INDEX_JSON_PATH, "r", encoding="utf-8") as f:
         index_map = json.load(f)
 
-    # 2. Caricamento Modello (Usiamo le stesse impostazioni del retriever)
+    # 2. Caricamento Modello CLIP Locale
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
+    print(f"🔄 Caricamento EVA-CLIP da: {MODEL_NAME}...")
+    
+    # Usiamo AutoProcessor per gestire sia immagini che testi
     model = AutoModel.from_pretrained(
         MODEL_NAME, 
         torch_dtype=torch.float16 if device == "cuda:0" else torch.float32,
         trust_remote_code=True
     ).to(device).eval()
     
-    # Per il testo CLIP usa il tokenizer, ma noi usiamo il processor che lo include
-    processor = CLIPImageProcessor.from_pretrained(MODEL_NAME) 
+    processor = AutoProcessor.from_pretrained(MODEL_NAME, trust_remote_code=True)
 
+    # Preparazione testi
     texts = []
     for item in index_map:
         doc_id = item[0]
         entry = kb[doc_id]
-        # Pulizia testo
         merged = entry.get("title", "") + " " + " ".join(entry.get("section_texts", []))
         texts.append(merged.strip())
 
-    # 3. ESTRAZIONE VETTORI (Usando la funzione condivisa!)
+    # 3. Estrazione Vettori (CLIP)
     all_embs = []
-    print(f"Generazione embedding per {len(texts)} documenti...")
+    print(f"🚀 Generazione embedding per {len(texts)} documenti...")
     
-    for t in texts:
-        # Usiamo extract_features di Qwen_retrieval per coerenza totale!
+    for t in tqdm(texts):
         emb = extract_features(
             image=None, 
             text=[t], 
@@ -60,17 +62,18 @@ def main():
         )
         all_embs.append(emb)
 
+    # 4. Creazione Indice FAISS
     vecs = np.vstack(all_embs).astype("float32")
-
-    # 4. CREAZIONE INDICE FAISS
-    # IndexFlatIP + Normalizzazione = Cosine Similarity (perfetto per CLIP)
+    
+    # Usiamo IndexFlatIP per la Cosine Similarity (standard con CLIP)
     index = faiss.IndexFlatIP(vecs.shape[1])
     index.add(vecs)
     
     faiss.write_index(index, str(OUT_INDEX_PATH))
 
-    print(f"✅ Indice sincronizzato creato: {OUT_INDEX_PATH}")
-    print(f"Dimensione vettori: {vecs.shape[1]}") # Sarà 512 o 768 a seconda di EVA-CLIP
+    print(f"\n✅ INDICE CREATO CON SUCCESSO!")
+    print(f"📍 Percorso: {OUT_INDEX_PATH}")
+    print(f"📊 Dimensione Vettori: {vecs.shape[1]} (Deve essere 512, 768 o 1024)")
 
 if __name__ == "__main__":
     main()
