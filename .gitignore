@@ -1,0 +1,15 @@
+# Ignora i modelli pesanti
+modelli/
+
+# Ignora i dataset e gli indici vettoriali
+dati/
+
+# Ignora i file generati da noi e i log
+risultati/
+*.log
+
+# Ignora gli ambienti virtuali e la cache di Python
+venv/
+.env
+__pycache__/
+*.pyc

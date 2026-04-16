@@ -28,7 +28,7 @@ KB_PATH = BASE / "encyclopedic_kb_wiki.json"
 INDEX_JSON_PATH = BASE / "knn.json"
 OUT_INDEX_PATH = BASE / "knn.index"
 
-MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
+MODEL_NAME = "modelli/EVA-CLIP-8B"
 
 def l2_normalize(x: np.ndarray) -> np.ndarray:
     norms = np.linalg.norm(x, axis=1, keepdims=True)

@@ -1,4 +1,3 @@
-import argparse
 import json
 import os
 from pathlib import Path
@@ -7,6 +6,7 @@ import faiss
 import numpy as np
 import torch
 from tqdm import tqdm
+from load_config import load_config
 from qwen_vl_utils import process_vision_info
 from transformers import (
     AutoModel,
@@ -17,27 +17,53 @@ from transformers import (
 import traceback
 
 def load_clip_and_index(args):
+    # Caricamento del modello CLIP (già corretto)
     clip_model = AutoModel.from_pretrained(
         args.retriever_path,
         torch_dtype=torch.float16,
         trust_remote_code=True
     ).to("cuda:0").eval()
     clip_processor = CLIPImageProcessor.from_pretrained(args.retriever_path)
-    index = faiss.read_index(args.index_path)
-    with open(args.index_json_path) as f:
+    
+    # Faiss richiede una stringa, quindi convertiamo il Path object in str
+    index = faiss.read_index(str(args.index_path)) 
+    
+    # Carichiamo il mapping JSON
+    with open(args.index_json_path, "r", encoding="utf-8") as f:
         index_map = json.load(f)
-    with open(args.kb_wikipedia_path) as f:
-        wiki = json.load(f)
+        
+    # Carichiamo la Knowledge Base di Wikipedia
+    with open(args.kb_wikipedia_path, "r", encoding="utf-8") as f:
+        wiki = json.load(f)  
+        
     return clip_model, clip_processor, index, index_map, wiki
 
-def extract_features(image_path, clip_model, clip_processor):
-    image = Image.open(image_path).convert("RGB")
-    inputs = clip_processor(images=image, return_tensors="pt")
-    pixel_values = inputs["pixel_values"].to(dtype=torch.float16, device=clip_model.device)
+
+
+def extract_features(image=None, text=None, model=None, processor=None, out_dim=512):
     with torch.no_grad():
-        features = clip_model.encode_image(pixel_values=pixel_values)
+        if image is not None:
+            # 1. RAMO VISIVO (Usato dal tool_ricerca_visiva)
+            inputs = processor(images=image, return_tensors="pt")
+            # Assicurati di usare il tipo di dato e il device corretti del modello
+            pixel_values = inputs["pixel_values"].to(dtype=model.dtype, device=model.device)
+            # A seconda della versione di CLIP, potrebbe chiamarsi encode_image o get_image_features
+            features = model.encode_image(pixel_values=pixel_values)
+            
+        elif text is not None:
+            # 2. RAMO TESTUALE (Usato dal tool_ricerca_testuale)
+            inputs = processor(text=text, return_tensors="pt", padding=True, truncation=True)
+            input_ids = inputs["input_ids"].to(device=model.device)
+            features = model.encode_text(input_ids)
+            
+        else:
+            raise ValueError("Devi fornire un'immagine o un testo!")
+
+        # Normalizzazione matematica L2 per la ricerca FAISS 
         features = features / features.norm(p=2, dim=-1, keepdim=True)
+        
     return features.cpu().numpy().astype(np.float32)
+
 
 def retrieve_topk_pages(features, index, index_map, wiki, k):
     _, I = index.search(features, k)
@@ -82,87 +108,3 @@ def generate_answer(model, processor, messages):
     generated_ids = outputs[0][inputs["input_ids"].shape[-1]:]
     answer = processor.tokenizer.decode(generated_ids, skip_special_tokens=True)
     return answer.strip()
-
-def main(args):
-    processor = AutoProcessor.from_pretrained(args.model_path, local_files_only=True)
-    model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
-        args.model_path,
-        torch_dtype=torch.bfloat16,
-        attn_implementation="eager",
-        local_files_only=True,
-        trust_remote_code=True
-    ).to("cuda:1").eval()
-
-    clip_model, clip_processor, index, index_map, wiki = load_clip_and_index(args)
-    with open(args.input_path) as f:
-        dataset = json.load(f)
-
-    Path(args.output_path).parent.mkdir(parents=True, exist_ok=True)
-
-    predictions = []
-    written_any = False
-    with open(args.output_path, "w") as outf:
-        outf.write("[\n")
-    
-    print("Loaded dataset size:", len(dataset))
-    for i, sample in enumerate(tqdm(dataset[:10], desc="Generating"), 1):
-        q = sample["question"]
-        img_path = sample.get("related_images", None)
-        ref = sample["answer"] if isinstance(sample["answer"], list) else [sample["answer"]]
-
-        try:
-            if not os.path.exists(img_path):
-                raise FileNotFoundError(f"Immagine non trovata: {img_path}")
-            with Image.open(img_path) as im:
-                im.verify()
-            feats = extract_features(img_path, clip_model, clip_processor)
-            ctx = retrieve_topk_pages(feats, index, index_map, wiki, k=args.top_k)
-            messages = build_chat_prompt(ctx, q, img_path)
-
-
-            answer = generate_answer(model, processor, messages)
-
-            print(f"[{i}] Risposta: {answer}")
-
-            predictions.append({
-                "question": q,
-                "reference": ref,
-                "answers": answer,
-                "question_type": sample.get("question_type", "unknown"),
-            })
-
-        except Exception as e:
-            print(f"[ATTENZIONE] Salto la domanda {i} ('{q[:30]}...'). Errore: {e}")
-            continue
-
-         
-
-        if i % 100 == 0 or i == len(dataset) or i == 1:
-            with open(args.output_path, "a") as outf:
-                for entry in predictions:
-                    if written_any:
-                        outf.write(",\n")
-                    json.dump(entry, outf, ensure_ascii=False)
-                    written_any = True
-            predictions = []
-
-    with open(args.output_path, "a") as outf:
-        if written_any:
-            outf.write("\n]")
-        else:
-            outf.write("]")
-
-if __name__ == "__main__":
-    import json
-    with open("config.json", "r") as f:
-        config = json.load(f)
-
-    class Args:
-        pass
-    args = Args()
-    for key, value in config.items():
-        setattr(args, key, value)
-    
-    args.top_k = 3 
-    
-    main(args)
