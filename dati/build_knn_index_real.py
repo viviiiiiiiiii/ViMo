@@ -11,7 +11,7 @@ BASE = Path(__file__).resolve().parent
 KB_PATH = BASE / "encyclopedic_kb_wiki.json"
 INDEX_JSON_PATH = BASE / "knn.json"
 OUT_INDEX_PATH = BASE / "knn.index"
-MODEL_NAME = "modelli/EVA-CLIP-8B"
+MODEL_NAME = str(BASE.parent / "modelli" / "EVA-CLIP-8B")
 
 def main():
     # 1. Caricamento dati (identico a prima)
