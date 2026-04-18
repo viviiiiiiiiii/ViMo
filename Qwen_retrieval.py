@@ -23,7 +23,7 @@ def load_clip_and_index(args):
         torch_dtype=torch.float16,
         trust_remote_code=True
     ).to("cuda:0").eval()
-    clip_processor = CLIPImageProcessor.from_pretrained(args.retriever_path)
+    clip_processor = AutoProcessor.from_pretrained(args.retriever_path, trust_remote_code=True)
     # Faiss richiede una stringa, quindi convertiamo il Path object in str
     index = faiss.read_index(str(args.index_path)) 
     
