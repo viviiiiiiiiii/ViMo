@@ -1,23 +1,19 @@
 torch==2.2.2
 torchvision==0.17.2
 torchaudio==2.2.2
+--index-url https://download.pytorch.org/whl/cu121
 
 accelerate
-transformers @ git+https://github.com/huggingface/transformers
+transformers>=4.45.0
 huggingface_hub[cli]
 
-faiss-gpu
+faiss-cpu
 pillow
-numpy
+numpy<2.0.0
 tqdm
 qwen-vl-utils[decord]==0.0.8
 
 langchain
 langchain-core
 langchain-community
-
 timm>=0.9.0
-
-'''langchain==0.2.16
-langchain-community==0.2.17
-langchain-core==0.2.43'''
