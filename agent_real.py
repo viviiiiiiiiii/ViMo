@@ -15,6 +15,11 @@ try:
 except ImportError:
     from langchain_classic.agents import AgentExecutor, create_react_agent
 
+
+
+from load_config import load_config
+from Qwen_retrieval import generate_answer
+
 # Importiamo l'intero modulo per accedere alle variabili globali aggiornate
 import tools_real 
 
