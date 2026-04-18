@@ -64,7 +64,9 @@ def extract_features(image=None, text=None, model=None, processor=None, out_dim=
             # forziamo noi il taglio dei tensor qui.
             if input_ids.shape[1] > 70:
                 input_ids = input_ids[:, :70]
-            
+                
+            if input_ids.shape[1] > 0:
+                 print(f"DEBUG: input_ids shape = {input_ids.shape}")
             # 📍 3. Esecuzione (Ora non può più crashare)
             features = model.encode_text(input_ids)
             
