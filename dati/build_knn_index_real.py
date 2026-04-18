@@ -42,15 +42,17 @@ def main():
         trust_remote_code=True
     ).to(device).eval()
     
-            # Nel file build_knn_index_real.py, dopo 'model = AutoModel.from_pretrained(...)'
+    # Dopo model = AutoModel.from_pretrained(...)
+    print("--- DEBUG CONFIGURAZIONE ---")
     if hasattr(model.config, "max_position_embeddings"):
-        print(f"📏 LIMITE REALE DEL MODELLO: {model.config.max_position_embeddings} token")
-    else:
-        # In alcuni modelli EVA è dentro la config del text_config
-        text_limit = getattr(model.config, "text_config", {}).get("max_position_embeddings", "Sconosciuto")
-        
-    print(f"📏 LIMITE TESTUALE: {text_limit} token")
-    
+        print(f"📏 LIMITE REALE: {model.config.max_position_embeddings}")
+    elif hasattr(model.config, "text_config"):
+        # Accediamo all'attributo dell'oggetto, non come dizionario
+        t_config = model.config.text_config
+        limit = getattr(t_config, "max_position_embeddings", "Non trovato")
+        print(f"📏 LIMITE TESTUALE: {limit}")
+    print("----------------------------")
+
     processor = AutoProcessor.from_pretrained(MODEL_NAME, trust_remote_code=True)
 
     # Preparazione testi
