@@ -3,14 +3,13 @@ import torch
 import re  # Pulito il commento precedente
 from PIL import Image
 from typing import Optional, List
+# 📍 FIX: Percorsi specifici per LangChain 1.2+ (2026)
 from langchain_core.language_models.llms import LLM
 from langchain_core.prompts import PromptTemplate
-from langchain.agents import AgentExecutor
-# Se l'import diretto fallisce, usiamo il percorso del sottomodulo
-try:
-    from langchain.agents import create_react_agent
-except ImportError:
-    from langchain.agents.react.agent import create_react_agent
+
+# Carichiamo l'esecutore e il builder dell'agente dai loro sottomoduli reali
+from langchain.agents.agent_executor import AgentExecutor
+from langchain.agents.react.agent import create_react_agent
 
 # --- IMPORT MODULARI ---
 from load_config import load_config
