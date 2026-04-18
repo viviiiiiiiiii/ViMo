@@ -34,7 +34,15 @@ def main():
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
     print(f"🔄 Caricamento EVA-CLIP da: {MODEL_NAME}...")
 
-        # Nel file build_knn_index_real.py, dopo 'model = AutoModel.from_pretrained(...)'
+
+    # Usiamo AutoProcessor per gestire sia immagini che testi
+    model = AutoModel.from_pretrained(
+        MODEL_NAME, 
+        torch_dtype=torch.float16 if device == "cuda:0" else torch.float32,
+        trust_remote_code=True
+    ).to(device).eval()
+    
+            # Nel file build_knn_index_real.py, dopo 'model = AutoModel.from_pretrained(...)'
     if hasattr(model.config, "max_position_embeddings"):
         print(f"📏 LIMITE REALE DEL MODELLO: {model.config.max_position_embeddings} token")
     else:
@@ -42,12 +50,6 @@ def main():
         text_limit = getattr(model.config, "text_config", {}).get("max_position_embeddings", "Sconosciuto")
         
     print(f"📏 LIMITE TESTUALE: {text_limit} token")
-    # Usiamo AutoProcessor per gestire sia immagini che testi
-    model = AutoModel.from_pretrained(
-        MODEL_NAME, 
-        torch_dtype=torch.float16 if device == "cuda:0" else torch.float32,
-        trust_remote_code=True
-    ).to(device).eval()
     
     processor = AutoProcessor.from_pretrained(MODEL_NAME, trust_remote_code=True)
 
