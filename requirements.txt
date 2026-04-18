@@ -8,7 +8,7 @@ accelerate
 transformers>=5.0.0
 huggingface_hub[cli]
 
-faiss-cpu
+faiss-gpu  # 📍 ORA POSSIAMO USARE LA GPU
 pillow
 numpy<2.0.0
 tqdm

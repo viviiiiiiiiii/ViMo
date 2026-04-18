@@ -48,27 +48,36 @@ def extract_features(image=None, text=None, model=None, processor=None, out_dim=
             features = model.encode_image(pixel_values=pixel_values)
             
         elif text is not None:
-            # 1. Tokenizzazione con parametri di sicurezza
+            # 📍 1. Tokenizzazione (Restiamo a 40 per massima sicurezza)
+            max_len = 40 
             inputs = processor(
                 text=text, 
                 return_tensors="pt", 
                 padding='max_length', 
                 truncation=True, 
-                max_length=40  # Limite standard CLIP
+                max_length=max_len
             )
-            # Spostiamo i dati sulla stessa periferica del modello (GPU o CPU)
+            
+            # Spostamento al device (Sarà cuda:0 se lanci il job su GPU)
             input_ids = inputs["input_ids"].to(device=model.device)
             
-            # 2. TAGLIO MANUALE (La "Cintura di Sicurezza")
-            # Se per qualche motivo il processor ha ignorato il max_length, 
-            # forziamo noi il taglio dei tensor qui.
-            if input_ids.shape[1] > 40:
-                input_ids = input_ids[:, :40]
-
+            # 📍 2. GENERAZIONE MANUALE POSITION IDS (Il Fix Anti-Crash)
+            # Creiamo noi la sequenza 0, 1, 2... fino a 39. 
+            # Questo obbliga il modello a restare nel range corretto della tabella.
+            position_ids = torch.arange(max_len, dtype=torch.long, device=model.device).unsqueeze(0)
+            
             if input_ids.shape[1] > 0:
-                 print(f"DEBUG: input_ids shape = {input_ids.shape}")
-            # 📍 3. Esecuzione (Ora non può più crashare)
-            features = model.encode_text(input_ids)
+                 print(f"DEBUG: input_ids = {input_ids.shape} | position_ids = {position_ids.shape}")
+
+            # 📍 3. ESECUZIONE (Usiamo il modello testuale interno per stabilità)
+            try:
+                # Proviamo a passare i position_ids al wrapper standard
+                features = model.encode_text(input_ids, position_ids=position_ids)
+            except TypeError:
+                # Se encode_text non li accetta, interpelliamo direttamente il text_model
+                outputs = model.text_model(input_ids=input_ids, position_ids=position_ids)
+                # Il secondo elemento (index 1) è solitamente il pooled_output richiesto
+                features = outputs[1]
             
         else:
             raise ValueError("Devi fornire un'immagine o un testo!")
