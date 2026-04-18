@@ -4,12 +4,16 @@ import re
 from PIL import Image
 from typing import Optional, List
 
-# 📍 FIX DEFINITIVO 2026
+# 📍 Import dal core (sempre validi)
 from langchain_core.language_models.llms import LLM
 from langchain_core.prompts import PromptTemplate
 
-# In una installazione pulita, questi DEVONO essere qui:
-from langchain.agents import AgentExecutor, create_react_agent
+# 📍 Import per AgentExecutor e ReAct (Versione 2026 / Classic)
+# Proviamo i due percorsi più probabili per la v1.2.15
+try:
+    from langchain.agents import AgentExecutor, create_react_agent
+except ImportError:
+    from langchain_classic.agents import AgentExecutor, create_react_agent
 
 # Importiamo l'intero modulo per accedere alle variabili globali aggiornate
 import tools_real 
