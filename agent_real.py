@@ -4,18 +4,12 @@ import re
 from PIL import Image
 from typing import Optional, List
 
-# 📍 FIX: Percorsi LangChain 1.x (2026)
+# 📍 FIX DEFINITIVO 2026
 from langchain_core.language_models.llms import LLM
 from langchain_core.prompts import PromptTemplate
 
-# In LangChain 1.x, l'esecutore e il builder sono tornati nel modulo principale
-# Se questo fallisce, significa che l'installazione del venv è parziale.
-try:
-    from langchain.agents import AgentExecutor, create_react_agent
-except ImportError:
-    # Percorso alternativo estremo per alcune build di langchain-community
-    from langchain.agents.loading import AgentExecutor
-    from langchain.agents.react.agent import create_react_agent
+# In una installazione pulita, questi DEVONO essere qui:
+from langchain.agents import AgentExecutor, create_react_agent
 
 # Importiamo l'intero modulo per accedere alle variabili globali aggiornate
 import tools_real 
