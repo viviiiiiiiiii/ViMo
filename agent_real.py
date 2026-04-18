@@ -3,7 +3,7 @@ import torch
 import re  # Pulito il commento precedente
 from PIL import Image
 from typing import Optional, List
-from langchain.llms.base import LLM
+from langchain_core.language_models.llms import LLM
 from langchain_core.prompts import PromptTemplate
 from langchain.agents import create_react_agent, AgentExecutor
 
