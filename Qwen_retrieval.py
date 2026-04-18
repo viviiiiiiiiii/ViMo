@@ -48,21 +48,24 @@ def extract_features(image=None, text=None, model=None, processor=None, out_dim=
             features = model.encode_image(pixel_values=pixel_values)
             
         elif text is not None:
-            # 2. RAMO TESTUALE con TRONCAMENTO FORZATO
-            # 📍 Nota: Usiamo max_length=77 perché è lo standard rigido di CLIP
+            # 1. Tokenizzazione con parametri di sicurezza
             inputs = processor(
                 text=text, 
                 return_tensors="pt", 
                 padding='max_length', 
                 truncation=True, 
-                max_length=77
+                max_length=77  # Limite standard CLIP
             )
+            # Spostiamo i dati sulla stessa periferica del modello (GPU o CPU)
             input_ids = inputs["input_ids"].to(device=model.device)
             
-            # 📍 SICUREZZA EXTRA: Tagliamo manualmente se il processor ha ignorato il limite
+            # 2. TAGLIO MANUALE (La "Cintura di Sicurezza")
+            # Se per qualche motivo il processor ha ignorato il max_length, 
+            # forziamo noi il taglio dei tensor qui.
             if input_ids.shape[1] > 77:
                 input_ids = input_ids[:, :77]
-                
+            
+            # 📍 3. Esecuzione (Ora non può più crashare)
             features = model.encode_text(input_ids)
             
         else:
