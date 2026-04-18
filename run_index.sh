@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=vimo_indexing
-#SBATCH --partition=boost_usr_prod       #CAMBIATO: Chiediamo un nodo con GPU
+#SBATCH --partition=all_serial      #CAMBIATO: Chiediamo un nodo con GPU
 #SBATCH --gres=gpu:1             #AGGIUNTO: Vogliamo 1 scheda video
 #SBATCH --cpus-per-task=4        #AUMENTATO: Più core per caricare i dati
 #SBATCH --mem=32G                #AUMENTATO: Almeno 32GB per EVA-CLIP-8B
