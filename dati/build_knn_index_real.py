@@ -33,7 +33,15 @@ def main():
     # 2. Caricamento Modello CLIP Locale
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
     print(f"🔄 Caricamento EVA-CLIP da: {MODEL_NAME}...")
-    
+
+        # Nel file build_knn_index_real.py, dopo 'model = AutoModel.from_pretrained(...)'
+    if hasattr(model.config, "max_position_embeddings"):
+        print(f"📏 LIMITE REALE DEL MODELLO: {model.config.max_position_embeddings} token")
+    else:
+        # In alcuni modelli EVA è dentro la config del text_config
+        text_limit = getattr(model.config, "text_config", {}).get("max_position_embeddings", "Sconosciuto")
+        
+    print(f"📏 LIMITE TESTUALE: {text_limit} token")
     # Usiamo AutoProcessor per gestire sia immagini che testi
     model = AutoModel.from_pretrained(
         MODEL_NAME, 
