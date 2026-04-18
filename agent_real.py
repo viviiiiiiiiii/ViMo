@@ -1,14 +1,15 @@
 import base64
 import torch
-import re  # Pulito il commento precedente
+import re
 from PIL import Image
 from typing import Optional, List
-# 📍 FIX: Percorsi specifici per LangChain 1.2+ (2026)
+
+# 📍 FIX: Nuovi percorsi per LangChain 1.x (2026)
 from langchain_core.language_models.llms import LLM
 from langchain_core.prompts import PromptTemplate
 
-# Carichiamo l'esecutore e il builder dell'agente dai loro sottomoduli reali
-from langchain.agents.agent_executor import AgentExecutor
+# Carichiamo le funzioni dai sottomoduli specifici
+from langchain.agents.agent import AgentExecutor
 from langchain.agents.react.agent import create_react_agent
 
 # --- IMPORT MODULARI ---
