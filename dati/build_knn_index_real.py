@@ -1,3 +1,5 @@
+import os
+os.environ["TRANSFORMERS_IGNORE_LOAD_VULNERABILITY"] = "1"
 import sys
 from pathlib import Path
 import json
