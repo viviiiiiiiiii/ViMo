@@ -5,7 +5,12 @@ from PIL import Image
 from typing import Optional, List
 from langchain_core.language_models.llms import LLM
 from langchain_core.prompts import PromptTemplate
-from langchain.agents import create_react_agent, AgentExecutor
+from langchain.agents import AgentExecutor
+# Se l'import diretto fallisce, usiamo il percorso del sottomodulo
+try:
+    from langchain.agents import create_react_agent
+except ImportError:
+    from langchain.agents.react.agent import create_react_agent
 
 # --- IMPORT MODULARI ---
 from load_config import load_config
