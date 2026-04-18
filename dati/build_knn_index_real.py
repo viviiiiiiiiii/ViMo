@@ -55,7 +55,6 @@ def main():
     
     for t in tqdm(texts):
         emb = extract_features(
-            image=None, 
             text=[t], 
             model=model, 
             processor=processor
