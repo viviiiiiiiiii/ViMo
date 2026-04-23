@@ -23,37 +23,38 @@ import traceback
 
 from transformers import AutoTokenizer, AutoImageProcessor, CLIPImageProcessor # Aggiungi questi import
 
+# In Qwen_retrieval.py
+
 def load_clip_and_index(args):
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
     print(f"📡 Sistema: Sto utilizzando il dispositivo -> {device}")
 
+    # 📍 FIX: Usiamo float32 per CLIP. Evita l'errore CUBLAS_STATUS_NOT_SUPPORTED 
+    # ed è molto più stabile sui nodi di calcolo HPC.
     clip_model = AutoModel.from_pretrained(
         args.retriever_path,
-        torch_dtype=torch.float16 if device == "cuda:0" else torch.float32,
+        torch_dtype=torch.float32, 
         trust_remote_code=True
     ).to(device).eval()
     
-    # 📍 FIX: Carichiamo i componenti separatamente per evitare conflitti
     print("🔄 Caricamento processori CLIP...")
     try:
-        # Proviamo a caricare il processore d'immagini specifico
-        img_proc = AutoImageProcessor.from_pretrained(args.retriever_path, trust_remote_code=True)
+        # Proviamo il caricamento standard
+        clip_processor = AutoProcessor.from_pretrained(args.retriever_path, trust_remote_code=True)
     except Exception:
-        print("⚠️ Configurazione locale non trovata, uso fallback standard per CLIP")
-        # Fallback se manca preprocessor_config.json
-        img_proc = CLIPImageProcessor.from_pretrained("openai/clip-vit-large-patch14")
-    
-    tokenizer = AutoTokenizer.from_pretrained(args.retriever_path, trust_remote_code=True)
-    
-    # Creiamo un oggetto che contenga entrambi
-    class CLIPProcessorWrapper:
-        def __init__(self, ip, tk):
-            self.image_processor = ip
-            self.tokenizer = tk
-    
-    clip_processor = CLIPProcessorWrapper(img_proc, tokenizer)
-    
-    # Caricamento FAISS e Wikipedia
+        # 📍 FALLBACK MIGLIORATO: Usiamo la versione a risoluzione più alta (336) 
+        # tipica dei modelli 8B, iniettando il tokenizer locale.
+        from transformers import CLIPImageProcessor, AutoTokenizer
+        print("⚠️ Configurazione locale incompleta, uso fallback 336px per CLIP")
+        clip_processor = CLIPImageProcessor.from_pretrained("openai/clip-vit-large-patch14-336")
+        clip_processor.tokenizer = AutoTokenizer.from_pretrained(args.retriever_path)
+
+    # Creiamo il wrapper per compatibilità con il resto del codice
+    if not hasattr(clip_processor, "image_processor"):
+        clip_processor.image_processor = clip_processor
+    if not hasattr(clip_processor, "tokenizer"):
+        clip_processor.tokenizer = clip_processor
+        
     index = faiss.read_index(str(args.index_path)) 
     with open(args.index_json_path, "r", encoding="utf-8") as f:
         index_map = json.load(f)
@@ -63,15 +64,16 @@ def load_clip_and_index(args):
     return clip_model, clip_processor, index, index_map, wiki
 
 def extract_features(image=None, text=None, model=None, processor=None, out_dim=512):
+    # Assicuriamoci che i dati siano nello stesso formato del modello (float32)
+    dtype_calc = torch.float32 
+    
     with torch.no_grad():
         if image is not None:
-            # 📍 Ora usiamo l'image_processor garantito
             inputs = processor.image_processor(images=image, return_tensors="pt")
-            pixel_values = inputs["pixel_values"].to(dtype=model.dtype, device=model.device)
+            pixel_values = inputs["pixel_values"].to(dtype=dtype_calc, device=model.device)
             features = model.encode_image(pixel_values=pixel_values)
             
         elif text is not None:
-            # 📍 Ora usiamo il tokenizer garantito
             inputs = processor.tokenizer(
                 text=text, 
                 return_tensors="pt", 
@@ -82,9 +84,10 @@ def extract_features(image=None, text=None, model=None, processor=None, out_dim=
             input_ids = inputs["input_ids"].to(device=model.device)
             position_ids = torch.arange(40, dtype=torch.long, device=model.device).unsqueeze(0)
             
+            # Esecuzione sicura
             try:
                 features = model.encode_text(input_ids, position_ids=position_ids)
-            except TypeError:
+            except:
                 outputs = model.text_model(input_ids=input_ids, position_ids=position_ids)
                 features = outputs[1]
         
