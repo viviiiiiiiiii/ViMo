@@ -31,21 +31,21 @@ from transformers import AutoTokenizer, AutoImageProcessor, CLIPImageProcessor #
 
 def load_clip_and_index(args):
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
-    
-    # 📍 FIX 1: Forza float32 per CLIP. 
-    # Risolve l'errore CUBLAS_STATUS_INTERNAL_ERROR sui nodi Boost.
+    # 📍 Usiamo bfloat16 ovunque per stabilità su GPU Boost
+    dtype = torch.bfloat16 if device == "cuda:0" else torch.float32
+
     clip_model = AutoModel.from_pretrained(
         args.retriever_path,
-        torch_dtype=torch.float32, 
+        torch_dtype=dtype, 
         trust_remote_code=True
     ).to(device).eval()
     
-    print("🔄 Caricamento processori CLIP...")
-    from transformers import CLIPImageProcessor, AutoTokenizer
-    # Usiamo il processore standard che garantisce 257 token (patch14)
-    clip_processor = CLIPImageProcessor.from_pretrained("openai/clip-vit-large-patch14")
-    clip_processor.tokenizer = AutoTokenizer.from_pretrained(args.retriever_path)
+    print("🔄 Caricamento processore CLIP originale...")
+    # 📍 FIX: Usiamo AutoProcessor dal percorso del modello locale. 
+    # Rimuoviamo il resize manuale a 224 per evitare il crash degli indici.
+    clip_processor = AutoProcessor.from_pretrained(args.retriever_path, trust_remote_code=True)
 
+    # Iniezione attributi per compatibilità
     if not hasattr(clip_processor, "image_processor"): clip_processor.image_processor = clip_processor
     if not hasattr(clip_processor, "tokenizer"): clip_processor.tokenizer = clip_processor
         
@@ -58,28 +58,26 @@ def load_clip_and_index(args):
     return clip_model, clip_processor, index, index_map, wiki
 
 def extract_features(image=None, text=None, model=None, processor=None, out_dim=512):
-    # 📍 FIX 2: Forza il calcolo in float32 per il retriever
-    dtype_retriever = torch.float32 
     device = model.device
+    dtype = model.dtype 
 
     with torch.no_grad():
         if image is not None:
-            # Resize forzato per evitare mismatch di dimensioni tensor
-            image_resized = image.resize((224, 224)) 
-            inputs = processor.image_processor(images=image_resized, return_tensors="pt")
-            pixel_values = inputs["pixel_values"].to(dtype=dtype_retriever, device=device)
+            # 📍 NON ridimensionare a 224! Lascia che il processor usi la taglia corretta del modello
+            inputs = processor.image_processor(images=image, return_tensors="pt")
+            pixel_values = inputs["pixel_values"].to(dtype=dtype, device=device)
             features = model.encode_image(pixel_values=pixel_values)
         elif text is not None:
             inputs = processor.tokenizer(text=text, return_tensors="pt", padding=True, truncation=True, max_length=77)
             input_ids = inputs["input_ids"].to(device=device)
-            # Usa la funzione nativa di CLIP per i testi
+            # EVA-CLIP usa get_text_features invece di encode_text
             features = model.get_text_features(input_ids=input_ids)
         
         features = features / features.norm(p=2, dim=-1, keepdim=True)
     return features.cpu().numpy().astype(np.float32)
 
 def generate_answer(model, processor, messages, stop=None):
-    # 📍 FIX 3: Pulizia messaggi per Qwen (rimuove tag immagine che causano assert error)
+    # 📍 PULIZIA: Rimuoviamo eventuali tag immagine dal prompt testuale per evitare errori di Qwen
     clean_messages = []
     for m in messages:
         if isinstance(m["content"], list):
@@ -91,11 +89,13 @@ def generate_answer(model, processor, messages, stop=None):
     text = processor.apply_chat_template(clean_messages, tokenize=False, add_generation_prompt=True)
     inputs = processor(text=[text], padding=True, return_tensors="pt").to(model.device)
 
+    stop_words = stop if stop else ["Observation:"]
+    
     with torch.no_grad():
         outputs = model.generate(
             **inputs, 
             max_new_tokens=256,
-            do_sample=False,
+            do_sample=False, # Deterministico = Meno crash
             use_cache=True,
             eos_token_id=processor.tokenizer.eos_token_id,
         )
@@ -103,8 +103,6 @@ def generate_answer(model, processor, messages, stop=None):
     generated_ids = outputs[0][inputs["input_ids"].shape[-1]:]
     risposta = processor.tokenizer.decode(generated_ids, skip_special_tokens=True).strip()
 
-    # Taglio di sicurezza per LangChain
-    stop_words = stop if stop else ["Observation:"]
     for s in stop_words:
         if s in risposta: risposta = risposta.split(s)[0].strip()
             
