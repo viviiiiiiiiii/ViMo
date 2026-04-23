@@ -38,23 +38,23 @@ class QwenServerLLM(LLM):
     def _llm_type(self) -> str:
         return "qwen2.5-vl-custom"
 
-def _call(self, prompt: str, stop: Optional[List[str]] = None, **kwargs) -> str:
-        # 1. Messaggio puramente testuale per stabilità sulla GPU
-        messages = [{"role": "user", "content": prompt}]
+    def _call(self, prompt: str, stop: Optional[List[str]] = None, **kwargs) -> str:
+            # 1. Messaggio puramente testuale per stabilità sulla GPU
+            messages = [{"role": "user", "content": prompt}]
 
-        if tools_real.qwen_model is None or tools_real.qwen_processor is None:
-            raise ValueError("Errore: I motori del server non sono stati accesi!")
+            if tools_real.qwen_model is None or tools_real.qwen_processor is None:
+                raise ValueError("Errore: I motori del server non sono stati accesi!")
 
-        # 2. 📍 MODIFICA CHIAVE: Passiamo il parametro 'stop'
-        # Questo dice a Qwen di fermarsi non appena scrive "Observation:"
-        risposta_grezza = generate_answer(
-            tools_real.qwen_model, 
-            tools_real.qwen_processor, 
-            messages,
-            stop=stop  # <--- Passiamo la lista dei token di stop qui
-        )
+            # 2. 📍 MODIFICA CHIAVE: Passiamo il parametro 'stop'
+            # Questo dice a Qwen di fermarsi non appena scrive "Observation:"
+            risposta_grezza = generate_answer(
+                tools_real.qwen_model, 
+                tools_real.qwen_processor, 
+                messages,
+                stop=stop  # <--- Passiamo la lista dei token di stop qui
+            )
 
-        return risposta_grezza
+            return risposta_grezza
 
 # ==========================================
 # SETUP AGENTE (Globali)
