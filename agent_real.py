@@ -56,26 +56,30 @@ class QwenServerLLM(LLM):
 # SETUP AGENTE (Globali)
 # ==========================================
 # 📍 Modificato il template per essere 100% compatibile con create_react_agent
-template_istruzioni = """Sei un assistente esperto d'arte. Hai accesso a questi strumenti:
+# In agent_real.py
+
+template_istruzioni = """Sei un assistente esperto d'arte. Hai accesso ai seguenti strumenti:
 
 {tools}
 
-Per rispondere usa ESATTAMENTE questo formato:
+Per rispondere alla domanda, segui sempre questo formato:
 
-Thought: Devo capire chi ha dipinto il quadro.
-Action: {tool_names}
-Action Input: il_nome_del_file.jpg
-Observation: il risultato dello strumento
+Thought: Rifletti su cosa devi fare.
+Action: Il nome dello strumento da usare (deve essere uno tra: {tool_names})
+Action Input: L'input per lo strumento (ad esempio il nome del file immagine o una parola chiave)
+Observation: Il risultato dell'azione (questo viene fornito dal sistema)
 
-... (questo ciclo Thought/Action/Action Input/Observation può ripetersi)
+... (ripeti se necessario)
 
-Thought: Ora so la risposta finale.
-Final Answer: Il pittore è [Nome].
+Thought: Ora conosco la risposta finale.
+Final Answer: La risposta conclusiva alla domanda originale.
+
+IMPORTANTE: Fermati SEMPRE dopo aver scritto 'Action Input:'. Non inventare mai l'Observation.
 
 Domanda: {input}
 Thought: {agent_scratchpad}"""
 
-# 📍 FORZIAMO le input_variables per evitare il ValueError: {'tool_names'}
+# Assicuriamoci che LangChain veda le variabili corrette
 prompt = PromptTemplate(
     template=template_istruzioni,
     input_variables=["input", "tools", "tool_names", "agent_scratchpad"]

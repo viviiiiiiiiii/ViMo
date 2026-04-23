@@ -106,35 +106,28 @@ def build_chat_prompt(context, question, image):
 # In Qwen_retrieval.py
 
 def generate_answer(model, processor, messages, stop=None):
-    # 1. Preparazione testo
-    text = processor.apply_chat_template(
-        messages, 
-        tokenize=False, 
-        add_generation_prompt=True
-    )
-    
-    # 2. Tokenizzazione
+    # Applichiamo il template di chat
+    text = processor.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
     inputs = processor(text=[text], padding=True, return_tensors="pt").to(model.device)
 
-    # 3. Configurazione Stop Tokens (fondamentale per ReAct)
-    # Se LangChain ci passa dei token di stop, li usiamo, altrimenti usiamo Observation
-    stop_words = stop if stop else ["Observation:"]
+    # 📍 CONFIGURAZIONE STOP: Aggiungiamo varianti per sicurezza
+    stop_words = stop if stop else ["Observation:", "\nObservation:", "Observation"]
     
     with torch.no_grad():
         outputs = model.generate(
-            **inputs,
+            **inputs, 
             max_new_tokens=512,
-            do_sample=False, # Deterministico per evitare errori di formato
+            do_sample=False, # Deterministico è meglio per gli agenti
             use_cache=True,
-            eos_token_id=processor.tokenizer.eos_token_id
+            eos_token_id=processor.tokenizer.eos_token_id,
         )
     
     generated_ids = outputs[0][inputs["input_ids"].shape[-1]:]
     risposta = processor.tokenizer.decode(generated_ids, skip_special_tokens=True).strip()
 
-    # Tagliamo la risposta se il modello ha ignorato lo stop e ha scritto "Observation:"
-    for word in stop_words:
-        if word in risposta:
-            risposta = risposta.split(word)[0].strip()
+    # 📍 TAGLIO DI SICUREZZA: Fermiamo la stringa se il modello ignora lo stop interno
+    for s in stop_words:
+        if s in risposta:
+            risposta = risposta.split(s)[0].strip()
             
     return risposta
