@@ -36,7 +36,7 @@ def start_motors(args):
         trust_remote_code=True
     ).to(device).eval() 
     
-    print("✅ motors good to go")
+    print("✅ motors good to goo")
 
 
 # ==============================================================================
