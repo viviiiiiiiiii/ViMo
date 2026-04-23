@@ -29,26 +29,29 @@ from transformers import AutoTokenizer, AutoImageProcessor, CLIPImageProcessor #
 
 def load_clip_and_index(args):
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
-    
-    # 📍 TUTTO in bfloat16 per evitare conflitti CUBLAS
     tipo_dato = torch.bfloat16 if torch.cuda.is_available() else torch.float32
 
+    # Caricamento Modello
     clip_model = AutoModel.from_pretrained(
         args.retriever_path,
         torch_dtype=tipo_dato, 
         trust_remote_code=True
     ).to(device).eval()
     
-    # Caricamento processore con fallback "corazzato"
+    # 📍 FIX RESOLUTION: Forziamo la risoluzione a 224 per evitare il mismatch 577/257
+    from transformers import CLIPImageProcessor, AutoTokenizer
     try:
-        from transformers import CLIPImageProcessor, AutoTokenizer
-        # Usiamo il processore standard che non crasha mai
-        clip_processor = CLIPImageProcessor.from_pretrained("openai/clip-vit-large-patch14-336")
-        clip_processor.tokenizer = AutoTokenizer.from_pretrained(args.retriever_path)
+        # Usiamo il processore base di OpenAI (Vit-L/14) che genera esattamente 257 token
+        clip_processor = CLIPImageProcessor.from_pretrained("openai/clip-vit-large-patch14")
     except:
-        clip_processor = AutoProcessor.from_pretrained(args.retriever_path, trust_remote_code=True)
+        # Fallback manuale se il server è offline
+        clip_processor = CLIPImageProcessor(
+            do_resize=True, size={"shortest_edge": 224}, 
+            do_center_crop=True, crop_size={"height": 224, "width": 224}
+        )
+    
+    clip_processor.tokenizer = AutoTokenizer.from_pretrained(args.retriever_path)
 
-    # Iniezione attributi se mancano
     if not hasattr(clip_processor, "image_processor"): clip_processor.image_processor = clip_processor
     if not hasattr(clip_processor, "tokenizer"): clip_processor.tokenizer = clip_processor
         
@@ -62,17 +65,18 @@ def load_clip_and_index(args):
 
 def extract_features(image=None, text=None, model=None, processor=None, out_dim=512):
     device = model.device
-    dtype = model.dtype # Usa lo stesso del modello (bfloat16)
+    dtype = model.dtype
 
     with torch.no_grad():
         if image is not None:
+            # 📍 Forza il resize a 224x224 prima di passarlo a CLIP
             inputs = processor.image_processor(images=image, return_tensors="pt")
             pixel_values = inputs["pixel_values"].to(dtype=dtype, device=device)
+            # Qui ora avremo 257 token, matchando perfettamente il modello EVA-CLIP
             features = model.encode_image(pixel_values=pixel_values)
         elif text is not None:
             inputs = processor.tokenizer(text=text, return_tensors="pt", padding=True, truncation=True, max_length=77)
             input_ids = inputs["input_ids"].to(device=device)
-            # 📍 Rimosso position_ids manuale: CLIP lo genera internamente meglio di noi
             features = model.get_text_features(input_ids=input_ids)
         
         features = features / features.norm(p=2, dim=-1, keepdim=True)
@@ -99,33 +103,25 @@ def build_chat_prompt(context, question, image):
 
 
 def generate_answer(model, processor, messages):
-    # Forza la pulizia dei messaggi
-    text = processor.apply_chat_template(
-        messages, tokenize=False, add_generation_prompt=True
-    )
+    # 📍 PROTEZIONE AGENTE: Rimuoviamo l'immagine dai messaggi per la generazione finale
+    # Se il tool ha fallito o se stiamo solo rispondendo, Qwen non deve cercare l'immagine nei pixel
+    # perché il template di LangChain non supporta bene il mix multimodale in ReAct
     
-    # Gestione sicura delle immagini
-    image_inputs, video_inputs = process_vision_info(messages)
-    
-    inputs = processor(
-        text=[text],
-        images=image_inputs,
-        videos=video_inputs,
-        padding=True,
-        return_tensors="pt",
-    )
-    
-    # 📍 Spostiamo tutto su GPU con il tipo di dato del modello
-    inputs = {k: v.to(model.device) if isinstance(v, torch.Tensor) else v for k, v in inputs.items()}
+    clean_messages = []
+    for m in messages:
+        content = m["content"]
+        if isinstance(content, list):
+            # Teniamo solo il testo per la generazione dell'LLM
+            text_only = " ".join([c["text"] for c in content if c["type"] == "text"])
+            clean_messages.append({"role": m["role"], "content": text_only})
+        else:
+            clean_messages.append(m)
+
+    text = processor.apply_chat_template(clean_messages, tokenize=False, add_generation_prompt=True)
+    inputs = processor(text=[text], padding=True, return_tensors="pt").to(model.device)
 
     with torch.no_grad():
-        # Aumentiamo la stabilità della generazione
-        outputs = model.generate(
-            **inputs,
-            max_new_tokens=256,
-            do_sample=False, # Meno creatività = meno errori CUDA su indici casuali
-            use_cache=True
-        )
+        outputs = model.generate(**inputs, max_new_tokens=256, do_sample=False, use_cache=True)
     
     generated_ids = outputs[0][inputs["input_ids"].shape[-1]:]
     return processor.tokenizer.decode(generated_ids, skip_special_tokens=True).strip()
