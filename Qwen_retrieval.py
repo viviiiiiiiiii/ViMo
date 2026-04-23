@@ -30,24 +30,24 @@ from transformers import AutoTokenizer, AutoImageProcessor, CLIPImageProcessor #
 # In Qwen_retrieval.py
 
 def load_clip_and_index(args):
-    device = "cuda:0" if torch.cuda.is_available() else "cpu"
-    dtype = torch.bfloat16 if device == "cuda:0" else torch.float32
-
+    # Spostiamo CLIP su CPU per stabilità totale
+    device_clip = "cpu" 
+    
+    print("🔄 Caricamento EVA-CLIP su CPU (Modalità provvisoria)...")
     clip_model = AutoModel.from_pretrained(
         args.retriever_path,
-        torch_dtype=dtype, 
+        torch_dtype=torch.float32, 
         trust_remote_code=True
-    ).to(device).eval()
+    ).to(device_clip).eval()
     
     from transformers import CLIPImageProcessor, AutoTokenizer
     
-    # 📍 FORZIAMO la risoluzione a 336 invece di 224. 
-    # EVA-CLIP-8B spesso fallisce a 224 perché le sue matrici interne sono tarate su 336.
+    # Risoluzione standard 224x224 (su CPU non dà errori di indice)
     img_proc = CLIPImageProcessor(
         do_resize=True, 
-        size={"shortest_edge": 336}, 
+        size={"shortest_edge": 224}, 
         do_center_crop=True, 
-        crop_size={"height": 336, "width": 336}
+        crop_size={"height": 224, "width": 224}
     )
     
     tokenizer = AutoTokenizer.from_pretrained(args.retriever_path, trust_remote_code=True)
@@ -58,6 +58,8 @@ def load_clip_and_index(args):
             self.tokenizer = tk
             
     clip_processor = CLIPProcessorWrapper(img_proc, tokenizer)
+    
+    # FAISS e Wiki rimangono invariati
     index = faiss.read_index(str(args.index_path)) 
     with open(args.index_json_path, "r", encoding="utf-8") as f:
         index_map = json.load(f)
@@ -68,28 +70,25 @@ def load_clip_and_index(args):
 
 
 def extract_features(image=None, text=None, model=None, processor=None, out_dim=512):
-    device = model.device
-    dtype = model.dtype 
+    # Il modello è su CPU
+    device = torch.device("cpu")
 
     with torch.no_grad():
         if image is not None:
-            # Flusso unicamente per l'immagine
+            # Pre-processing su CPU
             inputs = processor.image_processor(images=image, return_tensors="pt")
-            pixel_values = inputs["pixel_values"].to(dtype=dtype, device=device)
-            # NOTA: Se EVA-CLIP usa un metodo diverso da encode_image (es. get_image_features), lo noterai grazie al debug del Passaggio 1
+            pixel_values = inputs["pixel_values"].to(device)
             features = model.encode_image(pixel_values=pixel_values)
-            
         elif text is not None:
-            # Flusso unicamente per il testo
             inputs = processor.tokenizer(text=text, return_tensors="pt", padding=True, truncation=True, max_length=77)
-            input_ids = inputs["input_ids"].to(device=device)
+            input_ids = inputs["input_ids"].to(device)
             features = model.get_text_features(input_ids=input_ids)
         
-        # Previene divisioni per zero
+        # Normalizzazione
         features = features / torch.clamp(features.norm(p=2, dim=-1, keepdim=True), min=1e-7)
         
-    # FAISS richiede float32, questo è corretto!
-    return features.to(torch.float32).cpu().numpy()
+    # Restituisce Numpy array pulito per FAISS
+    return features.float().numpy()
 
 def generate_answer(model, processor, messages, stop=None):
     clean_messages = []
