@@ -46,43 +46,28 @@ def load_clip_and_index(args):
 def extract_features(image=None, text=None, model=None, processor=None, out_dim=512):
     with torch.no_grad():
         if image is not None:
-            # 📍 FIX: Usiamo esplicitamente image_processor invece del processor generico
-            # Questo evita l'errore "specify text or text_target"
-            if hasattr(processor, "image_processor"):
-                inputs = processor.image_processor(images=image, return_tensors="pt")
-            else:
-                inputs = processor(images=image, return_tensors="pt")
-                
+            # 📍 FIX: Usiamo esplicitamente image_processor per evitare errori di CLIP
+            inputs = processor.image_processor(images=image, return_tensors="pt")
             pixel_values = inputs["pixel_values"].to(dtype=model.dtype, device=model.device)
             features = model.encode_image(pixel_values=pixel_values)
             
         elif text is not None:
-            # 📍 FIX: Usiamo esplicitamente il tokenizer per la parte testuale
-            if hasattr(processor, "tokenizer"):
-                inputs = processor.tokenizer(
-                    text=text, 
-                    return_tensors="pt", 
-                    padding='max_length', 
-                    truncation=True, 
-                    max_length=40
-                )
-            else:
-                inputs = processor(text=text, return_tensors="pt", padding='max_length', truncation=True, max_length=40)
+            # 📍 FIX: Usiamo esplicitamente il tokenizer
+            inputs = processor.tokenizer(
+                text=text, 
+                return_tensors="pt", 
+                padding='max_length', 
+                truncation=True, 
+                max_length=40
+            )
             
             input_ids = inputs["input_ids"].to(device=model.device)
             position_ids = torch.arange(40, dtype=torch.long, device=model.device).unsqueeze(0)
             
-            if input_ids.shape[1] > 0:
-                 print(f"DEBUG: input_ids = {input_ids.shape} | position_ids = {position_ids.shape}")
-
-            # 📍 3. ESECUZIONE (Usiamo il modello testuale interno per stabilità)
             try:
-                # Proviamo a passare i position_ids al wrapper standard
                 features = model.encode_text(input_ids, position_ids=position_ids)
             except TypeError:
-                # Se encode_text non li accetta, interpelliamo direttamente il text_model
                 outputs = model.text_model(input_ids=input_ids, position_ids=position_ids)
-                # Il secondo elemento (index 1) è solitamente il pooled_output richiesto
                 features = outputs[1]
             
         else:
