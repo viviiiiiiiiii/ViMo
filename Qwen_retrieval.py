@@ -52,9 +52,9 @@ def load_clip_and_index(args):
         print("⚠️ File di configurazione visiva non trovato, applico parametri di sicurezza...")
         img_proc = CLIPImageProcessor(
             do_resize=True, 
-            size={"shortest_edge": 224}, 
+            size={"shortest_edge": 336}, 
             do_center_crop=True, 
-            crop_size={"height": 224, "width": 224}
+            crop_size={"height": 336, "width": 336}
         )
         
     tokenizer = AutoTokenizer.from_pretrained(args.retriever_path, trust_remote_code=True)
@@ -87,14 +87,20 @@ def extract_features(image=None, text=None, model=None, processor=None, out_dim=
             features = model.encode_image(pixel_values=pixel_values)
             
         elif text is not None:
-            # Logica sicura per il testo (con limite a 77 per evitare l'index out of range)
-            inputs = processor.tokenizer(
-                text=text, 
-                return_tensors="pt", 
-                padding=True, 
-                truncation=True, 
-                max_length=77
-            )
+            try:
+                # Proviamo con max_length=64, limite classico per alcuni modelli EVA
+                inputs = processor.tokenizer(
+                    text=text, 
+                    return_tensors="pt", 
+                    padding=True, 
+                    truncation=True, 
+                    max_length=64 
+                )
+                input_ids = inputs["input_ids"].to(device)
+                features = model.encode_text(input_ids)
+            except Exception as e:
+                # Se il modello testuale è corrotto, restituiamo un errore pulito, non un Traceback
+                raise ValueError(f"Codificatore testuale non supportato per questa query.")
             input_ids = inputs["input_ids"].to(device)
             features = model.encode_text(input_ids)
         

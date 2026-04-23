@@ -62,17 +62,21 @@ class QwenServerLLM(LLM):
 # In agent_real.py
 
 # Modifica il template in agent_real.py
-template_istruzioni = """Sei un assistente esperto d'arte. Hai accesso ai seguenti strumenti:
+template_istruzioni ="""Sei un assistente esperto d'arte. Hai accesso ai seguenti strumenti:
 
 {tools}
 
-Per rispondere alla domanda, segui RIGOROSAMENTE questo formato:
+Per rispondere, devi SEMPRE E SOLO usare questo formato preciso:
 
-Thought: Rifletti su cosa devi fare.
-Action: Il nome dello strumento da usare (deve essere uno tra: {tool_names})
-Action Input: L'input per lo strumento (es. 'foto_buia.jpg' o 'Leonardo')
+Thought: [Il tuo ragionamento]
+Action: [Nome dello strumento: {tool_names}]
+Action Input: [L'input per lo strumento]
 
-STOP: Fermati subito dopo aver scritto l'Action Input.
+(ATTENDI L'OSSERVAZIONE)
+
+Se hai ottenuto il risultato, OPPURE se gli strumenti hanno dato "Errore", DEVI concludere così:
+Thought: Ho capito la situazione.
+Final Answer: [La tua risposta finale all'utente, spiegando cosa hai trovato o perché non ci sei riuscito]
 
 Domanda: {input}
 Thought: {agent_scratchpad}"""
