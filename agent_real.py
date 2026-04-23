@@ -34,60 +34,37 @@ def image_to_base64(image_path):
 # L'ADATTATORE QWEN (Corretto per il Punto 2)
 # ==========================================
 class QwenServerLLM(LLM):
-    """L'Adattatore che fa parlare LangChain con Qwen-VL"""
-    
     @property
     def _llm_type(self) -> str:
         return "qwen2.5-vl-custom"
 
     def _call(self, prompt: str, stop: Optional[List[str]] = None, **kwargs) -> str:
-        # 1. TRUCCO MULTIMODALE
-        match = re.search(r"L'immagine si trova in: '(.*?)'", prompt)
-        image_path = match.group(1).strip("'\" ") if match else None
+        # 📍 RENDIAMO TUTTO TESTUALE: L'agente tratta il percorso immagine come testo
+        messages = [{"role": "user", "content": prompt}]
 
-        # 2. Preparazione Messaggi
-        user_content = []
-        if image_path:
-            user_content.append({"type": "image", "image": image_path})
-        user_content.append({"type": "text", "text": prompt})
-
-        messages = [
-            {"role": "user", "content": user_content}
-        ]
-
-        # 📍 FIX PUNTO 2: Accesso tramite il modulo tools_real
-        # Questo garantisce di leggere il modello caricato da start_motors()
         if tools_real.qwen_model is None or tools_real.qwen_processor is None:
-            raise ValueError("Errore: I motori del server non sono stati accesi! Chiama start_motors prima di invocare l'agente.")
+            raise ValueError("Motori non accesi!")
 
-        risposta_grezza = generate_answer(
-            tools_real.qwen_model, 
-            tools_real.qwen_processor, 
-            messages
-        )
-
-        # 4. IL FRENO A MANO
-        if stop:
-            for s in stop:
-                if s in risposta_grezza:
-                    risposta_grezza = risposta_grezza.split(s)[0]
-                    
-        return risposta_grezza.strip()
+        return generate_answer(tools_real.qwen_model, tools_real.qwen_processor, messages)
 
 # ==========================================
 # SETUP AGENTE (Globali)
 # ==========================================
-template_istruzioni = """Sei un assistente intelligente. Hai a disposizione i seguenti strumenti:
+template_istruzioni = """Sei un assistente intelligente. Hai a disposizione questi strumenti:
 {tools}
-Per usare uno strumento usa questo formato:
+
+Per usare uno strumento usa ESATTAMENTE questo formato:
 Thought: Devo capire cosa fare
-Action: il nome dello strumento (deve essere uno tra {tool_names})
-Action Input: l'input per lo strumento
+Action: il nome dello strumento (uno tra {tool_names})
+Action Input: solo la stringa di testo o il percorso file (SENZA parentesi graffe o JSON)
 Observation: il risultato dello strumento
 
-Quando hai la risposta finale usa questo formato:
+Esempio di Action Input corretto: foto_buia.jpg
+Esempio di Action Input ERRATO: {{'image_path': 'foto_buia.jpg'}}
+
+Quando hai la risposta finale:
 Thought: Ora so la risposta.
-Final Answer: La tua risposta finale all'utente.
+Final Answer: La tua risposta finale.
 
 Inizia!
 Domanda: {input}
@@ -122,16 +99,7 @@ if __name__ == "__main__":
     
     # 3. TEST AGENTE
     percorso_immagine = "foto_buia.jpg" 
-    try:
-        immagine_base64 = image_to_base64(percorso_immagine)
-    except FileNotFoundError:
-        print("⚠️ File 'foto_buia.jpg' non trovato. Uso Base64 finto.")
-        immagine_base64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII="
+    input_semplice = f"L'immagine si trova in: '{percorso_immagine}'. Chi ha dipinto questo quadro?"
 
-    input_multimodale = [
-        {"type": "text", "text": f"L'immagine si trova in: '{percorso_immagine}'. Chi ha dipinto questo quadro?"},
-        {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{immagine_base64}"}}
-    ]
-
-    print("\n🤖 Agente in ascolto...")
-    esecutore.invoke({"input": input_multimodale})
+    print("\n🤖 Agente in ascolto (Stabile)...")
+    esecutore.invoke({"input": input_semplice})

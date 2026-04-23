@@ -65,16 +65,17 @@ def load_clip_and_index(args):
 
 def extract_features(image=None, text=None, model=None, processor=None, out_dim=512):
     device = model.device
-    dtype = model.dtype
+    dtype = model.dtype # bfloat16 su Boost
 
     with torch.no_grad():
         if image is not None:
-            # 📍 Forza il resize a 224x224 prima di passarlo a CLIP
-            inputs = processor.image_processor(images=image, return_tensors="pt")
+            # 📍 FORZIAMO IL RESIZE: EVA-CLIP-8B vuole 224x224 per avere 257 token
+            image_resized = image.resize((224, 224)) 
+            inputs = processor.image_processor(images=image_resized, return_tensors="pt")
             pixel_values = inputs["pixel_values"].to(dtype=dtype, device=device)
-            # Qui ora avremo 257 token, matchando perfettamente il modello EVA-CLIP
             features = model.encode_image(pixel_values=pixel_values)
         elif text is not None:
+            # CLIP text encoder standard
             inputs = processor.tokenizer(text=text, return_tensors="pt", padding=True, truncation=True, max_length=77)
             input_ids = inputs["input_ids"].to(device=device)
             features = model.get_text_features(input_ids=input_ids)
@@ -103,25 +104,19 @@ def build_chat_prompt(context, question, image):
 
 
 def generate_answer(model, processor, messages):
-    # 📍 PROTEZIONE AGENTE: Rimuoviamo l'immagine dai messaggi per la generazione finale
-    # Se il tool ha fallito o se stiamo solo rispondendo, Qwen non deve cercare l'immagine nei pixel
-    # perché il template di LangChain non supporta bene il mix multimodale in ReAct
+    # Applichiamo il template di chat (solo testo per stabilità HPC)
+    text = processor.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
     
-    clean_messages = []
-    for m in messages:
-        content = m["content"]
-        if isinstance(content, list):
-            # Teniamo solo il testo per la generazione dell'LLM
-            text_only = " ".join([c["text"] for c in content if c["type"] == "text"])
-            clean_messages.append({"role": m["role"], "content": text_only})
-        else:
-            clean_messages.append(m)
-
-    text = processor.apply_chat_template(clean_messages, tokenize=False, add_generation_prompt=True)
+    # Prepariamo gli input (senza immagini per evitare l'errore srcIndex)
     inputs = processor(text=[text], padding=True, return_tensors="pt").to(model.device)
 
     with torch.no_grad():
-        outputs = model.generate(**inputs, max_new_tokens=256, do_sample=False, use_cache=True)
+        outputs = model.generate(
+            **inputs, 
+            max_new_tokens=512, # Più spazio per pensare
+            do_sample=False,    # Più deterministico, meno errori
+            use_cache=True
+        )
     
     generated_ids = outputs[0][inputs["input_ids"].shape[-1]:]
     return processor.tokenizer.decode(generated_ids, skip_special_tokens=True).strip()
