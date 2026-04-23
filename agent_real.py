@@ -62,29 +62,29 @@ class QwenServerLLM(LLM):
 # In agent_real.py
 
 # Modifica il template in agent_real.py
-template_istruzioni = """Rispondi alla domanda dell'utente nel miglior modo possibile. Hai accesso ai seguenti strumenti:
+template_universale = """Answer the following questions as best you can. You have access to the following tools:
 
 {tools}
 
-Devi usare ESATTAMENTE questo formato rigido:
+Use the following format:
 
-Question: la domanda a cui devi rispondere
-Thought: pensa sempre a cosa devi fare passo dopo passo
-Action: l'azione da eseguire, deve essere UNA SOLA tra [{tool_names}]
-Action Input: l'input per l'azione (es. foto_buia.jpg)
-Observation: il risultato dell'azione
-... (questo ciclo Thought/Action/Action Input/Observation può ripetersi N volte)
-Thought: Ora so la risposta finale
-Final Answer: la risposta finale alla domanda originale
+Question: the input question you must answer
+Thought: you should always think about what to do
+Action: the action to take, should be one of [{tool_names}]
+Action Input: the input to the action
+Observation: the result of the action
+... (this Thought/Action/Action Input/Observation can repeat N times)
+Thought: I now know the final answer
+Final Answer: the final answer to the original input question
 
-INIZIA!
+Begin!
 
 Question: {input}
 Thought: {agent_scratchpad}"""
 
 # Assicurati che il PromptTemplate dichiari TUTTE le variabili necessarie
 prompt = PromptTemplate(
-    template=template_istruzioni,
+    template=template_universale,
     input_variables=["input", "tools", "tool_names", "agent_scratchpad"]
 )
 

@@ -4,6 +4,8 @@ import ast
 from langchain_core.tools import tool
 from Qwen_retrieval import extract_features, retrieve_topk_pages, load_clip_and_index
 
+import traceback
+
 # sul server, in questo file dovrete caricare in memoria
 clip_model = None
 clip_processor = None
@@ -97,6 +99,11 @@ def tool_ricerca_visiva(image_path: str) -> str:
         return f"Contesto trovato dal database visivo:\n{testi_enciclopedia}"
 
     except Exception as e:
+        # 📍 IL RILEVATORE DI BUG: Stampa l'errore completo nel log di Slurm
+        print("\n=== DETTAGLIO ERRORE VISIVO ===")
+        traceback.print_exc()
+        print("===============================\n")
+        
         return f"Errore nel database visivo: {str(e)}. Prova a usare la ricerca testuale."
 
 

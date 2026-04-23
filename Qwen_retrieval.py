@@ -52,9 +52,9 @@ def load_clip_and_index(args):
         print("⚠️ File di configurazione visiva non trovato, applico parametri di sicurezza...")
         img_proc = CLIPImageProcessor(
             do_resize=True, 
-            size={"shortest_edge": 336}, 
+            size={"shortest_edge": 224}, 
             do_center_crop=True, 
-            crop_size={"height": 336, "width": 336}
+            crop_size={"height": 224, "width": 224}
         )
         
     tokenizer = AutoTokenizer.from_pretrained(args.retriever_path, trust_remote_code=True)
