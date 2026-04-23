@@ -33,30 +33,22 @@ def load_clip_and_index(args):
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
     dtype = torch.bfloat16 if device == "cuda:0" else torch.float32
 
-    # Carichiamo il modello
     clip_model = AutoModel.from_pretrained(
         args.retriever_path,
         torch_dtype=dtype, 
         trust_remote_code=True
     ).to(device).eval()
     
-    # 📍 SOLUZIONE ERRORE: Caricamento esplicito del processore
     from transformers import CLIPImageProcessor, AutoTokenizer
     
-    print("🔄 Caricamento processore visivo manuale...")
-    try:
-        # Proviamo a caricarlo normalmente dalla cartella
-        img_proc = CLIPImageProcessor.from_pretrained(args.retriever_path)
-    except:
-        # Se fallisce (come nel tuo caso), forziamo i parametri standard di EVA-CLIP
-        # La maggior parte degli EVA-CLIP usa 336x336 o 224x224
-        print("⚠️ Configurazione non trovata, uso parametri di fallback...")
-        img_proc = CLIPImageProcessor(
-            do_resize=True, 
-            size={"shortest_edge": 224}, 
-            do_center_crop=True, 
-            crop_size={"height": 224, "width": 224}
-        )
+    # 📍 FORZIAMO la risoluzione a 336 invece di 224. 
+    # EVA-CLIP-8B spesso fallisce a 224 perché le sue matrici interne sono tarate su 336.
+    img_proc = CLIPImageProcessor(
+        do_resize=True, 
+        size={"shortest_edge": 336}, 
+        do_center_crop=True, 
+        crop_size={"height": 336, "width": 336}
+    )
     
     tokenizer = AutoTokenizer.from_pretrained(args.retriever_path, trust_remote_code=True)
     
@@ -66,8 +58,6 @@ def load_clip_and_index(args):
             self.tokenizer = tk
             
     clip_processor = CLIPProcessorWrapper(img_proc, tokenizer)
-    
-    # Caricamento FAISS e Wiki (come prima)
     index = faiss.read_index(str(args.index_path)) 
     with open(args.index_json_path, "r", encoding="utf-8") as f:
         index_map = json.load(f)
@@ -102,7 +92,6 @@ def extract_features(image=None, text=None, model=None, processor=None, out_dim=
     return features.to(torch.float32).cpu().numpy()
 
 def generate_answer(model, processor, messages, stop=None):
-    # 📍 PULIZIA: Rimuoviamo eventuali tag immagine dal prompt testuale per evitare errori di Qwen
     clean_messages = []
     for m in messages:
         if isinstance(m["content"], list):
@@ -112,26 +101,22 @@ def generate_answer(model, processor, messages, stop=None):
             clean_messages.append(m)
 
     text = processor.apply_chat_template(clean_messages, tokenize=False, add_generation_prompt=True)
-    inputs = processor(text=[text], padding=True, return_tensors="pt").to(model.device)
-
-    stop_words = stop if stop else ["Observation:"]
     
+    # 📍 AGGIUNTA: Riduciamo la complessità del padding per non stressare la GPU
+    inputs = processor(text=[text], return_tensors="pt").to(model.device)
+
     with torch.no_grad():
         outputs = model.generate(
             **inputs, 
-            max_new_tokens=256,
-            do_sample=False, # Deterministico = Meno crash
+            max_new_tokens=128, # Più corto per evitare timeout
+            do_sample=False,
             use_cache=True,
+            pad_token_id=processor.tokenizer.pad_token_id,
             eos_token_id=processor.tokenizer.eos_token_id,
         )
     
     generated_ids = outputs[0][inputs["input_ids"].shape[-1]:]
-    risposta = processor.tokenizer.decode(generated_ids, skip_special_tokens=True).strip()
-
-    for s in stop_words:
-        if s in risposta: risposta = risposta.split(s)[0].strip()
-            
-    return risposta
+    return processor.tokenizer.decode(generated_ids, skip_special_tokens=True).strip()
 
 
 
