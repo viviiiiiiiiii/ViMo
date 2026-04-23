@@ -127,7 +127,7 @@ def generate_answer(model, processor, messages):
     with torch.no_grad():
         outputs = model.generate(
             **inputs,
-            max_new_tokens=64,
+            max_new_tokens=512,
             do_sample=True,
             temperature=0.2,
         )

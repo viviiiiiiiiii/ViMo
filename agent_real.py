@@ -52,7 +52,6 @@ class QwenServerLLM(LLM):
         user_content.append({"type": "text", "text": prompt})
 
         messages = [
-            {"role": "system", "content": [{"type": "text", "text": "Sei un agente intelligente. Segui il formato Thought/Action/Observation."}]},
             {"role": "user", "content": user_content}
         ]
 
@@ -99,7 +98,7 @@ vero_qwen = QwenServerLLM()
 
 # Usiamo i riferimenti al modulo tools_real
 agente = create_react_agent(vero_qwen, tools_real.miei_tools_reali, prompt)
-esecutore = AgentExecutor(agent=agente, tools=tools_real.miei_tools_reali, verbose=True)
+esecutore = AgentExecutor(agent=agente, tools=tools_real.miei_tools_reali, verbose=True,handle_parsing_errors=True)
 
 # ==========================================
 # MAIN EXECUTION
