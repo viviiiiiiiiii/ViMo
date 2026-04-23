@@ -29,8 +29,7 @@ def load_clip_and_index(args):
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
     print(f"📡 Sistema: Sto utilizzando il dispositivo -> {device}")
 
-    # 📍 FIX: Usiamo float32 per CLIP. Evita l'errore CUBLAS_STATUS_NOT_SUPPORTED 
-    # ed è molto più stabile sui nodi di calcolo HPC.
+    # Carichiamo il modello in float32 per massima stabilità su GPU Boost
     clip_model = AutoModel.from_pretrained(
         args.retriever_path,
         torch_dtype=torch.float32, 
@@ -38,22 +37,29 @@ def load_clip_and_index(args):
     ).to(device).eval()
     
     print("🔄 Caricamento processori CLIP...")
+    
+    # 📍 SOLUZIONE DEFINITIVA: 
+    # Non usiamo AutoProcessor per le immagini perché la cartella locale è corrotta.
+    # Usiamo il processore standard di OpenAI che è identico per architettura Vit-L/14.
     try:
-        # Proviamo il caricamento standard
-        clip_processor = AutoProcessor.from_pretrained(args.retriever_path, trust_remote_code=True)
+        img_proc = CLIPImageProcessor.from_pretrained("openai/clip-vit-large-patch14")
     except Exception:
-        # 📍 FALLBACK MIGLIORATO: Usiamo la versione a risoluzione più alta (336) 
-        # tipica dei modelli 8B, iniettando il tokenizer locale.
-        from transformers import CLIPImageProcessor, AutoTokenizer
-        print("⚠️ Configurazione locale incompleta, uso fallback 336px per CLIP")
-        clip_processor = CLIPImageProcessor.from_pretrained("openai/clip-vit-large-patch14-336")
-        clip_processor.tokenizer = AutoTokenizer.from_pretrained(args.retriever_path)
+        # Fallback estremo se il server non ha internet
+        img_proc = CLIPImageProcessor(
+            do_resize=True, size={"shortest_edge": 224}, 
+            do_center_crop=True, crop_size={"height": 224, "width": 224}
+        )
+    
+    # Il tokenizer invece lo carichiamo normalmente dai file locali
+    tokenizer = AutoTokenizer.from_pretrained(args.retriever_path)
 
-    # Creiamo il wrapper per compatibilità con il resto del codice
-    if not hasattr(clip_processor, "image_processor"):
-        clip_processor.image_processor = clip_processor
-    if not hasattr(clip_processor, "tokenizer"):
-        clip_processor.tokenizer = clip_processor
+    # Creiamo il wrapper per non rompere il resto del codice
+    class CLIPWrapper:
+        def __init__(self, ip, tk):
+            self.image_processor = ip
+            self.tokenizer = tk
+            
+    clip_processor = CLIPWrapper(img_proc, tokenizer)
         
     index = faiss.read_index(str(args.index_path)) 
     with open(args.index_json_path, "r", encoding="utf-8") as f:
