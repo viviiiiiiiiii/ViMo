@@ -27,11 +27,12 @@ from transformers import AutoTokenizer, AutoImageProcessor, CLIPImageProcessor #
 
 # Sostituisci QUESTE DUE FUNZIONI in Qwen_retrieval.py
 
+# In Qwen_retrieval.py
+
 def load_clip_and_index(args):
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
     
-    # 🚨 FIX 1 (CUBLAS): Forziamo CLIP in FLOAT32 assoluto! 
-    # Questo aggira il bug dei driver NVIDIA sui calcoli bfloat16.
+    # Manteniamo float32 per stabilità sui driver CUDA
     clip_model = AutoModel.from_pretrained(
         args.retriever_path,
         torch_dtype=torch.float32, 
@@ -40,14 +41,13 @@ def load_clip_and_index(args):
     
     from transformers import CLIPImageProcessor, AutoTokenizer
     
-    print("🔄 Caricamento processore visivo (Risoluzione 224x224)...")
-    # 🚨 FIX 2 (TENSORE): Forziamo la taglia a 224x224!
-    # Questo genera ESATTAMENTE i 257 token che il modello pretende.
+    print("🔄 Caricamento processore visivo (Risoluzione 336x336)...")
+    # 📍 IL FIX FINALE: Torniamo a 336! Genererà i 577 pezzi esatti che il modello pretende.
     img_proc = CLIPImageProcessor(
         do_resize=True, 
-        size={"shortest_edge": 224}, 
+        size={"shortest_edge": 336}, 
         do_center_crop=True, 
-        crop_size={"height": 224, "width": 224}
+        crop_size={"height": 336, "width": 336}
     )
     
     tokenizer = AutoTokenizer.from_pretrained(args.retriever_path, trust_remote_code=True)
