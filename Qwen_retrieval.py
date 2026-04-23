@@ -31,13 +31,12 @@ from transformers import AutoTokenizer, AutoImageProcessor, CLIPImageProcessor #
 
 def load_clip_and_index(args):
     device_clip = "cpu"
-    print("🔄 Caricamento EVA-CLIP (Modello e Processore Ufficiali)...")
+    print("🔄 Caricamento EVA-CLIP (Componenti Separati)...")
     
-    # Questo è il trucco magico dal tuo build_knn_index_real.py
     import os
     os.environ["TRANSFORMERS_IGNORE_LOAD_VULNERABILITY"] = "1"
     
-    from transformers import AutoModel, AutoProcessor
+    from transformers import AutoModel, AutoImageProcessor, AutoTokenizer
     
     clip_model = AutoModel.from_pretrained(
         args.retriever_path,
@@ -45,9 +44,24 @@ def load_clip_and_index(args):
         trust_remote_code=True
     ).to(device_clip).eval()
     
-    # 📍 Usiamo AutoProcessor invece di fare accrocchi manuali
-    clip_processor = AutoProcessor.from_pretrained(args.retriever_path, trust_remote_code=True)
+    # 📍 Carichiamo occhio e orecchio separatamente per non farli litigare
+    try:
+        img_proc = AutoImageProcessor.from_pretrained(args.retriever_path, trust_remote_code=True)
+    except:
+        from transformers import CLIPImageProcessor
+        img_proc = CLIPImageProcessor(size={"shortest_edge": 224}, crop_size={"height": 224, "width": 224})
+        
+    tokenizer = AutoTokenizer.from_pretrained(args.retriever_path, trust_remote_code=True)
     
+    class CLIPProcessorWrapper:
+        def __init__(self, ip, tk):
+            self.image_processor = ip
+            self.tokenizer = tk
+            
+    clip_processor = CLIPProcessorWrapper(img_proc, tokenizer)
+    
+    import faiss
+    import json
     index = faiss.read_index(str(args.index_path)) 
     with open(args.index_json_path, "r", encoding="utf-8") as f:
         index_map = json.load(f)
@@ -60,21 +74,28 @@ def extract_features(image=None, text=None, model=None, processor=None, out_dim=
     device = torch.device("cpu")
     with torch.no_grad():
         if image is not None:
-            # 📍 IL TRUCCO: Aggiungiamo text=[""] per soddisfare l'AutoProcessor
-            inputs = processor(images=image, text=[""], return_tensors="pt")
+            # Flusso pulito e isolato per l'immagine
+            inputs = processor.image_processor(images=image, return_tensors="pt")
             pixel_values = inputs["pixel_values"].to(device)
             features = model.encode_image(pixel_values)
             
         elif text is not None:
-            # Per il testo funziona già perfettamente
-            inputs = processor(text=[text], return_tensors="pt", padding=True, truncation=True)
+            # Flusso pulito per il testo con limite TASSATIVO a 77 token (evita l'index out of range)
+            inputs = processor.tokenizer(
+                text=text, 
+                return_tensors="pt", 
+                padding=True, 
+                truncation=True, 
+                max_length=77
+            )
             input_ids = inputs["input_ids"].to(device)
             features = model.encode_text(input_ids)
         
-        # 📍 Il ritaglio a 512 per FAISS
+        # 📍 Taglio a 512 per FAISS
         if features.shape[-1] > out_dim:
             features = features[:, :out_dim]
             
+        # Normalizzazione
         features = features / torch.clamp(features.norm(p=2, dim=-1, keepdim=True), min=1e-7)
         
     return features.float().numpy()
