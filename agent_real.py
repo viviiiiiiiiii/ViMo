@@ -61,30 +61,23 @@ class QwenServerLLM(LLM):
 # 📍 Modificato il template per essere 100% compatibile con create_react_agent
 # In agent_real.py
 
-template_istruzioni = """Ti chiami 'Artemide', un esperto di RAG Agentico.
-Hai a disposizione i seguenti strumenti per consultare il database:
+# Modifica il template in agent_real.py
+template_istruzioni = """Sei un assistente esperto d'arte. Hai accesso ai seguenti strumenti:
 
 {tools}
 
-REGOLE DI RISPOSTA:
-1. Analizza la domanda dell'utente.
-2. Se serve un'immagine, usa 'tool_ricerca_visiva'.
-3. Se serve testo o l'immagine non basta, usa 'tool_ricerca_testuale'.
-4. Segui SEMPRE questo formato:
+Per rispondere alla domanda, segui RIGOROSAMENTE questo formato:
 
-Thought: Devo capire se usare il database visivo o testuale.
-Action: [Nome del tool]
-Action Input: [Solo il parametro, senza virgolette extra]
+Thought: Rifletti su cosa devi fare.
+Action: Il nome dello strumento da usare (deve essere uno tra: {tool_names})
+Action Input: L'input per lo strumento (es. 'foto_buia.jpg' o 'Leonardo')
 
-(A questo punto FERMATI e attendi l'Observation del sistema)
+STOP: Fermati subito dopo aver scritto l'Action Input.
 
-Thought: Ora che ho i dati, posso rispondere.
-Final Answer: [La tua risposta completa basata sui dati trovati]
-
-DOMANDA: {input}
+Domanda: {input}
 Thought: {agent_scratchpad}"""
 
-# Assicuriamoci che LangChain veda le variabili corrette
+# Assicurati che il PromptTemplate dichiari TUTTE le variabili necessarie
 prompt = PromptTemplate(
     template=template_istruzioni,
     input_variables=["input", "tools", "tool_names", "agent_scratchpad"]
