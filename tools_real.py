@@ -40,25 +40,37 @@ def start_motors(args):
     print("✅ motors good to goo")
 
 
+
+import os
+import ast
+from PIL import Image
+
 # ==============================================================================
-# TOOL 1: LA RICERCA VISIVA REALE (MODIFICATO)
+# TOOL 1: LA RICERCA VISIVA REALE (MODIFICATO E BLINDATO)
 # ==============================================================================
 @tool
 def tool_ricerca_visiva(image_path: str) -> str:
     """Usa questo tool PRIMA DI TUTTO se l'utente fornisce un'immagine. 
     Passagli solo il percorso dell'immagine (es. 'foto_buia.jpg')."""
     
-    # 📍 PULIZIA: Se l'agente manda un dizionario stringato {'image_path': '...'}, lo puliamo
+    # 📍 PULIZIA 1: Se l'agente manda un dizionario stringato {'image_path': '...'}
     try:
-        image_path = image_path.strip()
-        if image_path.startswith("{"):
-            parsed = ast.literal_eval(image_path)
-            image_path = parsed.get("image_path", image_path)
+        clean_path = image_path.strip()
+        if clean_path.startswith("{"):
+            parsed = ast.literal_eval(clean_path)
+            image_path = parsed.get("image_path", clean_path)
     except:
         pass
     
-    image_path = image_path.strip("'\" ")
+    # 📍 PULIZIA 2: Il trucco salva-vita. Prendiamo solo la prima riga di testo 
+    # e togliamo tutte le virgolette. Questo elimina le istruzioni allucinate!
+    image_path = str(image_path).strip().split('\n')[0].replace('"', '').replace("'", "")
+    
     print(f"\n[TOOL VISIVO] Sto analizzando i pixel di: {image_path}")
+    
+    # 📍 PROTEZIONE FILE: Prima di far esplodere PIL, verifichiamo che il file esista
+    if not os.path.exists(image_path):
+        return f"Errore: Il file '{image_path}' non esiste nel server. Assicurati di non aver inventato il nome."
     
     try:
         # 1. Apertura immagine
@@ -73,7 +85,7 @@ def tool_ricerca_visiva(image_path: str) -> str:
             out_dim=512
         )
         
-        # 3. Ricerca nel database (Corretti i nomi dei parametri)
+        # 3. Ricerca nel database
         testi_enciclopedia = retrieve_topk_pages(
             features=image_features, 
             index=knn_index_immagini, 
@@ -89,23 +101,25 @@ def tool_ricerca_visiva(image_path: str) -> str:
 
 
 # ==============================================================================
-# TOOL 2: LA RICERCA TESTUALE REALE (MODIFICATO)
+# TOOL 2: LA RICERCA TESTUALE REALE (MODIFICATO E BLINDATO)
 # ==============================================================================
 @tool
 def tool_ricerca_testuale(query: str) -> str:
     """Usa questo tool come SECONDA OPZIONE o per raffinare la ricerca.
     Passagli solo parole chiave (es. 'Leonardo da Vinci'), mai immagini."""
     
-    # 📍 PULIZIA: Se l'agente manda {'query': '...'}, estraiamo solo il testo
+    # 📍 PULIZIA 1: Dizionari stringati
     try:
-        query = query.strip()
-        if query.startswith("{"):
-            parsed = ast.literal_eval(query)
-            query = parsed.get("query", query)
+        clean_query = query.strip()
+        if clean_query.startswith("{"):
+            parsed = ast.literal_eval(clean_query)
+            query = parsed.get("query", clean_query)
     except:
         pass
         
-    query = query.strip("'\" ")
+    # 📍 PULIZIA 2: Stessa pulizia per i ritorni a capo allucinati
+    query = str(query).strip().split('\n')[0].replace('"', '').replace("'", "")
+    
     print(f"\n[TOOL TESTUALE] Sto cercando le parole chiave: '{query}'")
 
     try:
@@ -121,7 +135,7 @@ def tool_ricerca_testuale(query: str) -> str:
         # Ricerca nel database
         testi_enciclopedia = retrieve_topk_pages(
             features=text_features, 
-            index=knn_index_testi, 
+            index=knn_index_testi, # <-- Assicurati che esista questo index per il testo!
             index_map=wiki_map, 
             wiki=wiki_data, 
             k=3

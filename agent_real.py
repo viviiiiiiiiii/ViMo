@@ -68,17 +68,15 @@ template_istruzioni = """Sei un assistente esperto d'arte. Hai accesso ai seguen
 
 REGOLE ASSOLUTE:
 1. NON PUOI MAI dare la 'Final Answer' senza aver PRIMA usato 'tool_ricerca_visiva' o 'tool_ricerca_testuale'.
-2. Per usare uno strumento, devi ESATTAMENTE scrivere:
+2. Per usare uno strumento, devi ESATTAMENTE usare questo formato:
 
-Thought: Devo usare il tool visivo per analizzare l'immagine.
-Action: Il nome dello strumento (scegli tra: {tool_names})
-Action Input: L'input per lo strumento (es. 'foto_buia.jpg')
+Thought: Devo usare il tool...
+Action: [Scegli tra {tool_names}]
+Action Input: [Solo il parametro, ESATTAMENTE su una riga, senza aggiungere altro testo]
 
-(DOPO AVER SCRITTO L'ACTION INPUT, DEVI FERMARTI E ATTENDERE I DATI)
-
-3. Solo DOPO che il sistema ti ha restituito i dati (Observation), puoi concludere:
+(Il sistema ti fornirà un'Observation. Solo DOPO averla letta:)
 Thought: Ora ho le informazioni.
-Final Answer: [La tua risposta basata sui dati]
+Final Answer: [La tua risposta finale]
 
 Domanda: {input}
 Thought: {agent_scratchpad}"""
