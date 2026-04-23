@@ -93,7 +93,7 @@ esecutore = AgentExecutor(
     verbose=True,
     handle_parsing_errors=True,
     max_iterations=5, # Per evitare loop infiniti
-    early_stopping_method='generate'
+    early_stopping_method='force_list'
 )
 
 # ==========================================

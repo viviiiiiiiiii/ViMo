@@ -70,24 +70,27 @@ def load_clip_and_index(args):
 
 
 def extract_features(image=None, text=None, model=None, processor=None, out_dim=512):
-    # Il modello è su CPU
-    device = torch.device("cpu")
+    device = torch.device("cpu") # CLIP su CPU per stabilità
 
     with torch.no_grad():
         if image is not None:
-            # Pre-processing su CPU
             inputs = processor.image_processor(images=image, return_tensors="pt")
             pixel_values = inputs["pixel_values"].to(device)
             features = model.encode_image(pixel_values=pixel_values)
         elif text is not None:
             inputs = processor.tokenizer(text=text, return_tensors="pt", padding=True, truncation=True, max_length=77)
             input_ids = inputs["input_ids"].to(device)
-            features = model.get_text_features(input_ids=input_ids)
+            # EVA-CLIP usa encode_text invece di get_text_features
+            features = model.encode_text(input_ids=input_ids)
         
-        # Normalizzazione
+        # 📍 RITAGLIO PER FAISS (512 dimensioni)
+        # Se il modello sputa fuori 1024, prendiamo solo i primi 512
+        if features.shape[-1] > out_dim:
+            features = features[:, :out_dim]
+        
+        # Normalizzazione (fondamentale dopo il taglio)
         features = features / torch.clamp(features.norm(p=2, dim=-1, keepdim=True), min=1e-7)
         
-    # Restituisce Numpy array pulito per FAISS
     return features.float().numpy()
 
 def generate_answer(model, processor, messages, stop=None):
