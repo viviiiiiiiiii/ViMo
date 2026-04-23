@@ -61,7 +61,7 @@ class QwenServerLLM(LLM):
 # 📍 Modificato il template per essere 100% compatibile con create_react_agent
 # In agent_real.py
 
-template_universale = """Ti chiami 'Artemide', un esperto di RAG Agentico.
+template_istruzioni = """Ti chiami 'Artemide', un esperto di RAG Agentico.
 Hai a disposizione i seguenti strumenti per consultare il database:
 
 {tools}
