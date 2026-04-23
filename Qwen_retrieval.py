@@ -31,8 +31,8 @@ from transformers import AutoTokenizer, AutoImageProcessor, CLIPImageProcessor #
 
 def load_clip_and_index(args):
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
-    # Clip lavora in float32. Lo lasciamo in float32 per evitare casini con FAISS.
-    dtype = torch.float32
+    # Manteniamo bfloat16 per evitare il crash di inizializzazione del modello
+    dtype = torch.bfloat16 if device == "cuda:0" else torch.float32
 
     clip_model = AutoModel.from_pretrained(
         args.retriever_path,
@@ -42,9 +42,14 @@ def load_clip_and_index(args):
     
     from transformers import CLIPImageProcessor, AutoTokenizer
     
-    print("🔄 Caricamento processore visivo (Risoluzione ORIGINALE 224x224)...")
-    # 🚨 VIA IL 336! Usiamo il processore puro di base che genera i 257 token corretti.
-    img_proc = CLIPImageProcessor.from_pretrained("openai/clip-vit-large-patch14")
+    print("🔄 Caricamento processore visivo (Risoluzione 224x224)...")
+    # Usiamo la risoluzione 224x224 per generare i 257 token richiesti
+    img_proc = CLIPImageProcessor(
+        do_resize=True, 
+        size={"shortest_edge": 224}, 
+        do_center_crop=True, 
+        crop_size={"height": 224, "width": 224}
+    )
     
     tokenizer = AutoTokenizer.from_pretrained(args.retriever_path, trust_remote_code=True)
     
@@ -70,7 +75,6 @@ def extract_features(image=None, text=None, model=None, processor=None, out_dim=
 
     with torch.no_grad():
         if image is not None:
-            # Passiamo l'immagine vergine. Il processore la farà a 224.
             inputs = processor.image_processor(images=image, return_tensors="pt")
             pixel_values = inputs["pixel_values"].to(dtype=dtype, device=device)
             features = model.encode_image(pixel_values=pixel_values)
@@ -80,10 +84,10 @@ def extract_features(image=None, text=None, model=None, processor=None, out_dim=
             input_ids = inputs["input_ids"].to(device=device)
             features = model.get_text_features(input_ids=input_ids)
         
-        # Clamp per evitare divisioni per zero (il problema dell'immagine nera che hai scoperto prima)
+        # Previene divisioni per zero se l'immagine fosse troppo buia
         features = features / torch.clamp(features.norm(p=2, dim=-1, keepdim=True), min=1e-7)
         
-    # 🚨 IL FIX ASSOLUTO DI FAISS: Cast a float32 prima di passarlo a Numpy/Faiss!
+    # Cast a float32 prima di passarlo a Numpy per evitare i crash di FAISS
     return features.to(torch.float32).cpu().numpy()
 
 def generate_answer(model, processor, messages, stop=None):
