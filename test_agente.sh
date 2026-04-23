@@ -1,11 +1,13 @@
 #!/bin/bash
 #SBATCH --job-name=vimo_agent_test
-#SBATCH --partition=all_serial  # La partizione GPU che abbiamo trovato
+#SBATCH --partition=boost_usr_prod  # La partizione GPU che abbiamo trovato
 #SBATCH --gres=gpu:1               #Chiediamo 1 GPU
 #SBATCH --mem=40G                  # Qwen2.5-VL ha bisogno di molta RAM
 #SBATCH --time=00:20:00
 #SBATCH --account=cvcs2026
 #SBATCH --output=/homes/%u/cvcs2026/agent_output_%j.out
+
+module load cuda/12.6.3
 
 # Carica l'ambiente
 source /work/cvcs2026/ViMo/.venvMo/bin/activate
