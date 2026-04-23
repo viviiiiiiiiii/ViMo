@@ -1,5 +1,6 @@
 import torch
 from PIL import Image
+import ast
 from langchain_core.tools import tool
 from Qwen_retrieval import extract_features, retrieve_topk_pages, load_clip_and_index
 
@@ -40,22 +41,30 @@ def start_motors(args):
 
 
 # ==============================================================================
-# TOOL 1: LA RICERCA VISIVA REALE
+# TOOL 1: LA RICERCA VISIVA REALE (MODIFICATO)
 # ==============================================================================
 @tool
 def tool_ricerca_visiva(image_path: str) -> str:
     """Usa questo tool PRIMA DI TUTTO se l'utente fornisce un'immagine. 
-    Passagli il percorso dell'immagine (es. 'foto_buia.jpg') per cercare nel database visivo.
-    Se l'immagine è sfuocata o non trovi la risposta, prova a usare la ricerca testuale."""
+    Passagli solo il percorso dell'immagine (es. 'foto_buia.jpg')."""
+    
+    # 📍 PULIZIA: Se l'agente manda un dizionario stringato {'image_path': '...'}, lo puliamo
+    try:
+        image_path = image_path.strip()
+        if image_path.startswith("{"):
+            parsed = ast.literal_eval(image_path)
+            image_path = parsed.get("image_path", image_path)
+    except:
+        pass
     
     image_path = image_path.strip("'\" ")
     print(f"\n[TOOL VISIVO] Sto analizzando i pixel di: {image_path}")
     
     try:
-        # 1. Apriamo l'immagine fisicamente
+        # 1. Apertura immagine
         image_pil = Image.open(image_path).convert("RGB")
         
-        # 2.Passiamo i pixel a CLIP
+        # 2. Estrazione feature con CLIP
         image_features = extract_features(
             image=image_pil, 
             text=None, 
@@ -64,35 +73,43 @@ def tool_ricerca_visiva(image_path: str) -> str:
             out_dim=512
         )
         
-        # 3.Cerchiamo i vettori più simili
+        # 3. Ricerca nel database (Corretti i nomi dei parametri)
         testi_enciclopedia = retrieve_topk_pages(
             features=image_features, 
             index=knn_index_immagini, 
             index_map=wiki_map, 
             wiki=wiki_data, 
-            k=3 # Prendiamo i 3 risultati migliori
+            k=3
         )
         
         return f"Contesto trovato dal database visivo:\n{testi_enciclopedia}"
 
     except Exception as e:
-        # Se qualcosa va storto (es. file non trovato), l'Agente non crasherà, 
         return f"Errore nel database visivo: {str(e)}. Prova a usare la ricerca testuale."
 
 
 # ==============================================================================
-# TOOL 2: LA RICERCA TESTUALE REALE
+# TOOL 2: LA RICERCA TESTUALE REALE (MODIFICATO)
 # ==============================================================================
 @tool
 def tool_ricerca_testuale(query: str) -> str:
-    """Usa questo tool come SECONDA OPZIONE, o se vuoi raffinare la ricerca usando parole chiave.
-    Non passargli immagini, ma solo stringhe di testo."""
+    """Usa questo tool come SECONDA OPZIONE o per raffinare la ricerca.
+    Passagli solo parole chiave (es. 'Leonardo da Vinci'), mai immagini."""
     
+    # 📍 PULIZIA: Se l'agente manda {'query': '...'}, estraiamo solo il testo
+    try:
+        query = query.strip()
+        if query.startswith("{"):
+            parsed = ast.literal_eval(query)
+            query = parsed.get("query", query)
+    except:
+        pass
+        
+    query = query.strip("'\" ")
     print(f"\n[TOOL TESTUALE] Sto cercando le parole chiave: '{query}'")
 
-    
     try:
-        # passiamo la stringa di testo a CLIP (Text Encoder)
+        # Estrazione feature testuali
         text_features = extract_features(
             image=None, 
             text=query, 
@@ -101,7 +118,7 @@ def tool_ricerca_testuale(query: str) -> str:
             out_dim=512
         )
         
-        # Cerchiamo nel database dei testi
+        # Ricerca nel database
         testi_enciclopedia = retrieve_topk_pages(
             features=text_features, 
             index=knn_index_testi, 
