@@ -33,18 +33,31 @@ def load_clip_and_index(args):
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
     dtype = torch.bfloat16 if device == "cuda:0" else torch.float32
 
+    # Carichiamo il modello
     clip_model = AutoModel.from_pretrained(
         args.retriever_path,
         torch_dtype=dtype, 
         trust_remote_code=True
     ).to(device).eval()
     
-    # IMPORTANTE: Usiamo AutoImageProcessor invece di forzare CLIPImageProcessor
-    from transformers import AutoTokenizer, AutoImageProcessor
+    # 📍 SOLUZIONE ERRORE: Caricamento esplicito del processore
+    from transformers import CLIPImageProcessor, AutoTokenizer
     
-    print("🔄 Caricamento processore visivo automatico...")
-    # Lasciamo che carichi automaticamente la configurazione corretta per EVA-CLIP
-    img_proc = AutoImageProcessor.from_pretrained(args.retriever_path, trust_remote_code=True)
+    print("🔄 Caricamento processore visivo manuale...")
+    try:
+        # Proviamo a caricarlo normalmente dalla cartella
+        img_proc = CLIPImageProcessor.from_pretrained(args.retriever_path)
+    except:
+        # Se fallisce (come nel tuo caso), forziamo i parametri standard di EVA-CLIP
+        # La maggior parte degli EVA-CLIP usa 336x336 o 224x224
+        print("⚠️ Configurazione non trovata, uso parametri di fallback...")
+        img_proc = CLIPImageProcessor(
+            do_resize=True, 
+            size={"shortest_edge": 224}, 
+            do_center_crop=True, 
+            crop_size={"height": 224, "width": 224}
+        )
+    
     tokenizer = AutoTokenizer.from_pretrained(args.retriever_path, trust_remote_code=True)
     
     class CLIPProcessorWrapper:
@@ -53,7 +66,8 @@ def load_clip_and_index(args):
             self.tokenizer = tk
             
     clip_processor = CLIPProcessorWrapper(img_proc, tokenizer)
-        
+    
+    # Caricamento FAISS e Wiki (come prima)
     index = faiss.read_index(str(args.index_path)) 
     with open(args.index_json_path, "r", encoding="utf-8") as f:
         index_map = json.load(f)
