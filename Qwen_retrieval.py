@@ -30,7 +30,6 @@ from transformers import AutoTokenizer, AutoImageProcessor, CLIPImageProcessor #
 # In Qwen_retrieval.py
 
 def load_clip_and_index(args):
-    # Logica multi-GPU come nel tuo file originale
     device_clip = "cuda:1" if torch.cuda.device_count() > 1 else "cpu"
     print(f"🔄 Caricamento EVA-CLIP su {device_clip} (Protezione File Attiva)...")
     
@@ -45,16 +44,22 @@ def load_clip_and_index(args):
         trust_remote_code=True
     ).to(device_clip).eval()
     
-    # 📍 IL PARACADUTE: Se manca il file json, creiamo il processore a mano
+    # 📍 IL SUPER-PARACADUTE DINAMICO
     try:
         img_proc = CLIPImageProcessor.from_pretrained(args.retriever_path)
     except OSError:
-        print("⚠️ File di configurazione visiva non trovato, applico parametri di sicurezza...")
+        # Troviamo la dimensione esatta che il modello vuole leggendo la sua configurazione interna!
+        try:
+            native_size = clip_model.config.vision_config.image_size
+        except Exception:
+            native_size = 224 # Extrema ratio
+            
+        print(f"⚠️ Config mancante! Leggo la mente del modello: applico la griglia nativa a {native_size}x{native_size}...")
         img_proc = CLIPImageProcessor(
             do_resize=True, 
-            size={"shortest_edge": 224}, 
+            size={"shortest_edge": native_size}, 
             do_center_crop=True, 
-            crop_size={"height": 224, "width": 224}
+            crop_size={"height": native_size, "width": native_size}
         )
         
     tokenizer = AutoTokenizer.from_pretrained(args.retriever_path, trust_remote_code=True)
@@ -81,26 +86,20 @@ def extract_features(image=None, text=None, model=None, processor=None, out_dim=
     
     with torch.no_grad():
         if image is not None:
-            # Esattamente la tua logica originale dei tensori
+            # Immagine con la dimensione nativa calcolata sopra
             inputs = processor.image_processor(images=image, return_tensors="pt")
             pixel_values = inputs["pixel_values"].to(dtype=torch.float16, device=device)
             features = model.encode_image(pixel_values=pixel_values)
             
         elif text is not None:
-            try:
-                # Proviamo con max_length=64, limite classico per alcuni modelli EVA
-                inputs = processor.tokenizer(
-                    text=text, 
-                    return_tensors="pt", 
-                    padding=True, 
-                    truncation=True, 
-                    max_length=64 
-                )
-                input_ids = inputs["input_ids"].to(device)
-                features = model.encode_text(input_ids)
-            except Exception as e:
-                # Se il modello testuale è corrotto, restituiamo un errore pulito, non un Traceback
-                raise ValueError(f"Codificatore testuale non supportato per questa query.")
+            # 📍 IL TESTO BLINDATO: CLIP vuole sempre ESATTAMENTE 77 token
+            inputs = processor.tokenizer(
+                text=text, 
+                return_tensors="pt", 
+                padding="max_length", # <--- FONDAMENTALE! Aggiunge spazi vuoti
+                truncation=True, 
+                max_length=77 
+            )
             input_ids = inputs["input_ids"].to(device)
             features = model.encode_text(input_ids)
         
