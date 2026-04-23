@@ -70,8 +70,8 @@ def extract_features(image=None, text=None, model=None, processor=None, out_dim=
     with torch.no_grad():
         if image is not None:
             # 📍 FORZIAMO IL RESIZE: EVA-CLIP-8B vuole 224x224 per avere 257 token
-            image_resized = image.resize((224, 224)) 
-            inputs = processor.image_processor(images=image_resized, return_tensors="pt")
+            #image_resized = image.resize((224, 224)) 
+            inputs = processor.image_processor(images=image, return_tensors="pt")
             pixel_values = inputs["pixel_values"].to(dtype=dtype, device=device)
             features = model.encode_image(pixel_values=pixel_values)
         elif text is not None:
@@ -87,7 +87,7 @@ def extract_features(image=None, text=None, model=None, processor=None, out_dim=
 def retrieve_topk_pages(features, index, index_map, wiki, k):
     _, I = index.search(features, k)
     urls = [index_map[i][0] for i in I[0]]
-    texts = ["\n".join(wiki[url]["section_texts"]) for url in urls]
+    texts = ["\n".join(wiki[url[0]]["section_texts"][:2]) for url in urls]
     return "\n\n".join(texts)
 
 def build_chat_prompt(context, question, image):
@@ -106,18 +106,28 @@ def build_chat_prompt(context, question, image):
 # In Qwen_retrieval.py
 
 def generate_answer(model, processor, messages, stop=None):
-    # Applichiamo il template di chat
-    text = processor.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
-    inputs = processor(text=[text], padding=True, return_tensors="pt").to(model.device)
+    # 📍 PULIZIA MESSAGGI: Evita che tag immagine residui mandino in crash Qwen
+    clean_messages = []
+    for m in messages:
+        if isinstance(m["content"], list):
+            text = " ".join([c["text"] for c in m["content"] if c["type"] == "text"])
+            clean_messages.append({"role": m["role"], "content": text})
+        else:
+            clean_messages.append(m)
 
-    # 📍 CONFIGURAZIONE STOP: Aggiungiamo varianti per sicurezza
-    stop_words = stop if stop else ["Observation:", "\nObservation:", "Observation"]
+    text = processor.apply_chat_template(clean_messages, tokenize=False, add_generation_prompt=True)
+    
+    # 📍 TRONCAMENTO: Se il prompt è troppo lungo per la GPU, lo tagliamo
+    inputs = processor(text=[text], padding=True, return_tensors="pt")
+    inputs = {k: v.to(model.device) for k, v in inputs.items() if isinstance(v, torch.Tensor)}
+
+    stop_words = stop if stop else ["Observation:"]
     
     with torch.no_grad():
         outputs = model.generate(
             **inputs, 
-            max_new_tokens=512,
-            do_sample=False, # Deterministico è meglio per gli agenti
+            max_new_tokens=256,
+            do_sample=False,
             use_cache=True,
             eos_token_id=processor.tokenizer.eos_token_id,
         )
@@ -125,9 +135,7 @@ def generate_answer(model, processor, messages, stop=None):
     generated_ids = outputs[0][inputs["input_ids"].shape[-1]:]
     risposta = processor.tokenizer.decode(generated_ids, skip_special_tokens=True).strip()
 
-    # 📍 TAGLIO DI SICUREZZA: Fermiamo la stringa se il modello ignora lo stop interno
     for s in stop_words:
-        if s in risposta:
-            risposta = risposta.split(s)[0].strip()
+        if s in risposta: risposta = risposta.split(s)[0].strip()
             
     return risposta

@@ -119,7 +119,7 @@ if __name__ == "__main__":
     
     # 3. TEST AGENTE
     percorso_immagine = "foto_buia.jpg" 
-    input_semplice = f"L'immagine si trova in: '{percorso_immagine}'. Chi ha dipinto questo quadro?"
+    input_semplice = f"Ho un'immagine chiamata '{percorso_immagine}'. Per favore, usa il tool visivo per dirmi chi è l'autore del quadro."
 
     print("\n🤖 Agente in ascolto (Stabile)...")
     esecutore.invoke({"input": input_semplice})
