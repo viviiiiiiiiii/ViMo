@@ -43,7 +43,7 @@ class QwenServerLLM(LLM):
     def _call(self, prompt: str, stop: Optional[List[str]] = None, **kwargs) -> str:
         # 1. TRUCCO MULTIMODALE
         match = re.search(r"L'immagine si trova in: '(.*?)'", prompt)
-        image_path = match.group(1) if match else None
+        image_path = match.group(1).strip("'\" ") if match else None
 
         # 2. Preparazione Messaggi
         user_content = []

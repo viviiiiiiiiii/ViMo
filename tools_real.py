@@ -48,6 +48,7 @@ def tool_ricerca_visiva(image_path: str) -> str:
     Passagli il percorso dell'immagine (es. 'foto_buia.jpg') per cercare nel database visivo.
     Se l'immagine è sfuocata o non trovi la risposta, prova a usare la ricerca testuale."""
     
+    image_path = image_path.strip("'\" ")
     print(f"\n[TOOL VISIVO] Sto analizzando i pixel di: {image_path}")
     
     try:
@@ -66,8 +67,8 @@ def tool_ricerca_visiva(image_path: str) -> str:
         # 3.Cerchiamo i vettori più simili
         testi_enciclopedia = retrieve_topk_pages(
             features=image_features, 
-            knn_index=knn_index_immagini, 
-            knn_map=wiki_map, 
+            index=knn_index_immagini, 
+            index_map=wiki_map, 
             wiki=wiki_data, 
             k=3 # Prendiamo i 3 risultati migliori
         )
@@ -94,7 +95,7 @@ def tool_ricerca_testuale(query: str) -> str:
         # passiamo la stringa di testo a CLIP (Text Encoder)
         text_features = extract_features(
             image=None, 
-            text=[query], 
+            text=query, 
             model=clip_model, 
             processor=clip_processor, 
             out_dim=512
@@ -103,8 +104,8 @@ def tool_ricerca_testuale(query: str) -> str:
         # Cerchiamo nel database dei testi
         testi_enciclopedia = retrieve_topk_pages(
             features=text_features, 
-            knn_index=knn_index_testi, 
-            knn_map=wiki_map, 
+            index=knn_index_testi, 
+            index_map=wiki_map, 
             wiki=wiki_data, 
             k=3
         )
