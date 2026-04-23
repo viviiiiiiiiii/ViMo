@@ -12,6 +12,7 @@ from transformers import (
     AutoModel,
     CLIPImageProcessor,
     AutoProcessor,
+    AutoTokenizer,
     Qwen2_5_VLForConditionalGeneration,
 )
 import traceback
@@ -31,7 +32,9 @@ def load_clip_and_index(args):
     ).to(device).eval() # 📍 SOSTITUITO: da "cuda:0" a device
     
     clip_processor = AutoProcessor.from_pretrained(args.retriever_path, trust_remote_code=True)
-    
+    img_proc = CLIPImageProcessor.from_pretrained(args.retriever_path)
+    tokenizer = AutoTokenizer.from_pretrained(args.retriever_path)
+
     # Faiss e caricamento JSON (rimane uguale)
     index = faiss.read_index(str(args.index_path)) 
     with open(args.index_json_path, "r", encoding="utf-8") as f:
@@ -46,13 +49,13 @@ def load_clip_and_index(args):
 def extract_features(image=None, text=None, model=None, processor=None, out_dim=512):
     with torch.no_grad():
         if image is not None:
-            # 📍 FIX: Usiamo esplicitamente image_processor per evitare errori di CLIP
+            # 📍 Ora processor.image_processor esisterà sicuramente
             inputs = processor.image_processor(images=image, return_tensors="pt")
             pixel_values = inputs["pixel_values"].to(dtype=model.dtype, device=model.device)
             features = model.encode_image(pixel_values=pixel_values)
             
         elif text is not None:
-            # 📍 FIX: Usiamo esplicitamente il tokenizer
+            # 📍 Ora processor.tokenizer esisterà sicuramente
             inputs = processor.tokenizer(
                 text=text, 
                 return_tensors="pt", 
