@@ -60,17 +60,18 @@ def extract_features(image=None, text=None, model=None, processor=None, out_dim=
     device = torch.device("cpu")
     with torch.no_grad():
         if image is not None:
-            # Il processore ufficiale formatta l'immagine in automatico senza errori di indice
-            inputs = processor(images=image, return_tensors="pt")
+            # 📍 IL TRUCCO: Aggiungiamo text=[""] per soddisfare l'AutoProcessor
+            inputs = processor(images=image, text=[""], return_tensors="pt")
             pixel_values = inputs["pixel_values"].to(device)
             features = model.encode_image(pixel_values)
+            
         elif text is not None:
-            # Stessa cosa per il testo, usa il vero vocabolario di EVA-CLIP
-            inputs = processor(text=text, return_tensors="pt", padding=True, truncation=True)
+            # Per il testo funziona già perfettamente
+            inputs = processor(text=[text], return_tensors="pt", padding=True, truncation=True)
             input_ids = inputs["input_ids"].to(device)
             features = model.encode_text(input_ids)
         
-        # 📍 Il famoso ritaglio a 512 per FAISS
+        # 📍 Il ritaglio a 512 per FAISS
         if features.shape[-1] > out_dim:
             features = features[:, :out_dim]
             
