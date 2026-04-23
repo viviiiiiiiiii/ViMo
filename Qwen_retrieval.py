@@ -31,24 +31,20 @@ from transformers import AutoTokenizer, AutoImageProcessor, CLIPImageProcessor #
 
 def load_clip_and_index(args):
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
-    
-    # Manteniamo float32 per stabilità sui driver CUDA
+    # Clip lavora in float32. Lo lasciamo in float32 per evitare casini con FAISS.
+    dtype = torch.float32
+
     clip_model = AutoModel.from_pretrained(
         args.retriever_path,
-        torch_dtype=torch.float32, 
+        torch_dtype=dtype, 
         trust_remote_code=True
     ).to(device).eval()
     
     from transformers import CLIPImageProcessor, AutoTokenizer
     
-    print("🔄 Caricamento processore visivo (Risoluzione 336x336)...")
-    # 📍 IL FIX FINALE: Torniamo a 336! Genererà i 577 pezzi esatti che il modello pretende.
-    img_proc = CLIPImageProcessor(
-        do_resize=True, 
-        size={"shortest_edge": 336}, 
-        do_center_crop=True, 
-        crop_size={"height": 336, "width": 336}
-    )
+    print("🔄 Caricamento processore visivo (Risoluzione ORIGINALE 224x224)...")
+    # 🚨 VIA IL 336! Usiamo il processore puro di base che genera i 257 token corretti.
+    img_proc = CLIPImageProcessor.from_pretrained("openai/clip-vit-large-patch14")
     
     tokenizer = AutoTokenizer.from_pretrained(args.retriever_path, trust_remote_code=True)
     
@@ -70,12 +66,11 @@ def load_clip_and_index(args):
 
 def extract_features(image=None, text=None, model=None, processor=None, out_dim=512):
     device = model.device
-    # 🚨 FIX 1.5: Assicuriamoci che anche i tensori in entrata siano in FLOAT32
-    dtype = torch.float32 
+    dtype = model.dtype 
 
     with torch.no_grad():
         if image is not None:
-            # Il processore farà il crop a 224x224 -> 257 token perfetti.
+            # Passiamo l'immagine vergine. Il processore la farà a 224.
             inputs = processor.image_processor(images=image, return_tensors="pt")
             pixel_values = inputs["pixel_values"].to(dtype=dtype, device=device)
             features = model.encode_image(pixel_values=pixel_values)
@@ -85,9 +80,11 @@ def extract_features(image=None, text=None, model=None, processor=None, out_dim=
             input_ids = inputs["input_ids"].to(device=device)
             features = model.get_text_features(input_ids=input_ids)
         
-        features = features / features.norm(p=2, dim=-1, keepdim=True)
+        # Clamp per evitare divisioni per zero (il problema dell'immagine nera che hai scoperto prima)
+        features = features / torch.clamp(features.norm(p=2, dim=-1, keepdim=True), min=1e-7)
         
-    return features.cpu().numpy().astype(np.float32)
+    # 🚨 IL FIX ASSOLUTO DI FAISS: Cast a float32 prima di passarlo a Numpy/Faiss!
+    return features.to(torch.float32).cpu().numpy()
 
 def generate_answer(model, processor, messages, stop=None):
     # 📍 PULIZIA: Rimuoviamo eventuali tag immagine dal prompt testuale per evitare errori di Qwen
