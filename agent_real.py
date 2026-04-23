@@ -39,6 +39,9 @@ def image_to_base64(image_path):
 # ==========================================
 # L'ADATTATORE QWEN (Corretto con Freno a Mano)
 # ==========================================
+# ==========================================
+# L'ADATTATORE QWEN (Corretto con Freno a Mano)
+# ==========================================
 class QwenServerLLM(LLM):
     @property
     def _llm_type(self) -> str:
@@ -68,8 +71,7 @@ class QwenServerLLM(LLM):
                     risposta = risposta.split(stop_word)[0]
 
         # Restituiamo la stringa pulita e tagliata
-        return risposta.strip()p
-        )
+        return risposta.strip()
 
 # ==========================================
 # SETUP AGENTE (Globali)
