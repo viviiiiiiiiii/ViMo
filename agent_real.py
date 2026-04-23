@@ -6,6 +6,9 @@ import re
 from PIL import Image
 from typing import Optional, List
 
+import os
+os.environ['CUDA_LAUNCH_BLOCKING'] = "1"
+
 # 📍 Import dal core (sempre validi)
 from langchain_core.language_models.llms import LLM
 from langchain_core.prompts import PromptTemplate

@@ -31,7 +31,6 @@ from transformers import AutoTokenizer, AutoImageProcessor, CLIPImageProcessor #
 
 def load_clip_and_index(args):
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
-    # Manteniamo bfloat16 per evitare il crash di inizializzazione del modello
     dtype = torch.bfloat16 if device == "cuda:0" else torch.float32
 
     clip_model = AutoModel.from_pretrained(
@@ -40,17 +39,12 @@ def load_clip_and_index(args):
         trust_remote_code=True
     ).to(device).eval()
     
-    from transformers import CLIPImageProcessor, AutoTokenizer
+    # IMPORTANTE: Usiamo AutoImageProcessor invece di forzare CLIPImageProcessor
+    from transformers import AutoTokenizer, AutoImageProcessor
     
-    print("🔄 Caricamento processore visivo (Risoluzione 224x224)...")
-    # Usiamo la risoluzione 224x224 per generare i 257 token richiesti
-    img_proc = CLIPImageProcessor(
-        do_resize=True, 
-        size={"shortest_edge": 224}, 
-        do_center_crop=True, 
-        crop_size={"height": 224, "width": 224}
-    )
-    
+    print("🔄 Caricamento processore visivo automatico...")
+    # Lasciamo che carichi automaticamente la configurazione corretta per EVA-CLIP
+    img_proc = AutoImageProcessor.from_pretrained(args.retriever_path, trust_remote_code=True)
     tokenizer = AutoTokenizer.from_pretrained(args.retriever_path, trust_remote_code=True)
     
     class CLIPProcessorWrapper:
@@ -75,19 +69,22 @@ def extract_features(image=None, text=None, model=None, processor=None, out_dim=
 
     with torch.no_grad():
         if image is not None:
+            # Flusso unicamente per l'immagine
             inputs = processor.image_processor(images=image, return_tensors="pt")
             pixel_values = inputs["pixel_values"].to(dtype=dtype, device=device)
+            # NOTA: Se EVA-CLIP usa un metodo diverso da encode_image (es. get_image_features), lo noterai grazie al debug del Passaggio 1
             features = model.encode_image(pixel_values=pixel_values)
             
         elif text is not None:
+            # Flusso unicamente per il testo
             inputs = processor.tokenizer(text=text, return_tensors="pt", padding=True, truncation=True, max_length=77)
             input_ids = inputs["input_ids"].to(device=device)
             features = model.get_text_features(input_ids=input_ids)
         
-        # Previene divisioni per zero se l'immagine fosse troppo buia
+        # Previene divisioni per zero
         features = features / torch.clamp(features.norm(p=2, dim=-1, keepdim=True), min=1e-7)
         
-    # Cast a float32 prima di passarlo a Numpy per evitare i crash di FAISS
+    # FAISS richiede float32, questo è corretto!
     return features.to(torch.float32).cpu().numpy()
 
 def generate_answer(model, processor, messages, stop=None):
