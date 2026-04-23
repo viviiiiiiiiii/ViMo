@@ -17,25 +17,33 @@ from transformers import (
 )
 import traceback
 
+# In Qwen_retrieval.py
+
 def load_clip_and_index(args):
-    # 📍 RILEVAMENTO AUTOMATICO DEL DISPOSITIVO
-    # Se i driver sono troppo vecchi, torch.cuda.is_available() restituirà False
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
     print(f"📡 Sistema: Sto utilizzando il dispositivo -> {device}")
 
-    # Caricamento del modello CLIP
+    # Caricamento Modello
     clip_model = AutoModel.from_pretrained(
         args.retriever_path,
-        # Usiamo float32 su CPU per evitare errori di precisione, float16 su GPU
         torch_dtype=torch.float16 if device == "cuda:0" else torch.float32,
         trust_remote_code=True
-    ).to(device).eval() # 📍 SOSTITUITO: da "cuda:0" a device
+    ).to(device).eval()
     
-    clip_processor = AutoProcessor.from_pretrained(args.retriever_path, trust_remote_code=True)
-    img_proc = CLIPImageProcessor.from_pretrained(args.retriever_path)
-    tokenizer = AutoTokenizer.from_pretrained(args.retriever_path)
-
-    # Faiss e caricamento JSON (rimane uguale)
+    # 📍 FIX: Torniamo a AutoProcessor (che non dà OSError)
+    # Ma ci assicuriamo che abbia i nomi 'image_processor' e 'tokenizer'
+    proc = AutoProcessor.from_pretrained(args.retriever_path, trust_remote_code=True)
+    
+    # Se mancano gli attributi specifici (tipico di EVA-CLIP), 
+    # diciamo al processore di usare se stesso per quelle funzioni
+    if not hasattr(proc, "image_processor"):
+        proc.image_processor = proc
+    if not hasattr(proc, "tokenizer"):
+        proc.tokenizer = proc
+        
+    clip_processor = proc
+    
+    # Caricamento Indici
     index = faiss.read_index(str(args.index_path)) 
     with open(args.index_json_path, "r", encoding="utf-8") as f:
         index_map = json.load(f)
