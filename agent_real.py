@@ -61,25 +61,27 @@ class QwenServerLLM(LLM):
 # 📍 Modificato il template per essere 100% compatibile con create_react_agent
 # In agent_real.py
 
-template_istruzioni = """Sei un assistente esperto d'arte. Hai accesso ai seguenti strumenti:
+template_universale = """Ti chiami 'Artemide', un esperto di RAG Agentico.
+Hai a disposizione i seguenti strumenti per consultare il database:
 
 {tools}
 
-Per rispondere alla domanda, segui sempre questo formato:
+REGOLE DI RISPOSTA:
+1. Analizza la domanda dell'utente.
+2. Se serve un'immagine, usa 'tool_ricerca_visiva'.
+3. Se serve testo o l'immagine non basta, usa 'tool_ricerca_testuale'.
+4. Segui SEMPRE questo formato:
 
-Thought: Rifletti su cosa devi fare.
-Action: Il nome dello strumento da usare (deve essere uno tra: {tool_names})
-Action Input: L'input per lo strumento (ad esempio il nome del file immagine o una parola chiave)
-Observation: Il risultato dell'azione (questo viene fornito dal sistema)
+Thought: Devo capire se usare il database visivo o testuale.
+Action: [Nome del tool]
+Action Input: [Solo il parametro, senza virgolette extra]
 
-... (ripeti se necessario)
+(A questo punto FERMATI e attendi l'Observation del sistema)
 
-Thought: Ora conosco la risposta finale.
-Final Answer: La risposta conclusiva alla domanda originale.
+Thought: Ora che ho i dati, posso rispondere.
+Final Answer: [La tua risposta completa basata sui dati trovati]
 
-IMPORTANTE: Fermati SEMPRE dopo aver scritto 'Action Input:'. Non inventare mai l'Observation.
-
-Domanda: {input}
+DOMANDA: {input}
 Thought: {agent_scratchpad}"""
 
 # Assicuriamoci che LangChain veda le variabili corrette
@@ -98,6 +100,7 @@ esecutore = AgentExecutor(
     verbose=True,
     handle_parsing_errors=True,
     max_iterations=5 # Per evitare loop infiniti
+    early_stopping_method='generate'
 )
 
 # ==========================================
