@@ -25,13 +25,7 @@ from transformers import AutoTokenizer, AutoImageProcessor, CLIPImageProcessor #
 
 # In Qwen_retrieval.py
 
-# In Qwen_retrieval.py
-
-# In Qwen_retrieval.py
-
-# In Qwen_retrieval.py
-
-# In Qwen_retrieval.py
+# Sostituisci QUESTE DUE FUNZIONI in Qwen_retrieval.py
 
 def load_clip_and_index(args):
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
@@ -47,16 +41,14 @@ def load_clip_and_index(args):
     from transformers import CLIPImageProcessor, AutoTokenizer
     
     print("🔄 Caricamento processore visivo (Risoluzione 336x336)...")
-    try:
-        # 📍 IL FIX DEFINITIVO: Usiamo il processore a 336px!
-        # Questo genererà esattamente i 577 token che EVA-CLIP-8B pretende, evitando il crash GPU.
-        img_proc = CLIPImageProcessor.from_pretrained("openai/clip-vit-large-patch14-336")
-    except:
-        # Fallback manuale a 336
-        img_proc = CLIPImageProcessor(
-            do_resize=True, size={"shortest_edge": 336}, 
-            do_center_crop=True, crop_size={"height": 336, "width": 336}
-        )
+    # 📍 FIX ASSOLUTO: Creiamo il processore a 336 manualmente. 
+    # Niente internet, niente download, forziamo i 577 token alla perfezione.
+    img_proc = CLIPImageProcessor(
+        do_resize=True, 
+        size={"shortest_edge": 336}, 
+        do_center_crop=True, 
+        crop_size={"height": 336, "width": 336}
+    )
     
     tokenizer = AutoTokenizer.from_pretrained(args.retriever_path, trust_remote_code=True)
     
@@ -75,20 +67,20 @@ def load_clip_and_index(args):
         
     return clip_model, clip_processor, index, index_map, wiki
 
+
 def extract_features(image=None, text=None, model=None, processor=None, out_dim=512):
     device = model.device
     dtype = model.dtype 
 
     with torch.no_grad():
         if image is not None:
-            # 📍 Ora processor.image_processor è sicuramente un CLIPImageProcessor
-            # Non crasharà più chiedendo 'text' o 'text_target'
+            # 📍 RIMOSSO IL RESIZE MANUALE A 224!
+            # Ora passiamo l'immagine pura. Il processore la farà diventare 336x336 (577 token).
             inputs = processor.image_processor(images=image, return_tensors="pt")
             pixel_values = inputs["pixel_values"].to(dtype=dtype, device=device)
             features = model.encode_image(pixel_values=pixel_values)
             
         elif text is not None:
-            # 📍 Qui usiamo il tokenizer del wrapper
             inputs = processor.tokenizer(text=text, return_tensors="pt", padding=True, truncation=True, max_length=77)
             input_ids = inputs["input_ids"].to(device=device)
             features = model.get_text_features(input_ids=input_ids)
