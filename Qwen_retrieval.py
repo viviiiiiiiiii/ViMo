@@ -30,36 +30,24 @@ from transformers import AutoTokenizer, AutoImageProcessor, CLIPImageProcessor #
 # In Qwen_retrieval.py
 
 def load_clip_and_index(args):
-    # Spostiamo CLIP su CPU per stabilità totale
-    device_clip = "cpu" 
+    device_clip = "cpu"
+    print("🔄 Caricamento EVA-CLIP (Modello e Processore Ufficiali)...")
     
-    print("🔄 Caricamento EVA-CLIP su CPU (Modalità provvisoria)...")
+    # Questo è il trucco magico dal tuo build_knn_index_real.py
+    import os
+    os.environ["TRANSFORMERS_IGNORE_LOAD_VULNERABILITY"] = "1"
+    
+    from transformers import AutoModel, AutoProcessor
+    
     clip_model = AutoModel.from_pretrained(
         args.retriever_path,
         torch_dtype=torch.float32, 
         trust_remote_code=True
     ).to(device_clip).eval()
     
-    from transformers import CLIPImageProcessor, AutoTokenizer
+    # 📍 Usiamo AutoProcessor invece di fare accrocchi manuali
+    clip_processor = AutoProcessor.from_pretrained(args.retriever_path, trust_remote_code=True)
     
-    # Risoluzione standard 224x224 (su CPU non dà errori di indice)
-    img_proc = CLIPImageProcessor(
-        do_resize=True, 
-        size={"shortest_edge": 224}, 
-        do_center_crop=True, 
-        crop_size={"height": 224, "width": 224}
-    )
-    
-    tokenizer = AutoTokenizer.from_pretrained(args.retriever_path, trust_remote_code=True)
-    
-    class CLIPProcessorWrapper:
-        def __init__(self, ip, tk):
-            self.image_processor = ip
-            self.tokenizer = tk
-            
-    clip_processor = CLIPProcessorWrapper(img_proc, tokenizer)
-    
-    # FAISS e Wiki rimangono invariati
     index = faiss.read_index(str(args.index_path)) 
     with open(args.index_json_path, "r", encoding="utf-8") as f:
         index_map = json.load(f)
@@ -68,27 +56,24 @@ def load_clip_and_index(args):
         
     return clip_model, clip_processor, index, index_map, wiki
 
-
 def extract_features(image=None, text=None, model=None, processor=None, out_dim=512):
-    device = torch.device("cpu") # CLIP su CPU per stabilità
-
+    device = torch.device("cpu")
     with torch.no_grad():
         if image is not None:
-            inputs = processor.image_processor(images=image, return_tensors="pt")
+            # Il processore ufficiale formatta l'immagine in automatico senza errori di indice
+            inputs = processor(images=image, return_tensors="pt")
             pixel_values = inputs["pixel_values"].to(device)
-            features = model.encode_image(pixel_values=pixel_values)
+            features = model.encode_image(pixel_values)
         elif text is not None:
-            inputs = processor.tokenizer(text=text, return_tensors="pt", padding=True, truncation=True, max_length=77)
+            # Stessa cosa per il testo, usa il vero vocabolario di EVA-CLIP
+            inputs = processor(text=text, return_tensors="pt", padding=True, truncation=True)
             input_ids = inputs["input_ids"].to(device)
-            # EVA-CLIP usa encode_text invece di get_text_features
-            features = model.encode_text(input_ids=input_ids)
+            features = model.encode_text(input_ids)
         
-        # 📍 RITAGLIO PER FAISS (512 dimensioni)
-        # Se il modello sputa fuori 1024, prendiamo solo i primi 512
+        # 📍 Il famoso ritaglio a 512 per FAISS
         if features.shape[-1] > out_dim:
             features = features[:, :out_dim]
-        
-        # Normalizzazione (fondamentale dopo il taglio)
+            
         features = features / torch.clamp(features.norm(p=2, dim=-1, keepdim=True), min=1e-7)
         
     return features.float().numpy()
