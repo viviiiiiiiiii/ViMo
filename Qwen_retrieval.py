@@ -30,27 +30,24 @@ from transformers import AutoTokenizer, AutoImageProcessor, CLIPImageProcessor #
 # In Qwen_retrieval.py
 
 def load_clip_and_index(args):
-    device_clip = "cpu"
-    print("🔄 Caricamento EVA-CLIP (Componenti Separati)...")
+    # 📍 TORNIAMO ALLA TUA MAGIA ORIGINALE: DUE GPU
+    device_clip = "cuda:1" if torch.cuda.device_count() > 1 else "cpu"
+    print(f"🔄 Caricamento EVA-CLIP su {device_clip} (Come nel file originale)...")
     
     import os
     os.environ["TRANSFORMERS_IGNORE_LOAD_VULNERABILITY"] = "1"
     
-    from transformers import AutoModel, AutoImageProcessor, AutoTokenizer
+    from transformers import AutoModel, CLIPImageProcessor, AutoTokenizer
     
+    # 📍 float16 ESATTO come nel tuo file funzionante
     clip_model = AutoModel.from_pretrained(
         args.retriever_path,
-        torch_dtype=torch.float32, 
+        torch_dtype=torch.float16, 
         trust_remote_code=True
     ).to(device_clip).eval()
     
-    # 📍 Carichiamo occhio e orecchio separatamente per non farli litigare
-    try:
-        img_proc = AutoImageProcessor.from_pretrained(args.retriever_path, trust_remote_code=True)
-    except:
-        from transformers import CLIPImageProcessor
-        img_proc = CLIPImageProcessor(size={"shortest_edge": 224}, crop_size={"height": 224, "width": 224})
-        
+    # 📍 Il processore originale che non dava errori OSError
+    img_proc = CLIPImageProcessor.from_pretrained(args.retriever_path)
     tokenizer = AutoTokenizer.from_pretrained(args.retriever_path, trust_remote_code=True)
     
     class CLIPProcessorWrapper:
@@ -71,16 +68,17 @@ def load_clip_and_index(args):
     return clip_model, clip_processor, index, index_map, wiki
 
 def extract_features(image=None, text=None, model=None, processor=None, out_dim=512):
-    device = torch.device("cpu")
+    device = model.device # Usa cuda:1 o cpu a seconda della disponibilità
+    
     with torch.no_grad():
         if image is not None:
-            # Flusso pulito e isolato per l'immagine
+            # 📍 ESATTAMENTE IL TUO CODICE ORIGINALE
             inputs = processor.image_processor(images=image, return_tensors="pt")
-            pixel_values = inputs["pixel_values"].to(device)
-            features = model.encode_image(pixel_values)
+            pixel_values = inputs["pixel_values"].to(dtype=torch.float16, device=device)
+            features = model.encode_image(pixel_values=pixel_values)
             
         elif text is not None:
-            # Flusso pulito per il testo con limite TASSATIVO a 77 token (evita l'index out of range)
+            # Aggiunta per l'Agente: ricerca testuale
             inputs = processor.tokenizer(
                 text=text, 
                 return_tensors="pt", 
@@ -91,14 +89,15 @@ def extract_features(image=None, text=None, model=None, processor=None, out_dim=
             input_ids = inputs["input_ids"].to(device)
             features = model.encode_text(input_ids)
         
-        # 📍 Taglio a 512 per FAISS
+        # 📍 Taglio a 512 (perché abbiamo scoperto che serve per il tuo .index)
         if features.shape[-1] > out_dim:
             features = features[:, :out_dim]
             
-        # Normalizzazione
-        features = features / torch.clamp(features.norm(p=2, dim=-1, keepdim=True), min=1e-7)
+        # 📍 ESATTAMENTE IL TUO CODICE ORIGINALE
+        features = features / features.norm(p=2, dim=-1, keepdim=True)
         
-    return features.float().numpy()
+    # FAISS richiede float32, come facevi tu originariamente
+    return features.cpu().numpy().astype(np.float32)
 
 def generate_answer(model, processor, messages, stop=None):
     clean_messages = []
