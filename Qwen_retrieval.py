@@ -31,36 +31,35 @@ from transformers import AutoTokenizer, AutoImageProcessor, CLIPImageProcessor #
 
 # In Qwen_retrieval.py
 
+# In Qwen_retrieval.py
+
 def load_clip_and_index(args):
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
-    # Usiamo bfloat16 per coerenza con Qwen e stabilità su GPU Boost
     dtype = torch.bfloat16 if device == "cuda:0" else torch.float32
 
-    # 1. Caricamento Modello CLIP
+    # 1. Caricamento Modello
     clip_model = AutoModel.from_pretrained(
         args.retriever_path,
         torch_dtype=dtype, 
         trust_remote_code=True
     ).to(device).eval()
     
-    # 2. 📍 FIX: Caricamento componenti separati
     from transformers import CLIPImageProcessor, AutoTokenizer
     
-    print("🔄 Caricamento processore visivo standard...")
+    print("🔄 Caricamento processore visivo (Risoluzione 336x336)...")
     try:
-        # Carichiamo la logica visiva standard di OpenAI (Vit-L/14)
-        img_proc = CLIPImageProcessor.from_pretrained("openai/clip-vit-large-patch14")
+        # 📍 IL FIX DEFINITIVO: Usiamo il processore a 336px!
+        # Questo genererà esattamente i 577 token che EVA-CLIP-8B pretende, evitando il crash GPU.
+        img_proc = CLIPImageProcessor.from_pretrained("openai/clip-vit-large-patch14-336")
     except:
-        # Fallback manuale se il server non può scaricare dati
+        # Fallback manuale a 336
         img_proc = CLIPImageProcessor(
-            do_resize=True, size={"shortest_edge": 224}, 
-            do_center_crop=True, crop_size={"height": 224, "width": 224}
+            do_resize=True, size={"shortest_edge": 336}, 
+            do_center_crop=True, crop_size={"height": 336, "width": 336}
         )
     
-    # Il tokenizer lo carichiamo sempre dalla cartella locale di EVA-CLIP
     tokenizer = AutoTokenizer.from_pretrained(args.retriever_path, trust_remote_code=True)
     
-    # 3. Creiamo un contenitore che tiene entrambi (Wrapper)
     class CLIPProcessorWrapper:
         def __init__(self, ip, tk):
             self.image_processor = ip
@@ -68,7 +67,6 @@ def load_clip_and_index(args):
             
     clip_processor = CLIPProcessorWrapper(img_proc, tokenizer)
         
-    # Caricamento Indici Faiss e Wikipedia
     index = faiss.read_index(str(args.index_path)) 
     with open(args.index_json_path, "r", encoding="utf-8") as f:
         index_map = json.load(f)
