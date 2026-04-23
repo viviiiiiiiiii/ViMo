@@ -29,26 +29,46 @@ from transformers import AutoTokenizer, AutoImageProcessor, CLIPImageProcessor #
 
 # In Qwen_retrieval.py
 
+# In Qwen_retrieval.py
+
 def load_clip_and_index(args):
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
-    # 📍 Usiamo bfloat16 ovunque per stabilità su GPU Boost
+    # Usiamo bfloat16 per coerenza con Qwen e stabilità su GPU Boost
     dtype = torch.bfloat16 if device == "cuda:0" else torch.float32
 
+    # 1. Caricamento Modello CLIP
     clip_model = AutoModel.from_pretrained(
         args.retriever_path,
         torch_dtype=dtype, 
         trust_remote_code=True
     ).to(device).eval()
     
-    print("🔄 Caricamento processore CLIP originale...")
-    # 📍 FIX: Usiamo AutoProcessor dal percorso del modello locale. 
-    # Rimuoviamo il resize manuale a 224 per evitare il crash degli indici.
-    clip_processor = AutoProcessor.from_pretrained(args.retriever_path, trust_remote_code=True)
-
-    # Iniezione attributi per compatibilità
-    if not hasattr(clip_processor, "image_processor"): clip_processor.image_processor = clip_processor
-    if not hasattr(clip_processor, "tokenizer"): clip_processor.tokenizer = clip_processor
+    # 2. 📍 FIX: Caricamento componenti separati
+    from transformers import CLIPImageProcessor, AutoTokenizer
+    
+    print("🔄 Caricamento processore visivo standard...")
+    try:
+        # Carichiamo la logica visiva standard di OpenAI (Vit-L/14)
+        img_proc = CLIPImageProcessor.from_pretrained("openai/clip-vit-large-patch14")
+    except:
+        # Fallback manuale se il server non può scaricare dati
+        img_proc = CLIPImageProcessor(
+            do_resize=True, size={"shortest_edge": 224}, 
+            do_center_crop=True, crop_size={"height": 224, "width": 224}
+        )
+    
+    # Il tokenizer lo carichiamo sempre dalla cartella locale di EVA-CLIP
+    tokenizer = AutoTokenizer.from_pretrained(args.retriever_path, trust_remote_code=True)
+    
+    # 3. Creiamo un contenitore che tiene entrambi (Wrapper)
+    class CLIPProcessorWrapper:
+        def __init__(self, ip, tk):
+            self.image_processor = ip
+            self.tokenizer = tk
+            
+    clip_processor = CLIPProcessorWrapper(img_proc, tokenizer)
         
+    # Caricamento Indici Faiss e Wikipedia
     index = faiss.read_index(str(args.index_path)) 
     with open(args.index_json_path, "r", encoding="utf-8") as f:
         index_map = json.load(f)
@@ -63,17 +83,20 @@ def extract_features(image=None, text=None, model=None, processor=None, out_dim=
 
     with torch.no_grad():
         if image is not None:
-            # 📍 NON ridimensionare a 224! Lascia che il processor usi la taglia corretta del modello
+            # 📍 Ora processor.image_processor è sicuramente un CLIPImageProcessor
+            # Non crasharà più chiedendo 'text' o 'text_target'
             inputs = processor.image_processor(images=image, return_tensors="pt")
             pixel_values = inputs["pixel_values"].to(dtype=dtype, device=device)
             features = model.encode_image(pixel_values=pixel_values)
+            
         elif text is not None:
+            # 📍 Qui usiamo il tokenizer del wrapper
             inputs = processor.tokenizer(text=text, return_tensors="pt", padding=True, truncation=True, max_length=77)
             input_ids = inputs["input_ids"].to(device=device)
-            # EVA-CLIP usa get_text_features invece di encode_text
             features = model.get_text_features(input_ids=input_ids)
         
         features = features / features.norm(p=2, dim=-1, keepdim=True)
+        
     return features.cpu().numpy().astype(np.float32)
 
 def generate_answer(model, processor, messages, stop=None):
