@@ -25,41 +25,32 @@ from transformers import AutoTokenizer, AutoImageProcessor, CLIPImageProcessor #
 
 # In Qwen_retrieval.py
 
+# In Qwen_retrieval.py
+
 def load_clip_and_index(args):
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
-    print(f"📡 Sistema: Sto utilizzando il dispositivo -> {device}")
+    
+    # 📍 TUTTO in bfloat16 per evitare conflitti CUBLAS
+    tipo_dato = torch.bfloat16 if torch.cuda.is_available() else torch.float32
 
-    # Carichiamo il modello in float32 per massima stabilità su GPU Boost
     clip_model = AutoModel.from_pretrained(
         args.retriever_path,
-        torch_dtype=torch.float32, 
+        torch_dtype=tipo_dato, 
         trust_remote_code=True
     ).to(device).eval()
     
-    print("🔄 Caricamento processori CLIP...")
-    
-    # 📍 SOLUZIONE DEFINITIVA: 
-    # Non usiamo AutoProcessor per le immagini perché la cartella locale è corrotta.
-    # Usiamo il processore standard di OpenAI che è identico per architettura Vit-L/14.
+    # Caricamento processore con fallback "corazzato"
     try:
-        img_proc = CLIPImageProcessor.from_pretrained("openai/clip-vit-large-patch14")
-    except Exception:
-        # Fallback estremo se il server non ha internet
-        img_proc = CLIPImageProcessor(
-            do_resize=True, size={"shortest_edge": 224}, 
-            do_center_crop=True, crop_size={"height": 224, "width": 224}
-        )
-    
-    # Il tokenizer invece lo carichiamo normalmente dai file locali
-    tokenizer = AutoTokenizer.from_pretrained(args.retriever_path)
+        from transformers import CLIPImageProcessor, AutoTokenizer
+        # Usiamo il processore standard che non crasha mai
+        clip_processor = CLIPImageProcessor.from_pretrained("openai/clip-vit-large-patch14-336")
+        clip_processor.tokenizer = AutoTokenizer.from_pretrained(args.retriever_path)
+    except:
+        clip_processor = AutoProcessor.from_pretrained(args.retriever_path, trust_remote_code=True)
 
-    # Creiamo il wrapper per non rompere il resto del codice
-    class CLIPWrapper:
-        def __init__(self, ip, tk):
-            self.image_processor = ip
-            self.tokenizer = tk
-            
-    clip_processor = CLIPWrapper(img_proc, tokenizer)
+    # Iniezione attributi se mancano
+    if not hasattr(clip_processor, "image_processor"): clip_processor.image_processor = clip_processor
+    if not hasattr(clip_processor, "tokenizer"): clip_processor.tokenizer = clip_processor
         
     index = faiss.read_index(str(args.index_path)) 
     with open(args.index_json_path, "r", encoding="utf-8") as f:
@@ -70,32 +61,19 @@ def load_clip_and_index(args):
     return clip_model, clip_processor, index, index_map, wiki
 
 def extract_features(image=None, text=None, model=None, processor=None, out_dim=512):
-    # Assicuriamoci che i dati siano nello stesso formato del modello (float32)
-    dtype_calc = torch.float32 
-    
+    device = model.device
+    dtype = model.dtype # Usa lo stesso del modello (bfloat16)
+
     with torch.no_grad():
         if image is not None:
             inputs = processor.image_processor(images=image, return_tensors="pt")
-            pixel_values = inputs["pixel_values"].to(dtype=dtype_calc, device=model.device)
+            pixel_values = inputs["pixel_values"].to(dtype=dtype, device=device)
             features = model.encode_image(pixel_values=pixel_values)
-            
         elif text is not None:
-            inputs = processor.tokenizer(
-                text=text, 
-                return_tensors="pt", 
-                padding='max_length', 
-                truncation=True, 
-                max_length=40
-            )
-            input_ids = inputs["input_ids"].to(device=model.device)
-            position_ids = torch.arange(40, dtype=torch.long, device=model.device).unsqueeze(0)
-            
-            # Esecuzione sicura
-            try:
-                features = model.encode_text(input_ids, position_ids=position_ids)
-            except:
-                outputs = model.text_model(input_ids=input_ids, position_ids=position_ids)
-                features = outputs[1]
+            inputs = processor.tokenizer(text=text, return_tensors="pt", padding=True, truncation=True, max_length=77)
+            input_ids = inputs["input_ids"].to(device=device)
+            # 📍 Rimosso position_ids manuale: CLIP lo genera internamente meglio di noi
+            features = model.get_text_features(input_ids=input_ids)
         
         features = features / features.norm(p=2, dim=-1, keepdim=True)
     return features.cpu().numpy().astype(np.float32)
@@ -121,10 +99,14 @@ def build_chat_prompt(context, question, image):
 
 
 def generate_answer(model, processor, messages):
+    # Forza la pulizia dei messaggi
     text = processor.apply_chat_template(
         messages, tokenize=False, add_generation_prompt=True
     )
+    
+    # Gestione sicura delle immagini
     image_inputs, video_inputs = process_vision_info(messages)
+    
     inputs = processor(
         text=[text],
         images=image_inputs,
@@ -132,15 +114,18 @@ def generate_answer(model, processor, messages):
         padding=True,
         return_tensors="pt",
     )
-    inputs = inputs.to(model.device)
+    
+    # 📍 Spostiamo tutto su GPU con il tipo di dato del modello
+    inputs = {k: v.to(model.device) if isinstance(v, torch.Tensor) else v for k, v in inputs.items()}
 
     with torch.no_grad():
+        # Aumentiamo la stabilità della generazione
         outputs = model.generate(
             **inputs,
-            max_new_tokens=512,
-            do_sample=True,
-            temperature=0.2,
+            max_new_tokens=256,
+            do_sample=False, # Meno creatività = meno errori CUDA su indici casuali
+            use_cache=True
         )
+    
     generated_ids = outputs[0][inputs["input_ids"].shape[-1]:]
-    answer = processor.tokenizer.decode(generated_ids, skip_special_tokens=True)
-    return answer.strip()
+    return processor.tokenizer.decode(generated_ids, skip_special_tokens=True).strip()
