@@ -103,30 +103,38 @@ def build_chat_prompt(context, question, image):
 
 
 
-def generate_answer(model, processor, messages, stop=None): # 📍 Aggiunto parametro stop
-    # Prepariamo il testo
-    text = processor.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+# In Qwen_retrieval.py
+
+def generate_answer(model, processor, messages, stop=None):
+    # 1. Preparazione testo
+    text = processor.apply_chat_template(
+        messages, 
+        tokenize=False, 
+        add_generation_prompt=True
+    )
+    
+    # 2. Tokenizzazione
     inputs = processor(text=[text], padding=True, return_tensors="pt").to(model.device)
 
-    # 📍 Configurazione Stop Tokens
-    stop_strings = stop if stop else ["Observation:", "Observation"]
+    # 3. Configurazione Stop Tokens (fondamentale per ReAct)
+    # Se LangChain ci passa dei token di stop, li usiamo, altrimenti usiamo Observation
+    stop_words = stop if stop else ["Observation:"]
     
     with torch.no_grad():
         outputs = model.generate(
-            **inputs, 
-            max_new_tokens=256,
-            do_sample=False,
+            **inputs,
+            max_new_tokens=512,
+            do_sample=False, # Deterministico per evitare errori di formato
             use_cache=True,
-            # Fermati se incontri la parola Observation
-            eos_token_id=processor.tokenizer.eos_token_id,
+            eos_token_id=processor.tokenizer.eos_token_id
         )
     
     generated_ids = outputs[0][inputs["input_ids"].shape[-1]:]
     risposta = processor.tokenizer.decode(generated_ids, skip_special_tokens=True).strip()
 
-    # 📍 TAGLIO DI SICUREZZA: Se il modello ha ignorato il comando e ha continuato a scrivere
-    for s in stop_strings:
-        if s in risposta:
-            risposta = risposta.split(s)[0].strip()
+    # Tagliamo la risposta se il modello ha ignorato lo stop e ha scritto "Observation:"
+    for word in stop_words:
+        if word in risposta:
+            risposta = risposta.split(word)[0].strip()
             
     return risposta

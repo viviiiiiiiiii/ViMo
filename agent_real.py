@@ -31,7 +31,7 @@ def image_to_base64(image_path):
         return base64.b64encode(img_file.read()).decode('utf-8')
 
 # ==========================================
-# L'ADATTATORE QWEN (Corretto per il Punto 2)
+# L'ADATTATORE QWEN (Corretto)
 # ==========================================
 class QwenServerLLM(LLM):
     @property
@@ -39,55 +39,59 @@ class QwenServerLLM(LLM):
         return "qwen2.5-vl-custom"
 
     def _call(self, prompt: str, stop: Optional[List[str]] = None, **kwargs) -> str:
-            # 1. Messaggio puramente testuale per stabilità sulla GPU
-            messages = [{"role": "user", "content": prompt}]
+        # Implementazione pulita per evitare il TypeError
+        messages = [{"role": "user", "content": prompt}]
+        
+        if tools_real.qwen_model is None or tools_real.qwen_processor is None:
+            raise ValueError("Errore: I motori del server non sono stati accesi!")
 
-            if tools_real.qwen_model is None or tools_real.qwen_processor is None:
-                raise ValueError("Errore: I motori del server non sono stati accesi!")
-
-            # 2. 📍 MODIFICA CHIAVE: Passiamo il parametro 'stop'
-            # Questo dice a Qwen di fermarsi non appena scrive "Observation:"
-            risposta_grezza = generate_answer(
-                tools_real.qwen_model, 
-                tools_real.qwen_processor, 
-                messages,
-                stop=stop  # <--- Passiamo la lista dei token di stop qui
-            )
-
-            return risposta_grezza
+        return generate_answer(
+            tools_real.qwen_model, 
+            tools_real.qwen_processor, 
+            messages,
+            stop=stop
+        )
 
 # ==========================================
 # SETUP AGENTE (Globali)
 # ==========================================
+# 📍 Modificato il template per essere 100% compatibile con create_react_agent
 template_istruzioni = """Sei un assistente esperto d'arte. Hai accesso a questi strumenti:
+
 {tools}
 
-Segui ESATTAMENTE questo formato, un passaggio alla volta:
+Per rispondere usa ESATTAMENTE questo formato:
 
 Thought: Devo capire chi ha dipinto il quadro.
-Action: tool_ricerca_visiva
+Action: {tool_names}
 Action Input: il_nome_del_file.jpg
-(STOP: QUI TI FERMI E ASPETTI L'OBSERVATION)
+Observation: il risultato dello strumento
 
-Observation: [Qui scriverà il sistema, NON TU]
-
-... (ripeti se necessario)
+... (questo ciclo Thought/Action/Action Input/Observation può ripetersi)
 
 Thought: Ora so la risposta finale.
 Final Answer: Il pittore è [Nome].
 
-IMPORTANTE: Non scrivere mai 'Observation:' da solo. Fermati sempre dopo 'Action Input:'.
-
-Inizia!
 Domanda: {input}
-{agent_scratchpad}"""
+Thought: {agent_scratchpad}"""
 
-prompt = PromptTemplate.from_template(template_istruzioni)
+# 📍 FORZIAMO le input_variables per evitare il ValueError: {'tool_names'}
+prompt = PromptTemplate(
+    template=template_istruzioni,
+    input_variables=["input", "tools", "tool_names", "agent_scratchpad"]
+)
+
 vero_qwen = QwenServerLLM()
 
-# Usiamo i riferimenti al modulo tools_real
+# Inizializziamo l'agente e l'esecutore
 agente = create_react_agent(vero_qwen, tools_real.miei_tools_reali, prompt)
-esecutore = AgentExecutor(agent=agente, tools=tools_real.miei_tools_reali, verbose=True,handle_parsing_errors=True)
+esecutore = AgentExecutor(
+    agent=agente, 
+    tools=tools_real.miei_tools_reali, 
+    verbose=True,
+    handle_parsing_errors=True,
+    max_iterations=5 # Per evitare loop infiniti
+)
 
 # ==========================================
 # MAIN EXECUTION
