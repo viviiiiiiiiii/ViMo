@@ -17,21 +17,25 @@ from transformers import (
 import traceback
 
 def load_clip_and_index(args):
-    # Caricamento del modello CLIP (già corretto)
+    # 📍 RILEVAMENTO AUTOMATICO DEL DISPOSITIVO
+    # Se i driver sono troppo vecchi, torch.cuda.is_available() restituirà False
+    device = "cuda:0" if torch.cuda.is_available() else "cpu"
+    print(f"📡 Sistema: Sto utilizzando il dispositivo -> {device}")
+
+    # Caricamento del modello CLIP
     clip_model = AutoModel.from_pretrained(
         args.retriever_path,
-        torch_dtype=torch.float16,
+        # Usiamo float32 su CPU per evitare errori di precisione, float16 su GPU
+        torch_dtype=torch.float16 if device == "cuda:0" else torch.float32,
         trust_remote_code=True
-    ).to("cuda:0").eval()
-    clip_processor = AutoProcessor.from_pretrained(args.retriever_path, trust_remote_code=True)
-    # Faiss richiede una stringa, quindi convertiamo il Path object in str
-    index = faiss.read_index(str(args.index_path)) 
+    ).to(device).eval() # 📍 SOSTITUITO: da "cuda:0" a device
     
-    # Carichiamo il mapping JSON
+    clip_processor = AutoProcessor.from_pretrained(args.retriever_path, trust_remote_code=True)
+    
+    # Faiss e caricamento JSON (rimane uguale)
+    index = faiss.read_index(str(args.index_path)) 
     with open(args.index_json_path, "r", encoding="utf-8") as f:
         index_map = json.load(f)
-        
-    # Carichiamo la Knowledge Base di Wikipedia
     with open(args.kb_wikipedia_path, "r", encoding="utf-8") as f:
         wiki = json.load(f)  
         

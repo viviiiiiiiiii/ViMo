@@ -24,6 +24,8 @@ def start_motors(args):
     print("Accensione Cervello Qwen2.5-VL...")
     from transformers import AutoProcessor, Qwen2_5_VLForConditionalGeneration
     import torch
+
+    device = "cuda:0" if torch.cuda.is_available() else "cpu"
     
     qwen_processor = AutoProcessor.from_pretrained(args.model_path, local_files_only=True)
     qwen_model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
@@ -32,7 +34,7 @@ def start_motors(args):
         attn_implementation="eager",
         local_files_only=True,
         trust_remote_code=True
-    ).to("cuda:0").eval() 
+    ).to(device).eval() 
     
     print("✅ motors good to go")
 
