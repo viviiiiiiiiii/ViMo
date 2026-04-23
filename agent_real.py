@@ -99,7 +99,7 @@ esecutore = AgentExecutor(
     tools=tools_real.miei_tools_reali, 
     verbose=True,
     handle_parsing_errors=True,
-    max_iterations=5 # Per evitare loop infiniti
+    max_iterations=5, # Per evitare loop infiniti
     early_stopping_method='generate'
 )
 
