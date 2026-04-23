@@ -62,23 +62,24 @@ class QwenServerLLM(LLM):
 # In agent_real.py
 
 # Modifica il template in agent_real.py
-template_istruzioni = """Sei un assistente esperto d'arte. Hai accesso ai seguenti strumenti:
+template_istruzioni = """Rispondi alla domanda dell'utente nel miglior modo possibile. Hai accesso ai seguenti strumenti:
 
 {tools}
 
-REGOLE ASSOLUTE:
-1. NON PUOI MAI dare la 'Final Answer' senza aver PRIMA usato 'tool_ricerca_visiva' o 'tool_ricerca_testuale'.
-2. Per usare uno strumento, devi ESATTAMENTE usare questo formato:
+Devi usare ESATTAMENTE questo formato rigido:
 
-Thought: Devo usare il tool...
-Action: [Scegli tra {tool_names}]
-Action Input: [Solo il parametro, ESATTAMENTE su una riga, senza aggiungere altro testo]
+Question: la domanda a cui devi rispondere
+Thought: pensa sempre a cosa devi fare passo dopo passo
+Action: l'azione da eseguire, deve essere UNA SOLA tra [{tool_names}]
+Action Input: l'input per l'azione (es. foto_buia.jpg)
+Observation: il risultato dell'azione
+... (questo ciclo Thought/Action/Action Input/Observation può ripetersi N volte)
+Thought: Ora so la risposta finale
+Final Answer: la risposta finale alla domanda originale
 
-(Il sistema ti fornirà un'Observation. Solo DOPO averla letta:)
-Thought: Ora ho le informazioni.
-Final Answer: [La tua risposta finale]
+INIZIA!
 
-Domanda: {input}
+Question: {input}
 Thought: {agent_scratchpad}"""
 
 # Assicurati che il PromptTemplate dichiari TUTTE le variabili necessarie
