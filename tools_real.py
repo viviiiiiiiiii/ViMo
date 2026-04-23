@@ -64,9 +64,14 @@ def tool_ricerca_visiva(image_path: str) -> str:
     except:
         pass
     
-    # 📍 PULIZIA 2: Il trucco salva-vita. Prendiamo solo la prima riga di testo 
-    # e togliamo tutte le virgolette. Questo elimina le istruzioni allucinate!
+# 📍 PULIZIA 2: Il trucco salva-vita potenziato
     image_path = str(image_path).strip().split('\n')[0].replace('"', '').replace("'", "")
+    
+    # 📍 NOVITÀ: Rimuoviamo il prefisso se il modello fa il precisino
+    if image_path.startswith("image_path="):
+        image_path = image_path.replace("image_path=", "").strip()
+    elif image_path.startswith("image="):
+        image_path = image_path.replace("image=", "").strip()
     
     print(f"\n[TOOL VISIVO] Sto analizzando i pixel di: {image_path}")
     
@@ -124,8 +129,14 @@ def tool_ricerca_testuale(query: str) -> str:
     except:
         pass
         
-    # 📍 PULIZIA 2: Stessa pulizia per i ritorni a capo allucinati
+# 📍 PULIZIA 2 per il testo
     query = str(query).strip().split('\n')[0].replace('"', '').replace("'", "")
+    
+    # 📍 NOVITÀ: Rimuoviamo il prefisso
+    if query.startswith("query="):
+        query = query.replace("query=", "").strip()
+    elif query.startswith("testo="):
+        query = query.replace("testo=", "").strip()
     
     print(f"\n[TOOL TESTUALE] Sto cercando le parole chiave: '{query}'")
 
