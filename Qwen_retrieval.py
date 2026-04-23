@@ -29,25 +29,25 @@ from transformers import AutoTokenizer, AutoImageProcessor, CLIPImageProcessor #
 
 def load_clip_and_index(args):
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
-    dtype = torch.bfloat16 if device == "cuda:0" else torch.float32
-
-    # 1. Caricamento Modello
+    
+    # 🚨 FIX 1 (CUBLAS): Forziamo CLIP in FLOAT32 assoluto! 
+    # Questo aggira il bug dei driver NVIDIA sui calcoli bfloat16.
     clip_model = AutoModel.from_pretrained(
         args.retriever_path,
-        torch_dtype=dtype, 
+        torch_dtype=torch.float32, 
         trust_remote_code=True
     ).to(device).eval()
     
     from transformers import CLIPImageProcessor, AutoTokenizer
     
-    print("🔄 Caricamento processore visivo (Risoluzione 336x336)...")
-    # 📍 FIX ASSOLUTO: Creiamo il processore a 336 manualmente. 
-    # Niente internet, niente download, forziamo i 577 token alla perfezione.
+    print("🔄 Caricamento processore visivo (Risoluzione 224x224)...")
+    # 🚨 FIX 2 (TENSORE): Forziamo la taglia a 224x224!
+    # Questo genera ESATTAMENTE i 257 token che il modello pretende.
     img_proc = CLIPImageProcessor(
         do_resize=True, 
-        size={"shortest_edge": 336}, 
+        size={"shortest_edge": 224}, 
         do_center_crop=True, 
-        crop_size={"height": 336, "width": 336}
+        crop_size={"height": 224, "width": 224}
     )
     
     tokenizer = AutoTokenizer.from_pretrained(args.retriever_path, trust_remote_code=True)
@@ -70,12 +70,12 @@ def load_clip_and_index(args):
 
 def extract_features(image=None, text=None, model=None, processor=None, out_dim=512):
     device = model.device
-    dtype = model.dtype 
+    # 🚨 FIX 1.5: Assicuriamoci che anche i tensori in entrata siano in FLOAT32
+    dtype = torch.float32 
 
     with torch.no_grad():
         if image is not None:
-            # 📍 RIMOSSO IL RESIZE MANUALE A 224!
-            # Ora passiamo l'immagine pura. Il processore la farà diventare 336x336 (577 token).
+            # Il processore farà il crop a 224x224 -> 257 token perfetti.
             inputs = processor.image_processor(images=image, return_tensors="pt")
             pixel_values = inputs["pixel_values"].to(dtype=dtype, device=device)
             features = model.encode_image(pixel_values=pixel_values)
