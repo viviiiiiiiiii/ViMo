@@ -50,21 +50,24 @@ class QwenServerLLM(LLM):
 # ==========================================
 # SETUP AGENTE (Globali)
 # ==========================================
-template_istruzioni = """Sei un assistente intelligente. Hai a disposizione questi strumenti:
+template_istruzioni = """Sei un assistente esperto d'arte. Hai accesso a questi strumenti:
 {tools}
 
-Per usare uno strumento usa ESATTAMENTE questo formato:
-Thought: Devo capire cosa fare
-Action: il nome dello strumento (uno tra {tool_names})
-Action Input: solo la stringa di testo o il percorso file (SENZA parentesi graffe o JSON)
-Observation: il risultato dello strumento
+Segui ESATTAMENTE questo formato, un passaggio alla volta:
 
-Esempio di Action Input corretto: foto_buia.jpg
-Esempio di Action Input ERRATO: {{'image_path': 'foto_buia.jpg'}}
+Thought: Devo capire chi ha dipinto il quadro.
+Action: tool_ricerca_visiva
+Action Input: il_nome_del_file.jpg
+(STOP: QUI TI FERMI E ASPETTI L'OBSERVATION)
 
-Quando hai la risposta finale:
-Thought: Ora so la risposta.
-Final Answer: La tua risposta finale.
+Observation: [Qui scriverà il sistema, NON TU]
+
+... (ripeti se necessario)
+
+Thought: Ora so la risposta finale.
+Final Answer: Il pittore è [Nome].
+
+IMPORTANTE: Non scrivere mai 'Observation:' da solo. Fermati sempre dopo 'Action Input:'.
 
 Inizia!
 Domanda: {input}

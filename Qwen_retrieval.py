@@ -103,20 +103,30 @@ def build_chat_prompt(context, question, image):
 
 
 
-def generate_answer(model, processor, messages):
-    # Applichiamo il template di chat (solo testo per stabilità HPC)
+def generate_answer(model, processor, messages, stop=None): # 📍 Aggiunto parametro stop
+    # Prepariamo il testo
     text = processor.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
-    
-    # Prepariamo gli input (senza immagini per evitare l'errore srcIndex)
     inputs = processor(text=[text], padding=True, return_tensors="pt").to(model.device)
 
+    # 📍 Configurazione Stop Tokens
+    stop_strings = stop if stop else ["Observation:", "Observation"]
+    
     with torch.no_grad():
         outputs = model.generate(
             **inputs, 
-            max_new_tokens=512, # Più spazio per pensare
-            do_sample=False,    # Più deterministico, meno errori
-            use_cache=True
+            max_new_tokens=256,
+            do_sample=False,
+            use_cache=True,
+            # Fermati se incontri la parola Observation
+            eos_token_id=processor.tokenizer.eos_token_id,
         )
     
     generated_ids = outputs[0][inputs["input_ids"].shape[-1]:]
-    return processor.tokenizer.decode(generated_ids, skip_special_tokens=True).strip()
+    risposta = processor.tokenizer.decode(generated_ids, skip_special_tokens=True).strip()
+
+    # 📍 TAGLIO DI SICUREZZA: Se il modello ha ignorato il comando e ha continuato a scrivere
+    for s in stop_strings:
+        if s in risposta:
+            risposta = risposta.split(s)[0].strip()
+            
+    return risposta
