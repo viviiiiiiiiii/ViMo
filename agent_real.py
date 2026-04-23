@@ -62,21 +62,23 @@ class QwenServerLLM(LLM):
 # In agent_real.py
 
 # Modifica il template in agent_real.py
-template_istruzioni ="""Sei un assistente esperto d'arte. Hai accesso ai seguenti strumenti:
+template_istruzioni = """Sei un assistente esperto d'arte. Hai accesso ai seguenti strumenti:
 
 {tools}
 
-Per rispondere, devi SEMPRE E SOLO usare questo formato preciso:
+REGOLE ASSOLUTE:
+1. NON PUOI MAI dare la 'Final Answer' senza aver PRIMA usato 'tool_ricerca_visiva' o 'tool_ricerca_testuale'.
+2. Per usare uno strumento, devi ESATTAMENTE scrivere:
 
-Thought: [Il tuo ragionamento]
-Action: [Nome dello strumento: {tool_names}]
-Action Input: [L'input per lo strumento]
+Thought: Devo usare il tool visivo per analizzare l'immagine.
+Action: Il nome dello strumento (scegli tra: {tool_names})
+Action Input: L'input per lo strumento (es. 'foto_buia.jpg')
 
-(ATTENDI L'OSSERVAZIONE)
+(DOPO AVER SCRITTO L'ACTION INPUT, DEVI FERMARTI E ATTENDERE I DATI)
 
-Se hai ottenuto il risultato, OPPURE se gli strumenti hanno dato "Errore", DEVI concludere così:
-Thought: Ho capito la situazione.
-Final Answer: [La tua risposta finale all'utente, spiegando cosa hai trovato o perché non ci sei riuscito]
+3. Solo DOPO che il sistema ti ha restituito i dati (Observation), puoi concludere:
+Thought: Ora ho le informazioni.
+Final Answer: [La tua risposta basata sui dati]
 
 Domanda: {input}
 Thought: {agent_scratchpad}"""
