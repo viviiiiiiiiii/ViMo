@@ -36,23 +36,39 @@ def image_to_base64(image_path):
 # ==========================================
 # L'ADATTATORE QWEN (Corretto)
 # ==========================================
+# ==========================================
+# L'ADATTATORE QWEN (Corretto con Freno a Mano)
+# ==========================================
 class QwenServerLLM(LLM):
     @property
     def _llm_type(self) -> str:
         return "qwen2.5-vl-custom"
 
     def _call(self, prompt: str, stop: Optional[List[str]] = None, **kwargs) -> str:
-        # Implementazione pulita per evitare il TypeError
+        # Formattazione del prompt
         messages = [{"role": "user", "content": prompt}]
         
         if tools_real.qwen_model is None or tools_real.qwen_processor is None:
             raise ValueError("Errore: I motori del server non sono stati accesi!")
 
-        return generate_answer(
+        # 1. Generiamo la risposta completa da Qwen
+        risposta = generate_answer(
             tools_real.qwen_model, 
             tools_real.qwen_processor, 
-            messages,
-            stop=stop
+            messages
+            # Rimuoviamo stop=stop da qui perché model.generate spesso lo ignora
+        )
+
+        # 2. 📍 LA MAGIA: Applichiamo il "Freno a mano" di LangChain manualmente
+        # LangChain passerà stop=["\nObservation:", "Observation:"]
+        if stop is not None:
+            for stop_word in stop:
+                if stop_word in risposta:
+                    # Se Qwen ha provato a scrivere "Observation:", tagliamo la frase lì!
+                    risposta = risposta.split(stop_word)[0]
+
+        # Restituiamo la stringa pulita e tagliata
+        return risposta.strip()p
         )
 
 # ==========================================
