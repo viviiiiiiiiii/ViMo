@@ -136,7 +136,13 @@ def generate_answer(model, processor, messages, stop=None):
 
 
 def retrieve_topk_pages(features, index, index_map, wiki, k):
+    # Cerchiamo gli indici nel database FAISS
     _, I = index.search(features, k)
-    urls = [index_map[i][0] for i in I[0]]
-    texts = ["\n".join(wiki[url[0]]["section_texts"][:2]) for url in urls]
+    
+    # Recuperiamo gli ID interi dei documenti
+    doc_ids = [index_map[i][0] for i in I[0]]
+    
+    # 📍 IL FIX: 'doc_id' è la stringa intera, non facciamo [0]!
+    texts = ["\n".join(wiki[doc_id]["section_texts"][:2]) for doc_id in doc_ids]
+    
     return "\n\n".join(texts)
