@@ -137,7 +137,7 @@ def generate_answer(model, processor, messages, stop=None,**kwargs):
         outputs = model.generate(
             **inputs, 
             max_new_tokens=256,
-            **kwargs
+            **kwargs,
             do_sample=False,
             use_cache=True,
             pad_token_id=processor.tokenizer.pad_token_id,
