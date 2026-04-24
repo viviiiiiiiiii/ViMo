@@ -30,39 +30,38 @@ from transformers import AutoTokenizer, AutoImageProcessor, CLIPImageProcessor #
 # In Qwen_retrieval.py
 
 def load_clip_and_index(args):
+    # 1. Scelta Device
     device_clip = "cuda:1" if torch.cuda.device_count() > 1 else "cpu"
-    print(f"🔄 Caricamento EVA-CLIP su {device_clip}...")
+    
+    # 📍 IL SEGRETO SVELATO DAL TUO FILE: Se siamo su CPU, MAI usare float16!
+    dtype_clip = torch.float16 if device_clip.startswith("cuda") else torch.float32
+    print(f"🔄 Caricamento EVA-CLIP su {device_clip} (Precisione: {dtype_clip})...")
     
     import os
     os.environ["TRANSFORMERS_IGNORE_LOAD_VULNERABILITY"] = "1"
-    
     from transformers import AutoModel, CLIPImageProcessor, AutoTokenizer
     import math
     
+    # 2. Caricamento Modello
     clip_model = AutoModel.from_pretrained(
         args.retriever_path,
-        torch_dtype=torch.float16, 
+        torch_dtype=dtype_clip, # <-- La correzione salva-vita
         trust_remote_code=True
     ).to(device_clip).eval()
     
-    # 📍 LA MAGIA ASSOLUTA: Leggiamo la dimensione esatta dai neuroni del modello!
+    # 3. Lettura Neuroni per l'immagine
     try:
         pos_weight = clip_model.vision_model.embeddings.position_embedding.weight
-        num_patches = pos_weight.shape[0] - 1  # Sottraiamo 1 per il token CLS
+        num_patches = pos_weight.shape[0] - 1  
         true_size = int(math.sqrt(num_patches) * 14)
-        print(f"\n🔮 [DEBUG] LETTURA NEURONI: La matrice ha {pos_weight.shape[0]} posizioni.")
-        print(f"✅ [DEBUG] Dimensione immagine richiesta dal modello: {true_size}x{true_size}!\n")
-    except Exception as e:
-        print(f"\n⚠️ [DEBUG] Impossibile leggere i neuroni ({e}), forzo 336x336 di sicurezza.\n")
-        true_size = 336
+        print(f"🔮 [DEBUG] Dimensione immagine nativa calcolata: {true_size}x{true_size}")
+    except Exception:
+        true_size = 224
         
     img_proc = CLIPImageProcessor(
-        do_resize=True, 
-        size={"shortest_edge": true_size}, 
-        do_center_crop=True, 
-        crop_size={"height": true_size, "width": true_size}
+        do_resize=True, size={"shortest_edge": true_size}, 
+        do_center_crop=True, crop_size={"height": true_size, "width": true_size}
     )
-        
     tokenizer = AutoTokenizer.from_pretrained(args.retriever_path, trust_remote_code=True)
     
     class CLIPProcessorWrapper:
@@ -84,50 +83,35 @@ def load_clip_and_index(args):
 
 def extract_features(image=None, text=None, model=None, processor=None, out_dim=512):
     device = model.device 
+    target_dtype = model.dtype # 📍 Prendiamo il dtype reale (float32 su cpu, float16 su gpu)
     
     print("\n" + "="*40)
-    print("🕵️ DEBUG PROFONDO TENSORI EVA-CLIP")
+    print(f"🕵️ DEBUG TENSORI (Device: {device} | Dtype: {target_dtype})")
     print("="*40)
 
     with torch.no_grad():
         if image is not None:
-            print("▶ TIPO INPUT: Immagine")
-            
             inputs = processor.image_processor(images=image, return_tensors="pt")
-            pixel_values = inputs["pixel_values"].to(dtype=torch.float16, device=device)
+            # 📍 Passiamo all'immagine IL DTYPE CORRETTO
+            pixel_values = inputs["pixel_values"].to(dtype=target_dtype, device=device)
             
-            print(f"📦 [DEBUG] Forma del tensore inviato (pixel_values): {pixel_values.shape}")
-            print("🚀 [DEBUG] Lancio model.encode_image()...")
-            
+            print(f"📦 [DEBUG] Tensore Immagine: {pixel_values.shape}")
             features = model.encode_image(pixel_values=pixel_values)
-            print("✅ [DEBUG] SUCCESSO! Immagine processata.")
+            print("✅ [DEBUG] SUCCESSO VISIVO!")
             
         elif text is not None:
-            print(f"▶ TIPO INPUT: Testo -> '{text}'")
-            
-            # Testo dinamico, niente più forzature che fanno crashare i bordi
-            inputs = processor.tokenizer(
-                text=text, 
-                return_tensors="pt", 
-                padding=True, 
-                truncation=True 
-            )
+            inputs = processor.tokenizer(text=text, return_tensors="pt", padding=True, truncation=True)
             input_ids = inputs["input_ids"].to(device)
             
-            print(f"📦 [DEBUG] Forma del tensore inviato (input_ids): {input_ids.shape}")
-            print(f"🔢 [DEBUG] Token ID massimo inviato: {input_ids.max().item()}")
-            print("🚀 [DEBUG] Lancio model.encode_text()...")
-            
+            print(f"📦 [DEBUG] Tensore Testo: {input_ids.shape}")
             features = model.encode_text(input_ids)
-            print("✅ [DEBUG] SUCCESSO! Testo processato.")
+            print("✅ [DEBUG] SUCCESSO TESTUALE!")
         
         # Taglio a 512 per FAISS
         if features.shape[-1] > out_dim:
-            print(f"✂️ [DEBUG] Taglio features da {features.shape[-1]} a {out_dim} dimensioni per FAISS.")
             features = features[:, :out_dim]
             
         features = features / features.norm(p=2, dim=-1, keepdim=True)
-        print(f"🏁 [DEBUG] Feature estratte pronte! (forma: {features.shape})")
         print("="*40 + "\n")
         
     return features.cpu().numpy().astype(np.float32)
