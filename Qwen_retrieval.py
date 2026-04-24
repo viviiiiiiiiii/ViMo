@@ -84,34 +84,32 @@ def extract_features(image=None, text=None, model=None, processor=None, out_dim=
                 features = model.encode_image(pixel_values=pixel_values)
             
         elif text is not None:
-            print(f"\n🔍 [DEBUG EXTRACT] Elaborazione testo: '{text}'")
-            max_len = 40
+            print(f"\n🔍 [DEBUG TESTO] Elaborazione query: '{text}'")
             
-            # Proviamo a usare direttamente il tokenizer
+            # 📍 IL FIX: Niente più padding! Lasciamo la frase della sua lunghezza naturale.
             inputs = processor.tokenizer(
                 text=text,
                 return_tensors="pt",
-                padding='max_length',
-                truncation=True,
-                max_length=max_len
+                truncation=True
+                # RIMOSSO: padding='max_length' e max_length=40
             )
             
             input_ids = inputs["input_ids"].to(device)
-            print(f"📊 [DEBUG EXTRACT] Forma input_ids: {input_ids.shape}")
-            print(f"🔢 [DEBUG EXTRACT] ID Token Massimo generato: {input_ids.max().item()}")
-
+            print(f"📊 [DEBUG TESTO] Forma input_ids NATURALE: {input_ids.shape}")
             
-            print(f"🚀 [DEBUG EXTRACT] Lancio il modello per estrarre le features testuali...")
+            # 📍 IL LUCCHETTO MATEMATICO: Forziamo ogni singolo token a stare 
+            # rigorosamente dentro i limiti del vocabolario CLIP (0 - 49407).
+            # Questo impedisce FISICAMENTE alla GPU di andare in "out of bounds".
+            input_ids = torch.clamp(input_ids, min=0, max=49407)
+            
+            print(f"🚀 [DEBUG TESTO] Lancio il modello per estrarre le features testuali...")
             
             if hasattr(model, "get_text_features"):
-                if attention_mask is not None:
-                    features = model.get_text_features(input_ids=input_ids, attention_mask=attention_mask)
-                else:
-                    features = model.get_text_features(input_ids=input_ids)
+                features = model.get_text_features(input_ids=input_ids)
             else:
                 features = model.encode_text(input_ids)
                 
-            print(f"✅ [DEBUG EXTRACT] Features estratte con successo! Forma: {features.shape}")
+            print(f"✅ [DEBUG TESTO] Estrazione riuscita! Forma: {features.shape}")
         
         if features.shape[-1] > out_dim:
             features = features[:, :out_dim]
