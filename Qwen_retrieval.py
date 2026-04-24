@@ -125,7 +125,7 @@ def generate_answer(model, processor, messages, stop=None):
     
     generated_ids = outputs[0][inputs["input_ids"].shape[-1]:]
     return processor.tokenizer.decode(generated_ids, skip_special_tokens=True).strip()
-
+''
 
 def retrieve_topk_pages(features, index, index_map, wiki, k):
     _, I = index.search(features, k)
