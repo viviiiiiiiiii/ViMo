@@ -123,4 +123,15 @@ def generate_answer(model, processor, messages, stop=None):
             eos_token_id=processor.tokenizer.eos_token_id,
         )
     
-    generated_ids = outputs[0][inputs["input_ids"].shape[-
+    generated_ids = outputs[0][inputs["input_ids"].shape[-1]:]
+    return processor.tokenizer.decode(generated_ids, skip_special_tokens=True).strip()
+
+
+def retrieve_topk_pages(features, index, index_map, wiki, k):
+    _, I = index.search(features, k)
+    
+    # 📍 IL FIX DEFINITIVO (Nessun [0] letale sulla stringa)
+    doc_ids = [index_map[i][0] for i in I[0]]
+    texts = ["\n".join(wiki[doc_id]["section_texts"][:2]) for doc_id in doc_ids]
+    
+    return "\n\n".join(texts)
