@@ -31,12 +31,13 @@ from transformers import AutoTokenizer, AutoImageProcessor, CLIPImageProcessor #
 
 def load_clip_and_index(args):
     device_clip = "cuda:1" if torch.cuda.device_count() > 1 else "cpu"
-    print(f"🔄 Caricamento EVA-CLIP su {device_clip} (Protezione File Attiva)...")
+    print(f"🔄 Caricamento EVA-CLIP su {device_clip}...")
     
     import os
     os.environ["TRANSFORMERS_IGNORE_LOAD_VULNERABILITY"] = "1"
     
     from transformers import AutoModel, CLIPImageProcessor, AutoTokenizer
+    import math
     
     clip_model = AutoModel.from_pretrained(
         args.retriever_path,
@@ -44,23 +45,23 @@ def load_clip_and_index(args):
         trust_remote_code=True
     ).to(device_clip).eval()
     
-    # 📍 IL SUPER-PARACADUTE DINAMICO
+    # 📍 LA MAGIA ASSOLUTA: Leggiamo la dimensione esatta dai neuroni del modello!
     try:
-        img_proc = CLIPImageProcessor.from_pretrained(args.retriever_path)
-    except OSError:
-        # Troviamo la dimensione esatta che il modello vuole leggendo la sua configurazione interna!
-        try:
-            native_size = clip_model.config.vision_config.image_size
-        except Exception:
-            native_size = 224 # Extrema ratio
-            
-        print(f"⚠️ Config mancante! Leggo la mente del modello: applico la griglia nativa a {native_size}x{native_size}...")
-        img_proc = CLIPImageProcessor(
-            do_resize=True, 
-            size={"shortest_edge": native_size}, 
-            do_center_crop=True, 
-            crop_size={"height": native_size, "width": native_size}
-        )
+        pos_weight = clip_model.vision_model.embeddings.position_embedding.weight
+        num_patches = pos_weight.shape[0] - 1  # Sottraiamo 1 per il token CLS
+        true_size = int(math.sqrt(num_patches) * 14)
+        print(f"\n🔮 [DEBUG] LETTURA NEURONI: La matrice ha {pos_weight.shape[0]} posizioni.")
+        print(f"✅ [DEBUG] Dimensione immagine richiesta dal modello: {true_size}x{true_size}!\n")
+    except Exception as e:
+        print(f"\n⚠️ [DEBUG] Impossibile leggere i neuroni ({e}), forzo 336x336 di sicurezza.\n")
+        true_size = 336
+        
+    img_proc = CLIPImageProcessor(
+        do_resize=True, 
+        size={"shortest_edge": true_size}, 
+        do_center_crop=True, 
+        crop_size={"height": true_size, "width": true_size}
+    )
         
     tokenizer = AutoTokenizer.from_pretrained(args.retriever_path, trust_remote_code=True)
     
@@ -92,62 +93,41 @@ def extract_features(image=None, text=None, model=None, processor=None, out_dim=
         if image is not None:
             print("▶ TIPO INPUT: Immagine")
             
-            # 1. Vediamo cosa si aspetta il modello
-            try:
-                expected_size = model.config.vision_config.image_size
-                print(f"📏 Il modello ESIGE un'immagine: {expected_size}x{expected_size}")
-            except Exception:
-                print("📏 Non riesco a leggere la dimensione attesa dalla config visiva.")
-            
-            # 2. Elaboriamo l'immagine
             inputs = processor.image_processor(images=image, return_tensors="pt")
             pixel_values = inputs["pixel_values"].to(dtype=torch.float16, device=device)
             
-            # 3. Vediamo cosa gli stiamo effettivamente dando
-            print(f"📦 Forma del tensore inviato (pixel_values): {pixel_values.shape}")
-            print(f"   (Dovrebbe essere: [1, 3, Altezza, Larghezza])")
+            print(f"📦 [DEBUG] Forma del tensore inviato (pixel_values): {pixel_values.shape}")
+            print("🚀 [DEBUG] Lancio model.encode_image()...")
             
-            print("🚀 Lancio model.encode_image()...")
             features = model.encode_image(pixel_values=pixel_values)
-            print("✅ SUCCESSO! Immagine processata senza esplodere.")
+            print("✅ [DEBUG] SUCCESSO! Immagine processata.")
             
         elif text is not None:
             print(f"▶ TIPO INPUT: Testo -> '{text}'")
             
-            # 1. Vediamo i limiti del modello
-            try:
-                max_pos = model.config.text_config.max_position_embeddings
-                vocab_size = model.config.text_config.vocab_size
-                print(f"📏 Il modello ESIGE massimo: {max_pos} token.")
-                print(f"📚 Vocabolario massimo: {vocab_size} ID.")
-            except Exception:
-                print("📏 Non riesco a leggere i limiti dalla config testuale.")
-
-            # 2. Elaboriamo il testo (proviamo con 64 che è lo standard per molti EVA)
-            limit = 77
+            # Testo dinamico, niente più forzature che fanno crashare i bordi
             inputs = processor.tokenizer(
                 text=text, 
                 return_tensors="pt", 
-                padding="max_length", 
-                truncation=True, 
-                max_length=limit 
+                padding=True, 
+                truncation=True 
             )
             input_ids = inputs["input_ids"].to(device)
             
-            # 3. Vediamo cosa gli stiamo dando
-            print(f"📦 Forma del tensore inviato (input_ids): {input_ids.shape}")
-            print(f"🔢 Token ID massimo inviato: {input_ids.max().item()}")
+            print(f"📦 [DEBUG] Forma del tensore inviato (input_ids): {input_ids.shape}")
+            print(f"🔢 [DEBUG] Token ID massimo inviato: {input_ids.max().item()}")
+            print("🚀 [DEBUG] Lancio model.encode_text()...")
             
-            print("🚀 Lancio model.encode_text()...")
             features = model.encode_text(input_ids)
-            print("✅ SUCCESSO! Testo processato senza esplodere.")
+            print("✅ [DEBUG] SUCCESSO! Testo processato.")
         
         # Taglio a 512 per FAISS
         if features.shape[-1] > out_dim:
+            print(f"✂️ [DEBUG] Taglio features da {features.shape[-1]} a {out_dim} dimensioni per FAISS.")
             features = features[:, :out_dim]
             
         features = features / features.norm(p=2, dim=-1, keepdim=True)
-        print(f"🏁 Feature estratte pronte per FAISS (forma: {features.shape})")
+        print(f"🏁 [DEBUG] Feature estratte pronte! (forma: {features.shape})")
         print("="*40 + "\n")
         
     return features.cpu().numpy().astype(np.float32)
