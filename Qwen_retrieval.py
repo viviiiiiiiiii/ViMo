@@ -6,7 +6,7 @@ from transformers import AutoModel, CLIPImageProcessor, AutoTokenizer
 
 def load_clip_and_index(args):
     import torch
-    # CLIP su GPU 1, Qwen su GPU 0 (Stabile e funzionante!)
+    # Distribuzione: CLIP su GPU 1, Qwen su GPU 0
     device_clip = "cuda:1" if torch.cuda.device_count() > 1 else "cuda:0"
     dtype_clip = torch.bfloat16
     
@@ -20,20 +20,23 @@ def load_clip_and_index(args):
         trust_remote_code=True
     ).to(device_clip).eval()
     
-    print("🔄 Caricamento processore visivo e tokenizer (Modalità Esplicita)...")
-    # 📍 FIX: Creiamo fisicamente i due processori separati per non farli confondere!
-    try:
-        img_proc = CLIPImageProcessor.from_pretrained(args.retriever_path, trust_remote_code=True)
-    except Exception:
-        img_proc = CLIPImageProcessor.from_pretrained("openai/clip-vit-large-patch14")
-        
+    print("🔄 Caricamento processore visivo (Forzato a 224x224 per salvare la GPU)...")
+    # 📍 LA CHIAVE: Usiamo il processore OpenAI puro che FORZA i 224x224 perfetti (257 neuroni)
+    img_proc = CLIPImageProcessor.from_pretrained("openai/clip-vit-large-patch14")
     tokenizer = AutoTokenizer.from_pretrained(args.retriever_path, trust_remote_code=True)
     
+    # 📍 IL WRAPPER MAGICO: Emula la sintassi del tuo screenshot!
     class CLIPProcessorWrapper:
         def __init__(self, ip, tk):
             self.image_processor = ip
             self.tokenizer = tk
             
+        def __call__(self, text=None, images=None, return_tensors=None, **kwargs):
+            if images is not None:
+                return self.image_processor(images=images, return_tensors=return_tensors, **kwargs)
+            if text is not None:
+                return self.tokenizer(text=text, return_tensors=return_tensors, **kwargs)
+                
     clip_processor = CLIPProcessorWrapper(img_proc, tokenizer)
         
     import faiss
@@ -54,8 +57,8 @@ def extract_features(image=None, text=None, model=None, processor=None, out_dim=
 
     with torch.no_grad():
         if image is not None:
-            # 📍 Ora è fisicamente impossibile che usi il tokenizer per l'immagine
-            inputs = processor.image_processor(images=image, return_tensors="pt")
+            # 📍 Sintassi ESATTA del tuo screenshot! Il wrapper capisce "images="
+            inputs = processor(images=image, return_tensors="pt")
             pixel_values = inputs["pixel_values"].to(dtype=dtype, device=device)
             
             if hasattr(model, "get_image_features"):
@@ -64,9 +67,8 @@ def extract_features(image=None, text=None, model=None, processor=None, out_dim=
                 features = model.encode_image(pixel_values=pixel_values)
             
         elif text is not None:
-            # Tokenizer sicuro a 40 len (come nel tuo screenshot)
             max_len = 40
-            inputs = processor.tokenizer(
+            inputs = processor(
                 text=text,
                 return_tensors="pt",
                 padding='max_length',
@@ -93,7 +95,6 @@ def extract_features(image=None, text=None, model=None, processor=None, out_dim=
         features = features / torch.clamp(features.norm(p=2, dim=-1, keepdim=True), min=1e-7)
         
     return features.to(torch.float32).cpu().numpy()
-
 
 def generate_answer(model, processor, messages, stop=None):
     clean_messages = []
