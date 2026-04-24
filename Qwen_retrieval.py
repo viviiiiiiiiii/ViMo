@@ -5,6 +5,8 @@ import numpy as np
 import torch
 from transformers import AutoModel, CLIPImageProcessor, AutoTokenizer
 
+#d
+
 def load_clip_and_index(args, load_faiss=True):
     # 📍 FIX: Rilevamento intelligente del dispositivo
     if torch.cuda.is_available() and torch.cuda.device_count() > 0:
