@@ -6,26 +6,44 @@ from transformers import AutoModel, CLIPImageProcessor, AutoTokenizer
 
 def load_clip_and_index(args):
     import torch
+    import os
+    
     # Distribuzione: CLIP su GPU 1, Qwen su GPU 0
     device_clip = "cuda:1" if torch.cuda.device_count() > 1 else "cuda:0"
     dtype_clip = torch.bfloat16
     
-    print(f"🔄 Caricamento EVA-CLIP su {device_clip}...")
+    print(f"🔄 Caricamento EVA-CLIP su {device_clip} da locale...")
 
     from transformers import AutoModel, CLIPImageProcessor, AutoTokenizer
     
+    # Carica EVA-CLIP 100% in locale
     clip_model = AutoModel.from_pretrained(
         args.retriever_path,
         torch_dtype=dtype_clip, 
-        trust_remote_code=True
+        trust_remote_code=True,
+        local_files_only=True  # 📍 Niente internet!
     ).to(device_clip).eval()
     
-    print("🔄 Caricamento processore visivo (Forzato a 224x224 per salvare la GPU)...")
-    # 📍 LA CHIAVE: Usiamo il processore OpenAI puro che FORZA i 224x224 perfetti (257 neuroni)
-    img_proc = CLIPImageProcessor.from_pretrained("openai/clip-vit-large-patch14")
-    tokenizer = AutoTokenizer.from_pretrained(args.retriever_path, trust_remote_code=True)
+    # 📍 Ricaviamo la cartella "modelli/" e puntiamo a clip-vit-large-patch14
+    modelli_dir = os.path.dirname(str(args.retriever_path))
+    local_clip_processor_path = os.path.join(modelli_dir, "clip-vit-large-patch14")
     
-    # 📍 IL WRAPPER MAGICO: Emula la sintassi del tuo screenshot!
+    print(f"🔄 Caricamento processore visivo da locale: {local_clip_processor_path}")
+    
+    # Carichiamo il processore dalla tua cartella locale!
+    img_proc = CLIPImageProcessor.from_pretrained(
+        local_clip_processor_path, 
+        local_files_only=True
+    )
+    
+    # Anche il tokenizer dal locale
+    tokenizer = AutoTokenizer.from_pretrained(
+        args.retriever_path, 
+        trust_remote_code=True, 
+        local_files_only=True
+    )
+    
+    # Wrapper Magico (Sintassi Screenshot)
     class CLIPProcessorWrapper:
         def __init__(self, ip, tk):
             self.image_processor = ip
