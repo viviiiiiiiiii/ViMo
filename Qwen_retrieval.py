@@ -121,7 +121,7 @@ def extract_features(image=None, text=None, model=None, processor=None, out_dim=
     return features.to(torch.float32).cpu().numpy()
 
 
-def generate_answer(model, processor, messages, stop=None):
+def generate_answer(model, processor, messages, stop=None,**kwargs):
     clean_messages = []
     for m in messages:
         if isinstance(m["content"], list):
@@ -137,6 +137,7 @@ def generate_answer(model, processor, messages, stop=None):
         outputs = model.generate(
             **inputs, 
             max_new_tokens=256,
+            **kwargs
             do_sample=False,
             use_cache=True,
             pad_token_id=processor.tokenizer.pad_token_id,
