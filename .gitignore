@@ -12,4 +12,8 @@ risultati/
 venv/
 .env
 __pycache__/
-*.pyc
+*.pycmodelli/
+.venvMo/
+__pycache__/
+*.index
+*.out

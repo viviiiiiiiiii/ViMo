@@ -15,5 +15,5 @@ source /work/cvcs2026/ViMo/.venvMo/bin/activate
 cd /work/cvcs2026/ViMo/
 
 # Lancia lo script di indicizzazione
-export TRANSFORMERS_IGNORE_LOAD_VULNERABILITY=1
+export CUDA_VISIBLE_DEVICES=""
 python dati/build_knn_index_real.py
