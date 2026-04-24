@@ -75,9 +75,20 @@ class QwenServerLLM(LLM):
 # In agent_real.py
 
 # Modifica il template in agent_real.py
-template_universale = """Answer the following questions as best you can. You have access to the following tools:
+# ==========================================
+# SETUP AGENTE (Globali) - VERSIONE GROUNDED
+# ==========================================
 
+template_universale = """You are a strictly grounded assistant. Answer the following questions based ONLY on information retrieved from tools.
+
+You have access to the following tools:
 {tools}
+
+STRICT RULES:
+1. Use ONLY the information provided in the 'Observation' sections.
+2. If the tools do not provide information about a specific request (e.g. inventions), do NOT invent them. State: "Information not found in the database."
+3. Never use your internal knowledge to supplement the database. 
+4. If you identify a person but the tool doesn't mention their inventions, you MUST try 'tool_ricerca_testuale' before giving up.
 
 Use the following format:
 
@@ -95,7 +106,7 @@ Begin!
 Question: {input}
 Thought: {agent_scratchpad}"""
 
-# Assicurati che il PromptTemplate dichiari TUTTE le variabili necessarie
+# Il resto del codice (PromptTemplate, agente, esecutore) rimane uguale
 prompt = PromptTemplate(
     template=template_universale,
     input_variables=["input", "tools", "tool_names", "agent_scratchpad"]
