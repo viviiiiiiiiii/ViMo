@@ -99,10 +99,7 @@ def extract_features(image=None, text=None, model=None, processor=None, out_dim=
             input_ids = inputs["input_ids"].to(device)
             print(f"📊 [DEBUG EXTRACT] Forma input_ids: {input_ids.shape}")
             print(f"🔢 [DEBUG EXTRACT] ID Token Massimo generato: {input_ids.max().item()}")
-            
-            attention_mask = inputs.get("attention_mask", None)
-            if attention_mask is not None:
-                attention_mask = attention_mask.to(device)
+
             
             print(f"🚀 [DEBUG EXTRACT] Lancio il modello per estrarre le features testuali...")
             
