@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=vimo_agent_test
-#SBATCH --partition=br_prodoost_us  # La partizione GPU che abbiamo trovato
+#SBATCH --partition=boost_usr_prod  # La partizione GPU che abbiamo trovato
 #SBATCH --gres=gpu:2              #Chiediamo 1 GPU
 #SBATCH --mem=40G                  # Qwen2.5-VL ha bisogno di molta RAM
 #SBATCH --time=00:20:00
