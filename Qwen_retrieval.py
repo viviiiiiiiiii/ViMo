@@ -5,7 +5,7 @@ import numpy as np
 import torch
 from transformers import AutoModel, CLIPImageProcessor, AutoTokenizer
 
-def load_clip_and_index(args):
+def load_clip_and_index(args, load_faiss=True):
     # 📍 FIX: Rilevamento intelligente del dispositivo
     if torch.cuda.is_available() and torch.cuda.device_count() > 0:
         device_clip = "cuda:1" if torch.cuda.device_count() > 1 else "cuda:0"
@@ -19,7 +19,6 @@ def load_clip_and_index(args):
     
     print(f"🔄 Caricamento EVA-CLIP su RAM per riparazione...")
     
-    print(f"🔄 Caricamento EVA-CLIP su RAM per riparazione...")
 
     clip_model = AutoModel.from_pretrained(
         args.retriever_path,
@@ -68,11 +67,20 @@ def load_clip_and_index(args):
                 
     clip_processor = CLIPProcessorWrapper(img_proc, tokenizer)
         
-    index = faiss.read_index(str(args.index_path)) 
-    with open(args.index_json_path, "r", encoding="utf-8") as f:
-        index_map = json.load(f)
-    with open(args.kb_wikipedia_path, "r", encoding="utf-8") as f:
-        wiki = json.load(f)  
+    index, index_map, wiki = None, None, None
+    
+    # 📍 IL PUNTO CRUCIALE: Metti il caricamento FAISS sotto l'interruttore
+    index, index_map, wiki = None, None, None
+    
+    if load_faiss:
+        print(f"📂 Caricamento indici FAISS da {args.index_path}...")
+        index = faiss.read_index(str(args.index_path)) 
+        with open(args.index_json_path, "r", encoding="utf-8") as f:
+            index_map = json.load(f)
+        with open(args.kb_wikipedia_path, "r", encoding="utf-8") as f:
+            wiki = json.load(f)  
+    else:
+        print("⏭️ Salto il caricamento di FAISS (modalità creazione indice).")
         
     return clip_model, clip_processor, index, index_map, wiki
 

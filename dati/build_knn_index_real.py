@@ -43,8 +43,8 @@ def main():
     
     print(f"🔄 Avvio procedura di riparazione e caricamento modello...")
     # Usiamo la funzione load_clip_and_index che abbiamo corretto per sanare i position_ids
-    model, processor, _, _, _ = load_clip_and_index(FakeArgs())
-    
+
+    model, processor, _, _, _ = load_clip_and_index(FakeArgs(), load_faiss=False)    
     print(f"✅ Modello caricato su {model.device} e pronto per l'indicizzazione.")
 
     # 3. Preparazione testi
