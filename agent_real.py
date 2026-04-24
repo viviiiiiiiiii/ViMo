@@ -42,30 +42,28 @@ class QwenServerLLM(LLM):
     def _llm_type(self) -> str:
         return "qwen2.5-vl-custom"
 
-    def _call(self, prompt: str, stop: Optional[List[str]] = None, **kwargs) -> str:
-        # Formattazione del prompt
+def _call(self, prompt: str, stop: Optional[List[str]] = None, **kwargs) -> str:
         messages = [{"role": "user", "content": prompt}]
         
         if tools_real.qwen_model is None or tools_real.qwen_processor is None:
             raise ValueError("Errore: I motori del server non sono stati accesi!")
 
-        # 1. Generiamo la risposta completa da Qwen
+        # 📍 AGGIUNGIAMO PARAMETRI ANTI-LOOP
+        # Nota: assicurati che generate_answer accetti **kwargs o parametri extra
         risposta = generate_answer(
             tools_real.qwen_model, 
             tools_real.qwen_processor, 
-            messages
-            # Rimuoviamo stop=stop da qui perché model.generate spesso lo ignora
+            messages,
+            temperature=0.1,         # Più basso = meno fantasia
+            repetition_penalty=1.2,  # 📍 BLOCCA I LOOP DI RIPETIZIONE
+            max_new_tokens=512       # Evita risposte infinite
         )
 
-        # 2. 📍 LA MAGIA: Applichiamo il "Freno a mano" di LangChain manualmente
-        # LangChain passerà stop=["\nObservation:", "Observation:"]
         if stop is not None:
             for stop_word in stop:
                 if stop_word in risposta:
-                    # Se Qwen ha provato a scrivere "Observation:", tagliamo la frase lì!
                     risposta = risposta.split(stop_word)[0]
 
-        # Restituiamo la stringa pulita e tagliata
         return risposta.strip()
 
 # ==========================================
@@ -79,30 +77,32 @@ class QwenServerLLM(LLM):
 # SETUP AGENTE (Globali) - VERSIONE GROUNDED
 # ==========================================
 
-template_universale = """You are a strictly grounded assistant. Answer the following questions based ONLY on information retrieved from tools.
+template_universale = """You are a DATA-ONLY research assistant. 
+You must identify subjects and then verify details ONLY using the provided tools.
 
-You have access to the following tools:
+RULES:
+1. NEVER invent information. If it's not in the 'Observation', it doesn't exist.
+2. If you identify a subject (e.g., Leonardo) but the user asks for details (e.g., inventions) that are NOT in the visual observation, you MUST call 'tool_ricerca_testuale' before answering.
+3. If BOTH tools fail to provide specific info, say: "The database does not contain information about [X]".
+4. Do not repeat yourself.
+
+Tools:
 {tools}
 
-STRICT RULES:
-1. Use ONLY the information provided in the 'Observation' sections.
-2. If the tools do not provide information about a specific request (e.g. inventions), do NOT invent them. State: "Information not found in the database."
-3. Never use your internal knowledge to supplement the database. 
-4. If you identify a person but the tool doesn't mention their inventions, you MUST try 'tool_ricerca_testuale' before giving up.
-
-Use the following format:
-
-Question: the input question you must answer
-Thought: you should always think about what to do
-Action: the action to take, should be one of [{tool_names}]
-Action Input: the input to the action
-Observation: the result of the action
-... (this Thought/Action/Action Input/Observation can repeat N times)
-Thought: I now know the final answer
-Final Answer: the final answer to the original input question
+Format:
+Question: {input}
+Thought: I should first identify the subject.
+Action: tool_ricerca_visiva
+Action Input: image_path
+Observation: ...
+Thought: I have identified the subject. Now I must check for the specific details requested.
+Action: tool_ricerca_testuale
+Action Input: specific query
+Observation: ...
+Thought: I now have all the verified data.
+Final Answer: [Summarize ONLY what was found]
 
 Begin!
-
 Question: {input}
 Thought: {agent_scratchpad}"""
 
