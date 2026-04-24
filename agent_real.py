@@ -33,12 +33,7 @@ def image_to_base64(image_path):
     with open(image_path, "rb") as img_file:
         return base64.b64encode(img_file.read()).decode('utf-8')
 
-# ==========================================
-# L'ADATTATORE QWEN (Corretto)
-# ==========================================
-# ==========================================
-# L'ADATTATORE QWEN (Corretto con Freno a Mano)
-# ==========================================
+
 # ==========================================
 # L'ADATTATORE QWEN (Corretto con Freno a Mano)
 # ==========================================
@@ -140,8 +135,8 @@ if __name__ == "__main__":
     tools_real.start_motors(args)
     
     # 3. TEST AGENTE
-    percorso_immagine = "foto_buia.jpg" 
-    input_semplice = f"Ho un'immagine chiamata '{percorso_immagine}'. Per favore, usa il tool visivo per dirmi chi è l'autore del quadro."
+# 3. TEST AGENTE SOLO TESTO
+    input_semplice = "Usa il tool di ricerca testuale per cercare informazioni su 'Leonardo da Vinci' e dimmi cosa trovi."
 
-    print("\n🤖 Agente in ascolto (Stabile)...")
+    print("\n🤖 Agente in ascolto (Modalità DEBUG TESTO)...")
     esecutore.invoke({"input": input_semplice})

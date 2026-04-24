@@ -75,18 +75,20 @@ def extract_features(image=None, text=None, model=None, processor=None, out_dim=
 
     with torch.no_grad():
         if image is not None:
-            # 📍 Sintassi ESATTA del tuo screenshot! Il wrapper capisce "images="
+            # Ramo visivo (che per ora non verrà chiamato, ma lo lasciamo)
             inputs = processor(images=image, return_tensors="pt")
             pixel_values = inputs["pixel_values"].to(dtype=dtype, device=device)
-            
             if hasattr(model, "get_image_features"):
                 features = model.get_image_features(pixel_values=pixel_values)
             else:
                 features = model.encode_image(pixel_values=pixel_values)
             
         elif text is not None:
+            print(f"\n🔍 [DEBUG EXTRACT] Elaborazione testo: '{text}'")
             max_len = 40
-            inputs = processor(
+            
+            # Proviamo a usare direttamente il tokenizer
+            inputs = processor.tokenizer(
                 text=text,
                 return_tensors="pt",
                 padding='max_length',
@@ -95,9 +97,14 @@ def extract_features(image=None, text=None, model=None, processor=None, out_dim=
             )
             
             input_ids = inputs["input_ids"].to(device)
+            print(f"📊 [DEBUG EXTRACT] Forma input_ids: {input_ids.shape}")
+            print(f"🔢 [DEBUG EXTRACT] ID Token Massimo generato: {input_ids.max().item()}")
+            
             attention_mask = inputs.get("attention_mask", None)
             if attention_mask is not None:
                 attention_mask = attention_mask.to(device)
+            
+            print(f"🚀 [DEBUG EXTRACT] Lancio il modello per estrarre le features testuali...")
             
             if hasattr(model, "get_text_features"):
                 if attention_mask is not None:
@@ -106,6 +113,8 @@ def extract_features(image=None, text=None, model=None, processor=None, out_dim=
                     features = model.get_text_features(input_ids=input_ids)
             else:
                 features = model.encode_text(input_ids)
+                
+            print(f"✅ [DEBUG EXTRACT] Features estratte con successo! Forma: {features.shape}")
         
         if features.shape[-1] > out_dim:
             features = features[:, :out_dim]
