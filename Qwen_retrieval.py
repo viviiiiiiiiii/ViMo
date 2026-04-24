@@ -6,13 +6,11 @@ import torch
 from transformers import AutoModel, CLIPImageProcessor, AutoTokenizer
 
 def load_clip_and_index(args):
-    # Distribuzione: CLIP su GPU 1, Qwen su GPU 0
     device_clip = "cuda:1" if torch.cuda.device_count() > 1 else "cuda:0"
     dtype_clip = torch.bfloat16
     
     print(f"🔄 Caricamento EVA-CLIP su RAM per riparazione...")
 
-    # 1. Lo carichiamo in locale sulla CPU (per non far esplodere la GPU)
     clip_model = AutoModel.from_pretrained(
         args.retriever_path,
         torch_dtype=dtype_clip, 
@@ -20,7 +18,6 @@ def load_clip_and_index(args):
         local_files_only=True
     )
     
-    # 📍 2. INTERVENTO CHIRURGICO: Ripariamo TUTTI gli indici di posizione corrotti
     print("⚕️ Riparazione degli indici del modello in corso...")
     for name, module in clip_model.named_modules():
         if hasattr(module, "position_ids") and module.position_ids is not None:
@@ -30,7 +27,6 @@ def load_clip_and_index(args):
                 module.position_ids = torch.arange(seq_len).unsqueeze(0).to(module.position_ids.device)
     print("✅ Riparazione completata!")
 
-    # 3. ORA lo possiamo mandare sulla GPU in totale sicurezza!
     clip_model = clip_model.to(device_clip).eval()
     
     modelli_dir = os.path.dirname(str(args.retriever_path))
@@ -71,13 +67,12 @@ def load_clip_and_index(args):
     return clip_model, clip_processor, index, index_map, wiki
 
 
-def extract_features(image=None, text=None, model=None, processor=None, out_dim=512):
+def extract_features(image=None, text=None, model=None, processor=None, out_dim=None):
     device = model.device
     dtype = model.dtype 
 
     with torch.no_grad():
         if image is not None:
-            # 📍 RAMO VISIVO
             inputs = processor(images=image, return_tensors="pt")
             pixel_values = inputs["pixel_values"].to(dtype=dtype, device=device)
             
@@ -87,11 +82,10 @@ def extract_features(image=None, text=None, model=None, processor=None, out_dim=
                 features = model.encode_image(pixel_values=pixel_values)
             
         elif text is not None:
-            # 📍 RAMO TESTUALE
             inputs = processor.tokenizer(text=text, return_tensors="pt", truncation=True)
             input_ids = inputs["input_ids"].to(device)
             
-            # Il lucchetto di sicurezza contro il device-side assert!
+            # Lucchetto anti device-side assert
             input_ids = torch.clamp(input_ids, min=0, max=49407)
             
             if hasattr(model, "get_text_features"):
@@ -99,11 +93,9 @@ def extract_features(image=None, text=None, model=None, processor=None, out_dim=
             else:
                 features = model.encode_text(input_ids)
         
-        # 📍 IL TAGLIO A 512 (Perché FAISS lo esige)
-        if out_dim is not None and features.shape[-1] > out_dim:
-            features = features[:, :512]
+        # 📍 NESSUN TAGLIO A 512! Lasciamo a FAISS i suoi 1280.
         
-        # Normalizzazione sicura (SALVAVITA anti zeri)
+        # Normalizzazione sicura anti NaN
         features = features / torch.clamp(features.norm(p=2, dim=-1, keepdim=True), min=1e-7)
         
     return features.to(torch.float32).cpu().numpy()
@@ -131,18 +123,4 @@ def generate_answer(model, processor, messages, stop=None):
             eos_token_id=processor.tokenizer.eos_token_id,
         )
     
-    generated_ids = outputs[0][inputs["input_ids"].shape[-1]:]
-    return processor.tokenizer.decode(generated_ids, skip_special_tokens=True).strip()
-
-
-def retrieve_topk_pages(features, index, index_map, wiki, k):
-    # Cerchiamo gli indici nel database FAISS
-    _, I = index.search(features, k)
-    
-    # Recuperiamo gli ID interi dei documenti
-    doc_ids = [index_map[i][0] for i in I[0]]
-    
-    # 📍 IL FIX: 'doc_id' è la stringa intera, non facciamo [0]!
-    texts = ["\n".join(wiki[doc_id]["section_texts"][:2]) for doc_id in doc_ids]
-    
-    return "\n\n".join(texts)
+    generated_ids = outputs[0][inputs["input_ids"].shape[-
