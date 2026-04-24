@@ -5,14 +5,14 @@ import torch
 from transformers import AutoModel, CLIPImageProcessor, AutoTokenizer
 
 def load_clip_and_index(args):
-    # 📍 LA TUA IDEA: Se ci sono 2 GPU, CLIP va sulla seconda (cuda:1)!
     import torch
+    # CLIP va sulla GPU 1, Qwen resta al sicuro sulla GPU 0
     device_clip = "cuda:1" if torch.cuda.device_count() > 1 else "cuda:0"
     dtype_clip = torch.bfloat16
     
     print(f"🔄 Caricamento EVA-CLIP su {device_clip}...")
 
-    from transformers import AutoModel, CLIPImageProcessor, AutoTokenizer
+    from transformers import AutoModel, AutoProcessor, AutoImageProcessor, AutoTokenizer
     
     clip_model = AutoModel.from_pretrained(
         args.retriever_path,
@@ -20,22 +20,18 @@ def load_clip_and_index(args):
         trust_remote_code=True
     ).to(device_clip).eval()
     
-    print("🔄 Caricamento processore visivo (224x224)...")
-    img_proc = CLIPImageProcessor(
-        do_resize=True, 
-        size={"shortest_edge": 224}, 
-        do_center_crop=True, 
-        crop_size={"height": 224, "width": 224}
-    )
-    
-    tokenizer = AutoTokenizer.from_pretrained(args.retriever_path, trust_remote_code=True)
-    
-    class CLIPProcessorWrapper:
-        def __init__(self, ip, tk):
-            self.image_processor = ip
-            self.tokenizer = tk
-            
-    clip_processor = CLIPProcessorWrapper(img_proc, tokenizer)
+    print("🔄 Caricamento processori NATIVI del modello...")
+    # 📍 IL TUO INTUITO: Non forziamo più nulla a mano.
+    # Carichiamo la configurazione esatta e nativa del modello!
+    try:
+        clip_processor = AutoProcessor.from_pretrained(args.retriever_path, trust_remote_code=True)
+    except Exception:
+        # Fallback pulito se manca l'AutoProcessor unificato
+        class NativeProcessorWrapper:
+            def __init__(self):
+                self.image_processor = AutoImageProcessor.from_pretrained(args.retriever_path, trust_remote_code=True)
+                self.tokenizer = AutoTokenizer.from_pretrained(args.retriever_path, trust_remote_code=True)
+        clip_processor = NativeProcessorWrapper()
         
     import faiss
     import json
@@ -54,19 +50,38 @@ def extract_features(image=None, text=None, model=None, processor=None, out_dim=
 
     with torch.no_grad():
         if image is not None:
-            inputs = processor.image_processor(images=image, return_tensors="pt")
+            # Estraiamo con il processore NATIVO senza alterare le taglie
+            if hasattr(processor, "image_processor"):
+                inputs = processor.image_processor(images=image, return_tensors="pt")
+            else:
+                inputs = processor(images=image, return_tensors="pt")
+                
             pixel_values = inputs["pixel_values"].to(dtype=dtype, device=device)
+            
             if hasattr(model, "get_image_features"):
                 features = model.get_image_features(pixel_values=pixel_values)
             else:
                 features = model.encode_image(pixel_values=pixel_values)
             
         elif text is not None:
-            inputs = processor.tokenizer(text=text, return_tensors="pt", padding=True, truncation=True, max_length=77)
-            input_ids = inputs["input_ids"].to(device)
-            if hasattr(model, "get_text_features"):
-                features = model.get_text_features(input_ids=input_ids)
+            # 📍 IL FIX ASSOLUTO: Ora estraiamo sia gli input_ids che l'ATTENTION_MASK!
+            if hasattr(processor, "tokenizer"):
+                inputs = processor.tokenizer(text=text, return_tensors="pt", padding=True, truncation=True)
             else:
+                inputs = processor(text=text, return_tensors="pt", padding=True, truncation=True)
+                
+            input_ids = inputs["input_ids"].to(device)
+            attention_mask = inputs.get("attention_mask", None)
+            if attention_mask is not None:
+                attention_mask = attention_mask.to(device)
+            
+            if hasattr(model, "get_text_features"):
+                if attention_mask is not None:
+                    features = model.get_text_features(input_ids=input_ids, attention_mask=attention_mask)
+                else:
+                    features = model.get_text_features(input_ids=input_ids)
+            else:
+                # Metodo standard per le varianti custom di EVA-CLIP
                 features = model.encode_text(input_ids)
         
         if features.shape[-1] > out_dim:
@@ -74,7 +89,6 @@ def extract_features(image=None, text=None, model=None, processor=None, out_dim=
             
         features = features / torch.clamp(features.norm(p=2, dim=-1, keepdim=True), min=1e-7)
         
-    # Cast protettivo per FAISS (questo l'abbiamo ormai consolidato)
     return features.to(torch.float32).cpu().numpy()
 
 
