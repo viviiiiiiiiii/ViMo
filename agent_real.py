@@ -42,7 +42,7 @@ class QwenServerLLM(LLM):
     def _llm_type(self) -> str:
         return "qwen2.5-vl-custom"
 
-def _call(self, prompt: str, stop: Optional[List[str]] = None, **kwargs) -> str:
+    def _call(self, prompt: str, stop: Optional[List[str]] = None, **kwargs) -> str:
         messages = [{"role": "user", "content": prompt}]
         
         if tools_real.qwen_model is None or tools_real.qwen_processor is None:
