@@ -6,8 +6,18 @@ import torch
 from transformers import AutoModel, CLIPImageProcessor, AutoTokenizer
 
 def load_clip_and_index(args):
-    device_clip = "cuda:1" if torch.cuda.device_count() > 1 else "cuda:0"
-    dtype_clip = torch.bfloat16
+    # 📍 FIX: Rilevamento intelligente del dispositivo
+    if torch.cuda.is_available() and torch.cuda.device_count() > 0:
+        device_clip = "cuda:1" if torch.cuda.device_count() > 1 else "cuda:0"
+        dtype_clip = torch.bfloat16
+        print(f"🚀 Uso la GPU: {device_clip}")
+    else:
+        # Se i driver sono vecchi o non c'è GPU, ripieghiamo sulla CPU
+        print("⚠️ Driver GPU troppo vecchi o GPU non trovata. Ripiego sulla CPU.")
+        device_clip = "cpu"
+        dtype_clip = torch.float32 # La CPU lavora meglio in float32
+    
+    print(f"🔄 Caricamento EVA-CLIP su RAM per riparazione...")
     
     print(f"🔄 Caricamento EVA-CLIP su RAM per riparazione...")
 
