@@ -77,8 +77,15 @@ class QwenServerLLM(LLM):
 # SETUP AGENTE (Globali) - VERSIONE GROUNDED
 # ==========================================
 
+# ==========================================
+# SETUP AGENTE (Globali) - VERSIONE CORRETTA
+# ==========================================
+
 template_universale = """You are a DATA-ONLY research assistant. 
 You must identify subjects and then verify details ONLY using the provided tools.
+
+You have access to the following tools:
+{tools}
 
 RULES:
 1. NEVER invent information. If it's not in the 'Observation', it doesn't exist.
@@ -86,27 +93,24 @@ RULES:
 3. If BOTH tools fail to provide specific info, say: "The database does not contain information about [X]".
 4. Do not repeat yourself.
 
-Tools:
-{tools}
+To use a tool, please use the following format:
 
-Format:
-Question: {input}
-Thought: I should first identify the subject.
-Action: tool_ricerca_visiva
-Action Input: image_path
-Observation: ...
-Thought: I have identified the subject. Now I must check for the specific details requested.
-Action: tool_ricerca_testuale
-Action Input: specific query
-Observation: ...
-Thought: I now have all the verified data.
-Final Answer: [Summarize ONLY what was found]
+Thought: Do I need to use a tool? Yes
+Action: the action to take, should be one of [{tool_names}]
+Action Input: the input to the action
+Observation: the result of the action
+
+(this Thought/Action/Action Input/Observation can repeat N times)
+
+Thought: I now know the final answer
+Final Answer: [Summarize ONLY what was found in the observations]
 
 Begin!
+
 Question: {input}
 Thought: {agent_scratchpad}"""
 
-# Il resto del codice (PromptTemplate, agente, esecutore) rimane uguale
+# Assicurati che PromptTemplate rimanga così:
 prompt = PromptTemplate(
     template=template_universale,
     input_variables=["input", "tools", "tool_names", "agent_scratchpad"]
