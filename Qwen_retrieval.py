@@ -120,8 +120,6 @@ def extract_features(image=None, text=None, model=None, processor=None, out_dim=
                 
             print(f"✅ [DEBUG TESTO] Estrazione riuscita! Forma: {features.shape}")
         
-        if features.shape[-1] > out_dim:
-            features = features[:, :out_dim]
             
         features = features / torch.clamp(features.norm(p=2, dim=-1, keepdim=True), min=1e-7)
         
