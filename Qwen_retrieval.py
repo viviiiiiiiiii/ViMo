@@ -84,30 +84,71 @@ def load_clip_and_index(args):
 def extract_features(image=None, text=None, model=None, processor=None, out_dim=512):
     device = model.device 
     
+    print("\n" + "="*40)
+    print("🕵️ DEBUG PROFONDO TENSORI EVA-CLIP")
+    print("="*40)
+
     with torch.no_grad():
         if image is not None:
-            # Immagine con la dimensione nativa calcolata sopra
+            print("▶ TIPO INPUT: Immagine")
+            
+            # 1. Vediamo cosa si aspetta il modello
+            try:
+                expected_size = model.config.vision_config.image_size
+                print(f"📏 Il modello ESIGE un'immagine: {expected_size}x{expected_size}")
+            except Exception:
+                print("📏 Non riesco a leggere la dimensione attesa dalla config visiva.")
+            
+            # 2. Elaboriamo l'immagine
             inputs = processor.image_processor(images=image, return_tensors="pt")
             pixel_values = inputs["pixel_values"].to(dtype=torch.float16, device=device)
+            
+            # 3. Vediamo cosa gli stiamo effettivamente dando
+            print(f"📦 Forma del tensore inviato (pixel_values): {pixel_values.shape}")
+            print(f"   (Dovrebbe essere: [1, 3, Altezza, Larghezza])")
+            
+            print("🚀 Lancio model.encode_image()...")
             features = model.encode_image(pixel_values=pixel_values)
+            print("✅ SUCCESSO! Immagine processata senza esplodere.")
             
         elif text is not None:
-            # 📍 IL TESTO BLINDATO: CLIP vuole sempre ESATTAMENTE 77 token
+            print(f"▶ TIPO INPUT: Testo -> '{text}'")
+            
+            # 1. Vediamo i limiti del modello
+            try:
+                max_pos = model.config.text_config.max_position_embeddings
+                vocab_size = model.config.text_config.vocab_size
+                print(f"📏 Il modello ESIGE massimo: {max_pos} token.")
+                print(f"📚 Vocabolario massimo: {vocab_size} ID.")
+            except Exception:
+                print("📏 Non riesco a leggere i limiti dalla config testuale.")
+
+            # 2. Elaboriamo il testo (proviamo con 64 che è lo standard per molti EVA)
+            limit = 77
             inputs = processor.tokenizer(
                 text=text, 
                 return_tensors="pt", 
-                padding="max_length", # <--- FONDAMENTALE! Aggiunge spazi vuoti
+                padding="max_length", 
                 truncation=True, 
-                max_length=77 
+                max_length=limit 
             )
             input_ids = inputs["input_ids"].to(device)
+            
+            # 3. Vediamo cosa gli stiamo dando
+            print(f"📦 Forma del tensore inviato (input_ids): {input_ids.shape}")
+            print(f"🔢 Token ID massimo inviato: {input_ids.max().item()}")
+            
+            print("🚀 Lancio model.encode_text()...")
             features = model.encode_text(input_ids)
+            print("✅ SUCCESSO! Testo processato senza esplodere.")
         
         # Taglio a 512 per FAISS
         if features.shape[-1] > out_dim:
             features = features[:, :out_dim]
             
         features = features / features.norm(p=2, dim=-1, keepdim=True)
+        print(f"🏁 Feature estratte pronte per FAISS (forma: {features.shape})")
+        print("="*40 + "\n")
         
     return features.cpu().numpy().astype(np.float32)
 
