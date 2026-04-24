@@ -98,7 +98,7 @@ def tool_ricerca_visiva(image_path: str) -> str:
             index=knn_index_immagini, 
             index_map=wiki_map, 
             wiki=wiki_data, 
-            k=3
+            k=1
         )
         
         return f"Contesto trovato dal database visivo:\n{testi_enciclopedia}"
@@ -156,7 +156,7 @@ def tool_ricerca_testuale(query: str) -> str:
             index=knn_index_testi, # <-- Assicurati che esista questo index per il testo!
             index_map=wiki_map, 
             wiki=wiki_data, 
-            k=3
+            k=1
         )
         
         return f"Contesto trovato dal database testuale:\n{testi_enciclopedia}"
