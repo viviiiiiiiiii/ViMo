@@ -165,4 +165,4 @@ def tool_ricerca_testuale(query: str) -> str:
         return f"Errore nel database testuale: {str(e)}"
 
 # Li impacchettiamo per LangChain
-miei_tools_reali = [tool_ricerca_testuale]
+miei_tools_reali = [tool_ricerca_visiva,tool_ricerca_testuale]

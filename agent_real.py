@@ -136,7 +136,6 @@ if __name__ == "__main__":
     
     # 3. TEST AGENTE
 # 3. TEST AGENTE SOLO TESTO
-    input_semplice = "Usa il tool di ricerca testuale per cercare informazioni su 'Leonardo da Vinci' e dimmi cosa trovi."
-
-    print("\n🤖 Agente in ascolto (Modalità DEBUG TESTO)...")
-    esecutore.invoke({"input": input_semplice})
+percorso_immagine = "foto_buia.jpg"
+input_semplice = f"Ho un'immagine chiamata '{percorso_immagine}'. Per favore, usa il tool visivo per dirmi chi è l'autore del quadro."
+esecutore.invoke({"input": input_semplice})
