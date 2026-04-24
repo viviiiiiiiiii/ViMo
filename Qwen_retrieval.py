@@ -5,17 +5,20 @@ import torch
 from transformers import AutoModel, CLIPImageProcessor, AutoTokenizer
 
 def load_clip_and_index(args):
-    device = "cuda:0" if torch.cuda.is_available() else "cpu"
-    # Modello sempre sulla GPU in bfloat16 per massima potenza
-    dtype = torch.bfloat16 if device == "cuda:0" else torch.float32
+    # 📍 LA TUA IDEA: Se ci sono 2 GPU, CLIP va sulla seconda (cuda:1)!
+    import torch
+    device_clip = "cuda:1" if torch.cuda.device_count() > 1 else "cuda:0"
+    dtype_clip = torch.bfloat16
+    
+    print(f"🔄 Caricamento EVA-CLIP su {device_clip}...")
 
+    from transformers import AutoModel, CLIPImageProcessor, AutoTokenizer
+    
     clip_model = AutoModel.from_pretrained(
         args.retriever_path,
-        torch_dtype=dtype, 
+        torch_dtype=dtype_clip, 
         trust_remote_code=True
-    ).to(device).eval()
-    
-    from transformers import CLIPImageProcessor, AutoTokenizer
+    ).to(device_clip).eval()
     
     print("🔄 Caricamento processore visivo (224x224)...")
     img_proc = CLIPImageProcessor(
@@ -53,7 +56,6 @@ def extract_features(image=None, text=None, model=None, processor=None, out_dim=
         if image is not None:
             inputs = processor.image_processor(images=image, return_tensors="pt")
             pixel_values = inputs["pixel_values"].to(dtype=dtype, device=device)
-            # 📍 TENTATIVO STANDARD: Usiamo get_image_features come facevamo col testo
             if hasattr(model, "get_image_features"):
                 features = model.get_image_features(pixel_values=pixel_values)
             else:
@@ -61,20 +63,18 @@ def extract_features(image=None, text=None, model=None, processor=None, out_dim=
             
         elif text is not None:
             inputs = processor.tokenizer(text=text, return_tensors="pt", padding=True, truncation=True, max_length=77)
-            input_ids = inputs["input_ids"].to(device=device)
-            # 📍 IL FIX ASSOLUTO PER IL TESTO: Torniamo a get_text_features che funzionava da dio!
+            input_ids = inputs["input_ids"].to(device)
             if hasattr(model, "get_text_features"):
                 features = model.get_text_features(input_ids=input_ids)
             else:
                 features = model.encode_text(input_ids)
         
-        # Taglio di sicurezza se le feature sono troppo lunghe per FAISS
         if features.shape[-1] > out_dim:
             features = features[:, :out_dim]
             
         features = features / torch.clamp(features.norm(p=2, dim=-1, keepdim=True), min=1e-7)
         
-    # 📍 Cast a float32 prima di passarlo a FAISS per evitare il crash CUBLAS
+    # Cast protettivo per FAISS (questo l'abbiamo ormai consolidato)
     return features.to(torch.float32).cpu().numpy()
 
 
