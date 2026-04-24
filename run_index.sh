@@ -18,5 +18,3 @@ cd /work/cvcs2026/ViMo/
 export CUDA_VISIBLE_DEVICES=""
 python dati/build_knn_index_real.py
 
-export CUDA_VISIBLE_DEVICES=""  # <--- AGGIUNGI QUESTA RIGA
-python build_knn_index_real.py
