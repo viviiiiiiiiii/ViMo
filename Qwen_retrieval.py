@@ -6,13 +6,13 @@ from transformers import AutoModel, CLIPImageProcessor, AutoTokenizer
 
 def load_clip_and_index(args):
     import torch
-    # CLIP va sulla GPU 1, Qwen resta al sicuro sulla GPU 0
+    # CLIP su GPU 1, Qwen su GPU 0 (Stabile e funzionante!)
     device_clip = "cuda:1" if torch.cuda.device_count() > 1 else "cuda:0"
     dtype_clip = torch.bfloat16
     
     print(f"🔄 Caricamento EVA-CLIP su {device_clip}...")
 
-    from transformers import AutoModel, AutoProcessor, AutoImageProcessor, AutoTokenizer
+    from transformers import AutoModel, CLIPImageProcessor, AutoTokenizer
     
     clip_model = AutoModel.from_pretrained(
         args.retriever_path,
@@ -20,18 +20,21 @@ def load_clip_and_index(args):
         trust_remote_code=True
     ).to(device_clip).eval()
     
-    print("🔄 Caricamento processori NATIVI del modello...")
-    # 📍 IL TUO INTUITO: Non forziamo più nulla a mano.
-    # Carichiamo la configurazione esatta e nativa del modello!
+    print("🔄 Caricamento processore visivo e tokenizer (Modalità Esplicita)...")
+    # 📍 FIX: Creiamo fisicamente i due processori separati per non farli confondere!
     try:
-        clip_processor = AutoProcessor.from_pretrained(args.retriever_path, trust_remote_code=True)
+        img_proc = CLIPImageProcessor.from_pretrained(args.retriever_path, trust_remote_code=True)
     except Exception:
-        # Fallback pulito se manca l'AutoProcessor unificato
-        class NativeProcessorWrapper:
-            def __init__(self):
-                self.image_processor = AutoImageProcessor.from_pretrained(args.retriever_path, trust_remote_code=True)
-                self.tokenizer = AutoTokenizer.from_pretrained(args.retriever_path, trust_remote_code=True)
-        clip_processor = NativeProcessorWrapper()
+        img_proc = CLIPImageProcessor.from_pretrained("openai/clip-vit-large-patch14")
+        
+    tokenizer = AutoTokenizer.from_pretrained(args.retriever_path, trust_remote_code=True)
+    
+    class CLIPProcessorWrapper:
+        def __init__(self, ip, tk):
+            self.image_processor = ip
+            self.tokenizer = tk
+            
+    clip_processor = CLIPProcessorWrapper(img_proc, tokenizer)
         
     import faiss
     import json
@@ -45,17 +48,14 @@ def load_clip_and_index(args):
 
 
 def extract_features(image=None, text=None, model=None, processor=None, out_dim=512):
+    import torch
     device = model.device
     dtype = model.dtype 
 
     with torch.no_grad():
         if image is not None:
-            # Estraiamo con il processore NATIVO senza alterare le taglie
-            if hasattr(processor, "image_processor"):
-                inputs = processor.image_processor(images=image, return_tensors="pt")
-            else:
-                inputs = processor(images=image, return_tensors="pt")
-                
+            # 📍 Ora è fisicamente impossibile che usi il tokenizer per l'immagine
+            inputs = processor.image_processor(images=image, return_tensors="pt")
             pixel_values = inputs["pixel_values"].to(dtype=dtype, device=device)
             
             if hasattr(model, "get_image_features"):
@@ -64,12 +64,16 @@ def extract_features(image=None, text=None, model=None, processor=None, out_dim=
                 features = model.encode_image(pixel_values=pixel_values)
             
         elif text is not None:
-            # 📍 IL FIX ASSOLUTO: Ora estraiamo sia gli input_ids che l'ATTENTION_MASK!
-            if hasattr(processor, "tokenizer"):
-                inputs = processor.tokenizer(text=text, return_tensors="pt", padding=True, truncation=True)
-            else:
-                inputs = processor(text=text, return_tensors="pt", padding=True, truncation=True)
-                
+            # Tokenizer sicuro a 40 len (come nel tuo screenshot)
+            max_len = 40
+            inputs = processor.tokenizer(
+                text=text,
+                return_tensors="pt",
+                padding='max_length',
+                truncation=True,
+                max_length=max_len
+            )
+            
             input_ids = inputs["input_ids"].to(device)
             attention_mask = inputs.get("attention_mask", None)
             if attention_mask is not None:
@@ -81,7 +85,6 @@ def extract_features(image=None, text=None, model=None, processor=None, out_dim=
                 else:
                     features = model.get_text_features(input_ids=input_ids)
             else:
-                # Metodo standard per le varianti custom di EVA-CLIP
                 features = model.encode_text(input_ids)
         
         if features.shape[-1] > out_dim:
