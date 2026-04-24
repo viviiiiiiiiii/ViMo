@@ -5,8 +5,8 @@ import torch
 from transformers import AutoModel, CLIPImageProcessor, AutoTokenizer
 
 def load_clip_and_index(args):
-    # 1. TORNIAMO SULLA GPU (Il testo tornerà a funzionare!)
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
+    # Modello sempre sulla GPU in bfloat16 per massima potenza
     dtype = torch.bfloat16 if device == "cuda:0" else torch.float32
 
     clip_model = AutoModel.from_pretrained(
@@ -15,8 +15,9 @@ def load_clip_and_index(args):
         trust_remote_code=True
     ).to(device).eval()
     
-    print("🔄 Caricamento processore visivo (Risoluzione 224x224)...")
-    # 2. IL MODELLO VUOLE 224! Il debug ci ha confermato i 257 token.
+    from transformers import CLIPImageProcessor, AutoTokenizer
+    
+    print("🔄 Caricamento processore visivo (224x224)...")
     img_proc = CLIPImageProcessor(
         do_resize=True, 
         size={"shortest_edge": 224}, 
@@ -33,6 +34,8 @@ def load_clip_and_index(args):
             
     clip_processor = CLIPProcessorWrapper(img_proc, tokenizer)
         
+    import faiss
+    import json
     index = faiss.read_index(str(args.index_path)) 
     with open(args.index_json_path, "r", encoding="utf-8") as f:
         index_map = json.load(f)
@@ -50,21 +53,28 @@ def extract_features(image=None, text=None, model=None, processor=None, out_dim=
         if image is not None:
             inputs = processor.image_processor(images=image, return_tensors="pt")
             pixel_values = inputs["pixel_values"].to(dtype=dtype, device=device)
-            features = model.encode_image(pixel_values=pixel_values)
+            # 📍 TENTATIVO STANDARD: Usiamo get_image_features come facevamo col testo
+            if hasattr(model, "get_image_features"):
+                features = model.get_image_features(pixel_values=pixel_values)
+            else:
+                features = model.encode_image(pixel_values=pixel_values)
             
         elif text is not None:
             inputs = processor.tokenizer(text=text, return_tensors="pt", padding=True, truncation=True, max_length=77)
             input_ids = inputs["input_ids"].to(device=device)
-            # Metodo nativo di EVA-CLIP per il testo
-            features = model.encode_text(input_ids)
+            # 📍 IL FIX ASSOLUTO PER IL TESTO: Torniamo a get_text_features che funzionava da dio!
+            if hasattr(model, "get_text_features"):
+                features = model.get_text_features(input_ids=input_ids)
+            else:
+                features = model.encode_text(input_ids)
         
+        # Taglio di sicurezza se le feature sono troppo lunghe per FAISS
         if features.shape[-1] > out_dim:
             features = features[:, :out_dim]
             
-        # 3. SALVAVITA IMMAGINE NERA (Evita il crash CUBLAS)
         features = features / torch.clamp(features.norm(p=2, dim=-1, keepdim=True), min=1e-7)
         
-    # 4. SALVAVITA FAISS (FAISS vuole float32)
+    # 📍 Cast a float32 prima di passarlo a FAISS per evitare il crash CUBLAS
     return features.to(torch.float32).cpu().numpy()
 
 
