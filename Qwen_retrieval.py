@@ -133,11 +133,15 @@ def generate_answer(model, processor, messages, stop=None,**kwargs):
     text = processor.apply_chat_template(clean_messages, tokenize=False, add_generation_prompt=True)
     inputs = processor(text=[text], return_tensors="pt").to(model.device)
 
+    # 📍 Impostiamo un default solo se non è già presente in kwargs
+    if 'max_new_tokens' not in kwargs:
+        kwargs['max_new_tokens'] = 512
+
     with torch.no_grad():
         outputs = model.generate(
             **inputs, 
-            max_new_tokens=256,
-            **kwargs,
+            # max_new_tokens=256,  <-- ❌ CANCELLA QUESTA RIGA!
+            **kwargs,              # <--- ✅ Ora usa solo questo (che include il nostro 512)
             do_sample=False,
             use_cache=True,
             pad_token_id=processor.tokenizer.pad_token_id,
@@ -146,7 +150,7 @@ def generate_answer(model, processor, messages, stop=None,**kwargs):
     
     generated_ids = outputs[0][inputs["input_ids"].shape[-1]:]
     return processor.tokenizer.decode(generated_ids, skip_special_tokens=True).strip()
-''
+
 
 def retrieve_topk_pages(features, index, index_map, wiki, k):
     _, I = index.search(features, k)
