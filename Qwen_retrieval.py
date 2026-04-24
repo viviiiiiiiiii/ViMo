@@ -8,42 +8,51 @@ def load_clip_and_index(args):
     import torch
     import os
     
-    # Distribuzione: CLIP su GPU 1, Qwen su GPU 0
     device_clip = "cuda:1" if torch.cuda.device_count() > 1 else "cuda:0"
     dtype_clip = torch.bfloat16
     
-    print(f"🔄 Caricamento EVA-CLIP su {device_clip} da locale...")
+    print(f"🔄 Caricamento EVA-CLIP su RAM per riparazione...")
 
     from transformers import AutoModel, CLIPImageProcessor, AutoTokenizer
     
-    # Carica EVA-CLIP 100% in locale
+    # 1. Lo carichiamo in locale sulla CPU (per non far esplodere la GPU)
     clip_model = AutoModel.from_pretrained(
         args.retriever_path,
         torch_dtype=dtype_clip, 
         trust_remote_code=True,
-        local_files_only=True  # 📍 Niente internet!
-    ).to(device_clip).eval()
+        local_files_only=True
+    )
     
-    # 📍 Ricaviamo la cartella "modelli/" e puntiamo a clip-vit-large-patch14
+    # 📍 2. INTERVENTO CHIRURGICO: Ripariamo TUTTI gli indici di posizione corrotti
+    print("⚕️ Riparazione degli indici del modello in corso...")
+    for name, module in clip_model.named_modules():
+        if hasattr(module, "position_ids") and module.position_ids is not None:
+            shape = module.position_ids.shape
+            if len(shape) == 2:
+                # Sovrascriviamo l'array corrotto con un array pulito [0, 1, 2, ..., N]
+                seq_len = shape[1]
+                module.position_ids = torch.arange(seq_len).unsqueeze(0).to(module.position_ids.device)
+    print("✅ Riparazione completata!")
+
+    # 3. ORA lo possiamo mandare sulla GPU 1 in totale sicurezza!
+    clip_model = clip_model.to(device_clip).eval()
+    
     modelli_dir = os.path.dirname(str(args.retriever_path))
     local_clip_processor_path = os.path.join(modelli_dir, "clip-vit-large-patch14")
     
     print(f"🔄 Caricamento processore visivo da locale: {local_clip_processor_path}")
     
-    # Carichiamo il processore dalla tua cartella locale!
     img_proc = CLIPImageProcessor.from_pretrained(
         local_clip_processor_path, 
         local_files_only=True
     )
     
-    # Anche il tokenizer dal locale
     tokenizer = AutoTokenizer.from_pretrained(
         args.retriever_path, 
         trust_remote_code=True, 
         local_files_only=True
     )
     
-    # Wrapper Magico (Sintassi Screenshot)
     class CLIPProcessorWrapper:
         def __init__(self, ip, tk):
             self.image_processor = ip
