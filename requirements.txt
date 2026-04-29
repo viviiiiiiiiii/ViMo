@@ -1,21 +1,20 @@
-torch==2.2.2
-torchvision==0.17.2
-torchaudio==2.2.2
+--extra-index-url https://download.pytorch.org/whl/cu121
+
+torch==2.6.0
+torchvision==0.21.0
+torchaudio==2.6.0
 
 accelerate
-transformers @ git+https://github.com/huggingface/transformers
+transformers>=5.0.0
 huggingface_hub[cli]
 
-faiss-gpu
+faiss-cpu  # 📍 ORA POSSIAMO USARE LA GPU
 pillow
-numpy
+numpy<2.0.0
 tqdm
 qwen-vl-utils[decord]==0.0.8
 
 langchain
 langchain-core
 langchain-community
-
-'''langchain==0.2.16
-langchain-community==0.2.17
-langchain-core==0.2.43'''
+timm>=0.9.0

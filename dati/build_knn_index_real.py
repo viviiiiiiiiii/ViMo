@@ -1,84 +1,91 @@
-
+import os
+os.environ["TRANSFORMERS_IGNORE_LOAD_VULNERABILITY"] = "1"
+import sys
 from pathlib import Path
 import json
 import numpy as np
 import torch
+import faiss
+from tqdm import tqdm
 
-try:
-    import faiss
-except ModuleNotFoundError as e:
-    raise SystemExit(
-        "Manca faiss. Installa prima una delle due opzioni:\n"
-        "  pip install faiss-cpu\n"
-        "oppure usa il tuo requirements del progetto."
-    )
+# Dentro run_index.sh
+export CUDA_VISIBLE_DEVICES=""  # <--- AGGIUNGI QUESTA RIGA
+python build_knn_index_real.py
 
-from transformers import AutoModel, AutoTokenizer
+# 📍 CONFIGURAZIONE PERCORSI
+BASE_DATI = Path(__file__).resolve().parent
+ROOT_VIMO = BASE_DATI.parent
+sys.path.append(str(ROOT_VIMO)) # Permette di importare Qwen_retrieval
 
-"""
-Base per costruire un knn.index reale.
+# Importiamo la logica di estrazione e caricamento dall'Agente
+from Qwen_retrieval import extract_features, load_clip_and_index
 
-Questa versione indicizza il KB come TESTO.
-Se il tuo progetto usa EVA-CLIP in modo multimodale, devi adattare la parte
-di embedding al retriever reale che avete deciso di usare.
-"""
-
-BASE = Path(__file__).resolve().parent
-KB_PATH = BASE / "encyclopedic_kb_wiki.json"
-INDEX_JSON_PATH = BASE / "knn.json"
-OUT_INDEX_PATH = BASE / "knn.index"
-
-MODEL_NAME = "modelli/EVA-CLIP-8B"
-
-def l2_normalize(x: np.ndarray) -> np.ndarray:
-    norms = np.linalg.norm(x, axis=1, keepdims=True)
-    norms[norms == 0] = 1.0
-    return x / norms
-
-def mean_pool(last_hidden_state, attention_mask):
-    mask = attention_mask.unsqueeze(-1).expand(last_hidden_state.size()).float()
-    summed = torch.sum(last_hidden_state * mask, dim=1)
-    counts = torch.clamp(mask.sum(dim=1), min=1e-9)
-    return summed / counts
+# 📍 DEFINIZIONE PERCORSI (Presi dal tuo config.json)
+MODEL_NAME = str(ROOT_VIMO / "modelli" / "EVA-CLIP-8B")
+KB_PATH = BASE_DATI / "encyclopedic_kb_wiki.json"
+INDEX_JSON_PATH = BASE_DATI / "knn.json"
+OUT_INDEX_PATH = BASE_DATI / "knn.index"
 
 def main():
+    # 1. Caricamento dati
+    print(f"📂 Caricamento database Wikipedia da: {KB_PATH}")
     with open(KB_PATH, "r", encoding="utf-8") as f:
         kb = json.load(f)
-
     with open(INDEX_JSON_PATH, "r", encoding="utf-8") as f:
         index_map = json.load(f)
 
+    # 2. Caricamento Modello CLIP con RIPARAZIONE RAM
+    class FakeArgs:
+        retriever_path = MODEL_NAME
+        index_path = OUT_INDEX_PATH
+        index_json_path = INDEX_JSON_PATH
+        kb_wikipedia_path = KB_PATH
+    
+    print(f"🔄 Avvio procedura di riparazione e caricamento modello...")
+    # Usiamo la funzione load_clip_and_index che abbiamo corretto per sanare i position_ids
+
+    model, processor, _, _, _ = load_clip_and_index(FakeArgs(), load_faiss=False)    
+    print(f"✅ Modello caricato su {model.device} e pronto per l'indicizzazione.")
+
+    # 3. Preparazione testi
     texts = []
     for item in index_map:
         doc_id = item[0]
         entry = kb[doc_id]
-        merged = entry.get("title", "") + "\\n" + "\\n".join(entry.get("section_texts", []))
+        # Uniamo titolo e sezioni per creare un'impronta testuale ricca
+        merged = entry.get("title", "") + " " + " ".join(entry.get("section_texts", []))
         texts.append(merged.strip())
 
-    tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
-    model = AutoModel.from_pretrained(MODEL_NAME)
-    model.eval()
-
+    # 4. Estrazione Vettori (CLIP)
     all_embs = []
-    batch_size = 8
-    with torch.no_grad():
-        for i in range(0, len(texts), batch_size):
-            batch = texts[i:i+batch_size]
-            toks = tokenizer(batch, padding=True, truncation=True, return_tensors="pt")
-            out = model(**toks)
-            emb = mean_pool(out.last_hidden_state, toks["attention_mask"])
-            all_embs.append(emb.cpu().numpy().astype("float32"))
+    print(f"🚀 Generazione embedding per {len(texts)} documenti...")
+    
+    for t in tqdm(texts):
+        # Usiamo extract_features senza out_dim per mantenere le 1280 dimensioni originali
+        emb = extract_features(
+            text=t, 
+            model=model, 
+            processor=processor,
+            out_dim=None 
+        )
+        all_embs.append(emb)
 
+    # 5. Creazione Indice FAISS
+    # Impiliamo i vettori in un'unica matrice numpy
     vecs = np.vstack(all_embs).astype("float32")
-    vecs = l2_normalize(vecs)
-
+    
+    print(f"📊 Dimensione finale vettori: {vecs.shape[1]}")
+    
+    # Creazione indice per similarità coseno (IndexFlatIP)
     index = faiss.IndexFlatIP(vecs.shape[1])
     index.add(vecs)
+    
+    # Salvataggio su disco
     faiss.write_index(index, str(OUT_INDEX_PATH))
 
-    print(f"Creato indice reale: {OUT_INDEX_PATH}")
-    print(f"Documenti indicizzati: {len(texts)}")
-    print(f"Dimensione embedding: {vecs.shape[1]}")
+    print(f"\n✅ DATABASE RIFATTO DA ZERO E SANATO!")
+    print(f"📍 Nuovo file creato in: {OUT_INDEX_PATH}")
+    print(f"📊 Numero documenti indicizzati: {len(texts)}")
 
 if __name__ == "__main__":
     main()

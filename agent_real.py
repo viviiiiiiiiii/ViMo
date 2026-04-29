@@ -1,18 +1,30 @@
+
+
 import base64
 import torch
-import re  # Pulito il commento precedente
+import re
 from PIL import Image
 from typing import Optional, List
-from langchain.llms.base import LLM
-from langchain_core.prompts import PromptTemplate
-from langchain.agents import create_react_agent, AgentExecutor
 
-# --- IMPORT MODULARI ---
-from load_config import load_config
-from Qwen_retrieval import generate_answer
+import os
+os.environ['CUDA_LAUNCH_BLOCKING'] = "1"
+
+# 📍 Import dal core (sempre validi)
+from langchain_core.language_models.llms import LLM
+from langchain_core.prompts import PromptTemplate
+
+# 📍 Import per AgentExecutor e ReAct (Versione 2026 / Classic)
+# Proviamo i due percorsi più probabili per la v1.2.15
+try:
+    from langchain.agents import AgentExecutor, create_react_agent
+except ImportError:
+    from langchain_classic.agents import AgentExecutor, create_react_agent
 
 # Importiamo l'intero modulo per accedere alle variabili globali aggiornate
 import tools_real 
+from load_config import load_config
+from Qwen_retrieval import generate_answer
+
 
 # ==========================================
 # FUNZIONI DI SUPPORTO
@@ -21,76 +33,101 @@ def image_to_base64(image_path):
     with open(image_path, "rb") as img_file:
         return base64.b64encode(img_file.read()).decode('utf-8')
 
+
 # ==========================================
-# L'ADATTATORE QWEN (Corretto per il Punto 2)
+# L'ADATTATORE QWEN (Corretto con Freno a Mano)
 # ==========================================
 class QwenServerLLM(LLM):
-    """L'Adattatore che fa parlare LangChain con Qwen-VL"""
-    
     @property
     def _llm_type(self) -> str:
         return "qwen2.5-vl-custom"
 
     def _call(self, prompt: str, stop: Optional[List[str]] = None, **kwargs) -> str:
-        # 1. TRUCCO MULTIMODALE
-        match = re.search(r"L'immagine si trova in: '(.*?)'", prompt)
-        image_path = match.group(1) if match else None
-
-        # 2. Preparazione Messaggi
-        user_content = []
-        if image_path:
-            user_content.append({"type": "image", "image": image_path})
-        user_content.append({"type": "text", "text": prompt})
-
-        messages = [
-            {"role": "system", "content": [{"type": "text", "text": "Sei un agente intelligente. Segui il formato Thought/Action/Observation."}]},
-            {"role": "user", "content": user_content}
-        ]
-
-        # 📍 FIX PUNTO 2: Accesso tramite il modulo tools_real
-        # Questo garantisce di leggere il modello caricato da start_motors()
+        messages = [{"role": "user", "content": prompt}]
+        
         if tools_real.qwen_model is None or tools_real.qwen_processor is None:
-            raise ValueError("Errore: I motori del server non sono stati accesi! Chiama start_motors prima di invocare l'agente.")
+            raise ValueError("Errore: I motori del server non sono stati accesi!")
 
-        risposta_grezza = generate_answer(
+        # 📍 AGGIUNGIAMO PARAMETRI ANTI-LOOP
+        # Nota: assicurati che generate_answer accetti **kwargs o parametri extra
+        risposta = generate_answer(
             tools_real.qwen_model, 
             tools_real.qwen_processor, 
-            messages
+            messages,
+            temperature=0.1,         # Più basso = meno fantasia
+            repetition_penalty=1.2,  # 📍 BLOCCA I LOOP DI RIPETIZIONE
+            max_new_tokens=512       # Evita risposte infinite
         )
 
-        # 4. IL FRENO A MANO
-        if stop:
-            for s in stop:
-                if s in risposta_grezza:
-                    risposta_grezza = risposta_grezza.split(s)[0]
-                    
-        return risposta_grezza.strip()
+        if stop is not None:
+            for stop_word in stop:
+                if stop_word in risposta:
+                    risposta = risposta.split(stop_word)[0]
+
+        return risposta.strip()
 
 # ==========================================
 # SETUP AGENTE (Globali)
 # ==========================================
-template_istruzioni = """Sei un assistente intelligente. Hai a disposizione i seguenti strumenti:
+# 📍 Modificato il template per essere 100% compatibile con create_react_agent
+# In agent_real.py
+
+# Modifica il template in agent_real.py
+# ==========================================
+# SETUP AGENTE (Globali) - VERSIONE GROUNDED
+# ==========================================
+
+# ==========================================
+# SETUP AGENTE (Globali) - VERSIONE CORRETTA
+# ==========================================
+
+template_universale = """You are a DATA-ONLY research assistant. 
+You must identify subjects and then verify details ONLY using the provided tools.
+
+You have access to the following tools:
 {tools}
-Per usare uno strumento usa questo formato:
-Thought: Devo capire cosa fare
-Action: il nome dello strumento (deve essere uno tra {tool_names})
-Action Input: l'input per lo strumento
-Observation: il risultato dello strumento
 
-Quando hai la risposta finale usa questo formato:
-Thought: Ora so la risposta.
-Final Answer: La tua risposta finale all'utente.
+RULES:
+1. NEVER invent information. If it's not in the 'Observation', it doesn't exist.
+2. If you identify a subject (e.g., Leonardo) but the user asks for details (e.g., inventions) that are NOT in the visual observation, you MUST call 'tool_ricerca_testuale' before answering.
+3. If BOTH tools fail to provide specific info, say: "The database does not contain information about [X]".
+4. Do not repeat yourself.
 
-Inizia!
-Domanda: {input}
-{agent_scratchpad}"""
+To use a tool, please use the following format:
 
-prompt = PromptTemplate.from_template(template_istruzioni)
+Thought: Do I need to use a tool? Yes
+Action: the action to take, should be one of [{tool_names}]
+Action Input: the input to the action
+Observation: the result of the action
+
+(this Thought/Action/Action Input/Observation can repeat N times)
+
+Thought: I now know the final answer
+Final Answer: [Summarize ONLY what was found in the observations]
+
+Begin!
+
+Question: {input}
+Thought: {agent_scratchpad}"""
+
+# Assicurati che PromptTemplate rimanga così:
+prompt = PromptTemplate(
+    template=template_universale,
+    input_variables=["input", "tools", "tool_names", "agent_scratchpad"]
+)
+
 vero_qwen = QwenServerLLM()
 
-# Usiamo i riferimenti al modulo tools_real
+# Inizializziamo l'agente e l'esecutore
 agente = create_react_agent(vero_qwen, tools_real.miei_tools_reali, prompt)
-esecutore = AgentExecutor(agent=agente, tools=tools_real.miei_tools_reali, verbose=True)
+esecutore = AgentExecutor(
+    agent=agente, 
+    tools=tools_real.miei_tools_reali, 
+    verbose=True,
+    handle_parsing_errors=True,
+    max_iterations=5, # Per evitare loop infiniti
+    early_stopping_method='force'
+)
 
 # ==========================================
 # MAIN EXECUTION
@@ -113,17 +150,7 @@ if __name__ == "__main__":
     tools_real.start_motors(args)
     
     # 3. TEST AGENTE
-    percorso_immagine = "foto_buia.jpg" 
-    try:
-        immagine_base64 = image_to_base64(percorso_immagine)
-    except FileNotFoundError:
-        print("⚠️ File 'foto_buia.jpg' non trovato. Uso Base64 finto.")
-        immagine_base64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII="
-
-    input_multimodale = [
-        {"type": "text", "text": f"L'immagine si trova in: '{percorso_immagine}'. Chi ha dipinto questo quadro?"},
-        {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{immagine_base64}"}}
-    ]
-
-    print("\n🤖 Agente in ascolto...")
-    esecutore.invoke({"input": input_multimodale})
+# 3. TEST AGENTE SOLO TESTO
+percorso_immagine = "foto_buia.jpg"
+input_semplice = "Identifica il soggetto in 'foto_buia.jpg'. Una volta capito chi è, usa la ricerca testuale per dirmi quali sono le sue invenzioni citate nel database che NON siano quadri."
+esecutore.invoke({"input": input_semplice})
