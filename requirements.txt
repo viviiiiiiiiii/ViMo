@@ -18,3 +18,5 @@ langchain
 langchain-core
 langchain-community
 timm>=0.9.0
+
+datasets
