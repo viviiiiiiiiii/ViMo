@@ -2,7 +2,9 @@
 modelli/
 
 # Ignora i dataset e gli indici vettoriali
-dati/
+dati/immagini/
+dati/knn.json
+dati/encyclopedic_index.json
 
 # Ignora i file generati da noi e i log
 risultati/
