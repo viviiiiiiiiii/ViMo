@@ -102,7 +102,7 @@ def extract_features(image=None, text=None, model=None, processor=None, out_dim=
                 features = model.encode_image(pixel_values=pixel_values)
             
         elif text is not None:
-            inputs = processor.tokenizer(text=text, return_tensors="pt", truncation=True)
+            inputs = processor.tokenizer(text=text, return_tensors="pt", truncation=True, max_length=77)
             input_ids = inputs["input_ids"].to(device)
             
             # Lucchetto anti device-side assert
