@@ -93,7 +93,7 @@ def extract_features(image=None, text=None, model=None, processor=None, out_dim=
 
     with torch.no_grad():
         if image is not None:
-            inputs = processor(images=image, return_tensors="pt")
+            inputs = processor(images=image, return_tensors="pt", truncation=True, max_length=77)
             pixel_values = inputs["pixel_values"].to(dtype=dtype, device=device)
             
             if hasattr(model, "get_image_features"):
