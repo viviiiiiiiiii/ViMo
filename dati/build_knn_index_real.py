@@ -8,10 +8,6 @@ import torch
 import faiss
 from tqdm import tqdm
 
-# Dentro run_index.sh
-export CUDA_VISIBLE_DEVICES=""  # <--- AGGIUNGI QUESTA RIGA
-python build_knn_index_real.py
-
 # 📍 CONFIGURAZIONE PERCORSI
 BASE_DATI = Path(__file__).resolve().parent
 ROOT_VIMO = BASE_DATI.parent

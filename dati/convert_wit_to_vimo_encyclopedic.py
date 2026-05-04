@@ -16,14 +16,44 @@ OUT_KNN_PATH = OUT_DIR / "knn.json"
 
 # Numero di documenti finali da creare.
 # Parti basso: 100 per debug, poi 1000/5000 se tutto funziona.
-TARGET_DOCS = 100
+TARGET_DOCS = 5000
 
-# Lingua preferita per i testi Wikipedia.
-# "en" è la scelta più sicura perché Qwen e molti benchmark lavorano bene in inglese.
-PREFERRED_LANGUAGE = "en"
+# Lingua obbligatoria per i testi Wikipedia.
+# Ora il codice prende SOLO esempi che hanno effettivamente testo inglese.
+REQUIRED_LANGUAGE = "en"
 
 # Lunghezza minima del testo finale per evitare documenti inutili.
 MIN_TEXT_CHARS = 80
+
+
+# =========================
+# FILTRI OPZIONALI PER SOTTOGRUPPI / CARATTERISTICHE
+# =========================
+
+# Se False, non applica nessun filtro tematico.
+# Se True, tiene solo pagine/testi che contengono almeno una keyword tra quelle sotto.
+ENABLE_TOPIC_FILTER = False
+
+# Esempi di sottogruppi possibili.
+# Puoi modificarli in base al tipo di KB che vuoi costruire.
+#
+# Esempi:
+# TOPIC_KEYWORDS = ["animal", "species", "bird", "mammal", "fish"]
+# TOPIC_KEYWORDS = ["city", "town", "village", "capital", "municipality"]
+# TOPIC_KEYWORDS = ["painting", "sculpture", "museum", "artist", "artwork"]
+# TOPIC_KEYWORDS = ["football", "basketball", "tennis", "stadium", "player"]
+# TOPIC_KEYWORDS = ["mountain", "river", "lake", "island", "park"]
+#
+TOPIC_KEYWORDS = [
+    # "animal",
+    # "city",
+    # "painting",
+    # "football",
+]
+
+# Se True, cerca le keyword anche nei testi descrittivi.
+# Se False, cerca solo nel titolo della pagina.
+SEARCH_TOPIC_IN_TEXT = True
 
 
 # =========================
@@ -54,20 +84,24 @@ def get_first_valid(values):
     return ""
 
 
-def pick_language_index(wit_features, preferred_language="en"):
+def pick_required_language_index(wit_features, required_language="en"):
     """
-    Sceglie l'indice della lingua preferita dentro wit_features.
-    Se non trova l'inglese, prende il primo esempio disponibile.
+    Sceglie SOLO l'indice della lingua richiesta dentro wit_features.
+
+    Differenza rispetto alla versione precedente:
+    - prima: se non trovava l'inglese, prendeva il primo testo disponibile;
+    - ora: se non trova l'inglese, restituisce None e l'esempio viene scartato.
     """
     languages = wit_features.get("language", [])
+
     if not isinstance(languages, list) or len(languages) == 0:
         return None
 
     for i, lang in enumerate(languages):
-        if lang == preferred_language:
+        if lang == required_language:
             return i
 
-    return 0
+    return None
 
 
 def get_wit_field(wit_features, field_name, idx):
@@ -76,10 +110,12 @@ def get_wit_field(wit_features, field_name, idx):
     Molti campi sono liste parallele: page_title[i], page_url[i], caption[i], ecc.
     """
     values = wit_features.get(field_name, "")
+
     if isinstance(values, list):
         if idx is not None and idx < len(values):
             return clean_text(values[idx])
-        return get_first_valid(values)
+        return ""
+
     return clean_text(values)
 
 
@@ -104,6 +140,7 @@ def build_section_texts(example, wit_features, idx):
     Costruisce le section_texts compatibili col vostro codice.
     Qui mettiamo caption, alt text, descrizione pagina e contesto sezione.
     """
+
     caption_reference = get_wit_field(
         wit_features,
         "caption_reference_description",
@@ -159,6 +196,7 @@ def build_section_texts(example, wit_features, idx):
     # Rimuove duplicati mantenendo ordine
     deduped = []
     seen = set()
+
     for t in section_texts:
         key = t.lower()
         if key not in seen:
@@ -166,6 +204,40 @@ def build_section_texts(example, wit_features, idx):
             seen.add(key)
 
     return deduped
+
+
+def passes_topic_filter(title, section_texts):
+    """
+    Filtro opzionale per prendere solo pagine appartenenti a certi sottogruppi.
+
+    Funziona in modo semplice:
+    - se ENABLE_TOPIC_FILTER = False, accetta tutto;
+    - se ENABLE_TOPIC_FILTER = True, tiene solo documenti che contengono
+      almeno una parola chiave in TOPIC_KEYWORDS.
+
+    Esempio:
+        TOPIC_KEYWORDS = ["animal", "species", "bird"]
+
+    In quel caso tiene solo documenti che sembrano parlare di animali/specie.
+    """
+
+    if not ENABLE_TOPIC_FILTER:
+        return True
+
+    keywords = [k.lower().strip() for k in TOPIC_KEYWORDS if k.strip()]
+
+    if not keywords:
+        return True
+
+    title_text = clean_text(title).lower()
+
+    if SEARCH_TOPIC_IN_TEXT:
+        body_text = " ".join(section_texts).lower()
+        searchable_text = title_text + " " + body_text
+    else:
+        searchable_text = title_text
+
+    return any(keyword in searchable_text for keyword in keywords)
 
 
 def main():
@@ -179,6 +251,8 @@ def main():
 
     scanned = 0
     kept = 0
+    skipped_no_english = 0
+    skipped_topic_filter = 0
 
     for example in ds:
         scanned += 1
@@ -187,11 +261,16 @@ def main():
             break
 
         wit_features = example.get("wit_features", {})
-        if not isinstance(wit_features, dict): #print(f"[WARN] wit_features non è un dizionario valido per esempio {scanned}")
+
+        if not isinstance(wit_features, dict):
             continue
 
-        idx = pick_language_index(wit_features, PREFERRED_LANGUAGE) #idx = pick_language_index(wit_features, PREFERRED_LANGUAGE), se voglio che prenda solo l'inglese, altrimenti idx = 0 per prendere il primo disponibile
+        # Prende SOLO l'indice inglese.
+        # Se l'esempio non ha testo inglese, viene scartato.
+        idx = pick_required_language_index(wit_features, REQUIRED_LANGUAGE)
+
         if idx is None:
+            skipped_no_english += 1
             continue
 
         title = get_wit_field(wit_features, "page_title", idx)
@@ -206,11 +285,18 @@ def main():
         if len(merged_text) < MIN_TEXT_CHARS:
             continue
 
+        # Filtro opzionale per caratteristiche/sottogruppi.
+        # Di default è disattivato.
+        if not passes_topic_filter(title, section_texts):
+            skipped_topic_filter += 1
+            continue
+
         doc_id = f"doc_{kept + 1:06d}"
         image_rel_path = f"kb_images/{doc_id}.jpg"
         image_abs_path = OUT_DIR / image_rel_path
 
         ok_image = safe_save_image(example.get("image"), image_abs_path)
+
         if not ok_image:
             continue
 
@@ -223,6 +309,7 @@ def main():
             "image_url": image_url,
             "metadata_url": metadata_url,
             "image_path": image_rel_path,
+            "language": REQUIRED_LANGUAGE,
             "section_texts": section_texts
         }
 
@@ -230,7 +317,12 @@ def main():
         kept += 1
 
         if kept % 50 == 0:
-            print(f"Creati {kept}/{TARGET_DOCS} documenti validi. Scansionati: {scanned}")
+            print(
+                f"Creati {kept}/{TARGET_DOCS} documenti validi. "
+                f"Scansionati: {scanned}. "
+                f"Scartati senza inglese: {skipped_no_english}. "
+                f"Scartati dal filtro topic: {skipped_topic_filter}."
+            )
 
     with open(OUT_KB_PATH, "w", encoding="utf-8") as f:
         json.dump(kb, f, ensure_ascii=False, indent=2)
@@ -241,6 +333,8 @@ def main():
     print("\nFATTO.")
     print(f"Documenti creati: {kept}")
     print(f"Esempi scansionati: {scanned}")
+    print(f"Scartati senza inglese: {skipped_no_english}")
+    print(f"Scartati dal filtro topic: {skipped_topic_filter}")
     print(f"Knowledge base: {OUT_KB_PATH}")
     print(f"Mappa KNN: {OUT_KNN_PATH}")
     print(f"Immagini KB: {KB_IMAGES_DIR}")
