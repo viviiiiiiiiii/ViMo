@@ -50,14 +50,17 @@ class QwenServerLLM(LLM):
 
             # 1. Chiamiamo la generazione SENZA stop_words (che causava l'errore)
             risposta = generate_answer(
-                tools_real.qwen_model, 
-                tools_real.qwen_processor, 
-                messages,
-                temperature=0.01,         # Quasi zero per evitare deliri
-                repetition_penalty=1.3,  # Impedisce i loop tipo "blissfully"
-                max_new_tokens=512
-            )
-
+                        tools_real.qwen_model, 
+                        tools_real.qwen_processor, 
+                        messages,
+                        do_sample=False,         # 📍 DISATTIVA il campionamento (Greedy decoding)
+                        repetition_penalty=1.5,  # 📍 Alza ancora per stroncare i "blissfully"
+                        max_new_tokens=256       # Riduciamo per sicurezza
+                    )
+            # Se la risposta è troppo lunga e non contiene "Action:", è un loop
+            if len(risposta) > 300 and "Action:" not in risposta:
+                return "Thought: I am stuck in a loop. I need to rethink.\nAction: tool_ricerca_visiva\nAction Input: foto_buia.jpg"
+            
             # 2. Gestiamo gli STOP WORDS manualmente qui (Freno a mano software)
             # Se Qwen prova a scrivere "Observation:" da solo, noi lo tagliamo fuori.
             manual_stops = (stop or []) + ["Observation:", "Observation", "\nObservation:"]
@@ -74,25 +77,24 @@ class QwenServerLLM(LLM):
 # SETUP AGENTE (Globali) - VERSIONE CORRETTA
 # ==========================================
 
-template_universale = """You are a research assistant that uses tools. 
-You MUST follow this format exactly. Do not add bold text or extra decorations.
+template_universale = """You are a precise research assistant. 
+Use ONLY the following tools. 
 
-Available tools:
+Tools:
 {tools}
 
-To use a tool, you MUST use this exact syntax:
+Format to follow:
+Thought: I need to use a tool.
+Action: [Tool Name ONLY, e.g., tool_ricerca_visiva]
+Action Input: [The input, e.g., foto_buia.jpg]
+Observation: [Wait]
 
-Thought: [describe your reasoning]
-Action: [one of: {tool_names}]
-Action Input: [the exact input for the tool]
-Observation: [wait for the system]
+... (this can repeat)
 
-When you have the final answer:
-Thought: I have found all the information.
-Final Answer: [your summary]
+Thought: I have the final answer.
+Final Answer: [The summary]
 
-Begin
-
+Begin!
 Question: {input}
 Thought: {agent_scratchpad}"""
 # Assicurati che PromptTemplate rimanga così:
