@@ -139,12 +139,6 @@ ANSWER:
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--question", type=str, required=True)
-    parser.add_argument("--image", type=str, default=None)
-    parser.add_argument("--top_k", type=int, default=3)
-
-    args = parser.parse_args()
 
     result = normal_rag_answer(
         question= "Identifica il soggetto in 'foto_buia.jpg'. Una volta capito chi è, usa la ricerca testuale per dirmi quali sono le sue invenzioni citate nel database che NON siano quadri.",
