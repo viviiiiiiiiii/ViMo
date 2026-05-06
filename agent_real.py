@@ -56,9 +56,7 @@ class QwenServerLLM(LLM):
                         repetition_penalty=1.5,  # 📍 Alza ancora per stroncare i "blissfully"
                         max_new_tokens=256       # Riduciamo per sicurezza
                     )
-            # Se la risposta è troppo lunga e non contiene "Action:", è un loop
-            if len(risposta) > 300 and "Action:" not in risposta:
-                return "Thought: I am stuck in a loop. I need to rethink.\nAction: tool_ricerca_visiva\nAction Input: foto_buia.jpg"
+
             
             # 2. Gestiamo gli STOP WORDS manualmente qui (Freno a mano software)
             # Se Qwen prova a scrivere "Observation:" da solo, noi lo tagliamo fuori.
@@ -110,7 +108,7 @@ esecutore = AgentExecutor(
     agent=agente, 
     tools=tools_real.miei_tools_reali, 
     verbose=True,
-    handle_parsing_errors=True,
+    handle_parsing_errors="Check your output format! Remember to use Action: and Action Input:.",
     max_iterations=5, # Per evitare loop infiniti
     early_stopping_method='force'
 )
