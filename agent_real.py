@@ -43,26 +43,31 @@ class QwenServerLLM(LLM):
         return "qwen2.5-vl-custom"
 
     def _call(self, prompt: str, stop: Optional[List[str]] = None, **kwargs) -> str:
-        messages = [{"role": "user", "content": prompt}]
+            messages = [{"role": "user", "content": prompt}]
+            
+            if tools_real.qwen_model is None or tools_real.qwen_processor is None:
+                raise ValueError("Errore: I motori del server non sono stati accesi!")
 
-        actual_stop = (stop or []) + ["Observation:", "\nObservation:"]
-        
-        risposta = generate_answer(
+            # 1. Chiamiamo la generazione SENZA stop_words (che causava l'errore)
+            risposta = generate_answer(
                 tools_real.qwen_model, 
                 tools_real.qwen_processor, 
                 messages,
-                temperature=0.01,         # Quasi zero per massima precisione
-                repetition_penalty=1.3,  # Alzato leggermente per evitare i "blissfully"
-                max_new_tokens=512,
-                stop_words=actual_stop    # Passa i blocchi alla funzione di generazione
+                temperature=0.01,         # Quasi zero per evitare deliri
+                repetition_penalty=1.3,  # Impedisce i loop tipo "blissfully"
+                max_new_tokens=512
             )
 
-            # Pulizia finale della risposta
-        for s in actual_stop:
-                if s in risposta:
-                    risposta = risposta.split(s)[0]
+            # 2. Gestiamo gli STOP WORDS manualmente qui (Freno a mano software)
+            # Se Qwen prova a scrivere "Observation:" da solo, noi lo tagliamo fuori.
+            manual_stops = (stop or []) + ["Observation:", "Observation", "\nObservation:"]
+            
+            for stop_word in manual_stops:
+                if stop_word in risposta:
+                    # Teniamo solo quello che c'è PRIMA della parola di stop
+                    risposta = risposta.split(stop_word)[0]
 
-        return risposta.strip()
+            return risposta.strip()
 
 
 # ==========================================
