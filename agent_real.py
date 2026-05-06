@@ -90,7 +90,6 @@ Begin
 
 Question: {input}
 Thought: {agent_scratchpad}"""
-
 # Assicurati che PromptTemplate rimanga così:
 prompt = PromptTemplate(
     template=template_universale,
