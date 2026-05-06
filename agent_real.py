@@ -74,21 +74,27 @@ class QwenServerLLM(LLM):
 # SETUP AGENTE (Globali) - VERSIONE CORRETTA
 # ==========================================
 
-template_universale = """You are a precise research assistant. 
-Use ONLY the following tools:
+template_universale = """You are an investigative research assistant. Your goal is to provide accurate and complete answers by critically evaluating the information you find.
+
+TOOLS AVAILABLE:
 {tools}
 
-To use a tool, you MUST use this exact format:
+RULES OF ENGAGEMENT:
+1. ALWAYS evaluate the 'Observation'. Ask yourself: "Does this actually answer the user's question or is it irrelevant?"
+2. CROSS-REFERENCE: if the visual tool identifies something that doesn't match the user's context (e.g., a landscape instead of a person), do NOT stop. Use the textual tool to search for the correct subject.
+3. NO LOOPS: do not repeat the same Action with the same Action Input if the first result was insufficient.
+4. MULTI-STEP: you can use tools multiple times to build a complete answer (e.g., identify first, then search for details).
 
-Thought: Do I need to use a tool? Yes
+MANDATORY FORMAT:
+Thought: [Your detailed reasoning about what you have and what you still need]
 Action: [{tool_names}]
-Action Input: the input to the action
-Observation: the result of the action
+Action Input: [The specific query for the tool]
+Observation: [Result from the tool]
 
-... (this Thought/Action/Action Input/Observation can repeat N times)
+... (Repeat Thought/Action/Action Input/Observation if the information is incomplete)
 
-Thought: I now know the final answer
-Final Answer: the final answer to the original input question
+Thought: I have verified all data and it is complete.
+Final Answer: [Summarize only the verified facts that directly answer the question]
 
 Begin!
 
@@ -114,7 +120,7 @@ esecutore = AgentExecutor(
 )
 
 # ==========================================
-# MAIN EXECUTION
+# MAIN EXECUTION    
 # ==========================================
 if __name__ == "__main__":
     print("🚀 Inizializzazione sistema sul server...")
