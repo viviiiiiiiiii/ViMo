@@ -1,17 +1,13 @@
-import os
 import argparse
 from PIL import Image
 
+import tools_real
 from load_config import load_config
 from Qwen_retrieval import (
-    load_clip_and_index,
     extract_features,
     retrieve_topk_pages,
     generate_answer
 )
-
-from transformers import AutoModelForVision2Seq, AutoProcessor
-import torch
 
 
 def build_args():
@@ -28,46 +24,12 @@ def build_args():
     return args
 
 
-def load_qwen_generator(args):
-    """
-    Carica il modello generativo Qwen.
-    Adatta i nomi dei path se nel vostro config sono diversi.
-    """
-
-    device = "cuda:0" if torch.cuda.is_available() else "cpu"
-    dtype = torch.bfloat16 if torch.cuda.is_available() else torch.float32
-
-    print(f"🔄 Caricamento modello generativo su {device}...")
-
-    model = AutoModelForVision2Seq.from_pretrained(
-        args.generator_path,
-        torch_dtype=dtype,
-        device_map="auto",
-        trust_remote_code=True,
-        local_files_only=True
-    ).eval()
-
-    processor = AutoProcessor.from_pretrained(
-        args.generator_path,
-        trust_remote_code=True,
-        local_files_only=True
-    )
-
-    return model, processor
-
-
 def normal_rag_answer(question, image_path=None, top_k=3):
     args = build_args()
     args.top_k = top_k
 
-    print("🚀 Caricamento retriever + indice FAISS...")
-    clip_model, clip_processor, index, index_map, wiki = load_clip_and_index(
-        args,
-        load_faiss=True
-    )
-
-    print("🚀 Caricamento modello generativo...")
-    qwen_model, qwen_processor = load_qwen_generator(args)
+    print("🚀 Inizializzazione motori condivisi...")
+    tools_real.start_motors(args)
 
     if image_path is not None:
         print(f"🖼️ Uso immagine come query: {image_path}")
@@ -75,24 +37,26 @@ def normal_rag_answer(question, image_path=None, top_k=3):
 
         features = extract_features(
             image=image,
-            model=clip_model,
-            processor=clip_processor
+            model=tools_real.clip_model,
+            processor=tools_real.clip_processor
         )
 
     else:
         print("📝 Uso testo come query.")
+
         features = extract_features(
             text=question,
-            model=clip_model,
-            processor=clip_processor
+            model=tools_real.clip_model,
+            processor=tools_real.clip_processor
         )
 
     print("🔎 Retrieval top-k...")
+
     context = retrieve_topk_pages(
         features,
-        index,
-        index_map,
-        wiki,
+        tools_real.index,
+        tools_real.index_map,
+        tools_real.wiki,
         k=top_k
     )
 
@@ -121,9 +85,10 @@ ANSWER:
     ]
 
     print("🧠 Generazione risposta...")
+
     answer = generate_answer(
-        qwen_model,
-        qwen_processor,
+        tools_real.qwen_model,
+        tools_real.qwen_processor,
         messages,
         max_new_tokens=512,
         temperature=0.1,
@@ -141,7 +106,7 @@ ANSWER:
 if __name__ == "__main__":
 
     result = normal_rag_answer(
-        question= "Identifica il soggetto in 'foto_buia.jpg'. Una volta capito chi è, usa la ricerca testuale per dirmi quali sono le sue invenzioni citate nel database che NON siano quadri.",
+        question="Usando il contesto recuperato dall'immagine, identifica il soggetto e dimmi quali invenzioni non artistiche sono citate nel database.",
         image_path="foto_buia.jpg",
         top_k=3
     )
