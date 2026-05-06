@@ -44,68 +44,49 @@ class QwenServerLLM(LLM):
 
     def _call(self, prompt: str, stop: Optional[List[str]] = None, **kwargs) -> str:
         messages = [{"role": "user", "content": prompt}]
+
+        actual_stop = (stop or []) + ["Observation:", "\nObservation:"]
         
-        if tools_real.qwen_model is None or tools_real.qwen_processor is None:
-            raise ValueError("Errore: I motori del server non sono stati accesi!")
-
-        # 📍 AGGIUNGIAMO PARAMETRI ANTI-LOOP
-        # Nota: assicurati che generate_answer accetti **kwargs o parametri extra
         risposta = generate_answer(
-            tools_real.qwen_model, 
-            tools_real.qwen_processor, 
-            messages,
-            temperature=0.1,         # Più basso = meno fantasia
-            repetition_penalty=1.2,  # 📍 BLOCCA I LOOP DI RIPETIZIONE
-            max_new_tokens=512       # Evita risposte infinite
-        )
+                tools_real.qwen_model, 
+                tools_real.qwen_processor, 
+                messages,
+                temperature=0.01,         # Quasi zero per massima precisione
+                repetition_penalty=1.3,  # Alzato leggermente per evitare i "blissfully"
+                max_new_tokens=512,
+                stop_words=actual_stop    # Passa i blocchi alla funzione di generazione
+            )
 
-        if stop is not None:
-            for stop_word in stop:
-                if stop_word in risposta:
-                    risposta = risposta.split(stop_word)[0]
+            # Pulizia finale della risposta
+        for s in actual_stop:
+                if s in risposta:
+                    risposta = risposta.split(s)[0]
 
         return risposta.strip()
 
-# ==========================================
-# SETUP AGENTE (Globali)
-# ==========================================
-# 📍 Modificato il template per essere 100% compatibile con create_react_agent
-# In agent_real.py
-
-# Modifica il template in agent_real.py
-# ==========================================
-# SETUP AGENTE (Globali) - VERSIONE GROUNDED
-# ==========================================
 
 # ==========================================
 # SETUP AGENTE (Globali) - VERSIONE CORRETTA
 # ==========================================
 
-template_universale = """You are a DATA-ONLY research assistant. 
-You must identify subjects and then verify details ONLY using the provided tools.
+template_universale = """You are a research assistant that uses tools. 
+You MUST follow this format exactly. Do not add bold text or extra decorations.
 
-You have access to the following tools:
+Available tools:
 {tools}
 
-RULES:
-1. NEVER invent information. If it's not in the 'Observation', it doesn't exist.
-2. If you identify a subject (e.g., Leonardo) but the user asks for details (e.g., inventions) that are NOT in the visual observation, you MUST call 'tool_ricerca_testuale' before answering.
-3. If BOTH tools fail to provide specific info, say: "The database does not contain information about [X]".
-4. Do not repeat yourself.
+To use a tool, you MUST use this exact syntax:
 
-To use a tool, please use the following format:
+Thought: [describe your reasoning]
+Action: [one of: {tool_names}]
+Action Input: [the exact input for the tool]
+Observation: [wait for the system]
 
-Thought: Do I need to use a tool? Yes
-Action: the action to take, should be one of [{tool_names}]
-Action Input: the input to the action
-Observation: the result of the action
+When you have the final answer:
+Thought: I have found all the information.
+Final Answer: [your summary]
 
-(this Thought/Action/Action Input/Observation can repeat N times)
-
-Thought: I now know the final answer
-Final Answer: [Summarize ONLY what was found in the observations]
-
-Begin!
+Begin
 
 Question: {input}
 Thought: {agent_scratchpad}"""
