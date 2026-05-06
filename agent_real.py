@@ -78,26 +78,26 @@ class QwenServerLLM(LLM):
 # ==========================================
 
 template_universale = """You are a precise research assistant. 
-Use ONLY the following tools. 
-
-Tools:
+Use ONLY the following tools:
 {tools}
 
-Format to follow:
-Thought: I need to use a tool.
-Action: [Tool Name ONLY, e.g., tool_ricerca_visiva]
-Action Input: [The input, e.g., foto_buia.jpg]
-Observation: [Wait]
+To use a tool, you MUST use this exact format:
 
-... (this can repeat)
+Thought: Do I need to use a tool? Yes
+Action: [{tool_names}]
+Action Input: the input to the action
+Observation: the result of the action
 
-Thought: I have the final answer.
-Final Answer: [The summary]
+... (this Thought/Action/Action Input/Observation can repeat N times)
+
+Thought: I now know the final answer
+Final Answer: the final answer to the original input question
 
 Begin!
+
 Question: {input}
 Thought: {agent_scratchpad}"""
-# Assicurati che PromptTemplate rimanga così:
+
 prompt = PromptTemplate(
     template=template_universale,
     input_variables=["input", "tools", "tool_names", "agent_scratchpad"]
