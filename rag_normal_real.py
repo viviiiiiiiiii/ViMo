@@ -147,9 +147,9 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     result = normal_rag_answer(
-        question=args.question,
-        image_path=args.image,
-        top_k=args.top_k
+        question= "Identifica il soggetto in 'foto_buia.jpg'. Una volta capito chi è, usa la ricerca testuale per dirmi quali sono le sue invenzioni citate nel database che NON siano quadri.",
+        image_path="foto_buia.jpg",
+        top_k=3
     )
 
     print("\n==============================")
