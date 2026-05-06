@@ -142,5 +142,5 @@ if __name__ == "__main__":
     # 3. TEST AGENTE
 # 3. TEST AGENTE SOLO TESTO
 percorso_immagine = "foto_buia.jpg"
-input_semplice = "Identifica il soggetto in 'foto_buia.jpg'. Una volta capito chi è, usa la ricerca testuale per dirmi quali sono le sue invenzioni citate nel database che NON siano quadri."
+input_semplice = "Identifica chi ha dipinto 'foto_buia.jpg'. Una volta capito chi è, usa la ricerca testuale per dirmi quali sono le sue invenzioni citate nel database che NON siano quadri."
 esecutore.invoke({"input": input_semplice})
