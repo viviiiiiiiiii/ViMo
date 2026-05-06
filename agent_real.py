@@ -53,7 +53,6 @@ class QwenServerLLM(LLM):
                         tools_real.qwen_model, 
                         tools_real.qwen_processor, 
                         messages,
-                        do_sample=False,         # 📍 DISATTIVA il campionamento (Greedy decoding)
                         repetition_penalty=1.5,  # 📍 Alza ancora per stroncare i "blissfully"
                         max_new_tokens=256       # Riduciamo per sicurezza
                     )

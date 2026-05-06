@@ -140,8 +140,7 @@ def generate_answer(model, processor, messages, stop=None,**kwargs):
     with torch.no_grad():
         outputs = model.generate(
             **inputs, 
-            # max_new_tokens=256,  <-- ❌ CANCELLA QUESTA RIGA!
-            **kwargs,              # <--- ✅ Ora usa solo questo (che include il nostro 512)
+            **kwargs,            
             do_sample=False,
             use_cache=True,
             pad_token_id=processor.tokenizer.pad_token_id,
