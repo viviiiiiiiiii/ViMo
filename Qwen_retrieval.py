@@ -19,6 +19,7 @@ def load_clip_and_index(args, load_faiss=True):
         device_clip = "cpu"
         dtype_clip = torch.float32 # La CPU lavora meglio in float32
     
+
     print(f"🔄 Caricamento EVA-CLIP su RAM per riparazione...")
     
 
