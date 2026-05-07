@@ -190,7 +190,7 @@ ANSWER:
 if __name__ == "__main__":
     result = normal_rag_answer(
         question=(
-            "Identifica il soggetto in 'foto_buia.jpg'. Una volta capito chi è, usa la ricerca testuale per dirmi quali sono le sue invenzioni citate nel database che NON siano quadri."
+            "Chi ha dipinto 'foto_buia.jpg'?"
         ),
         image_path="foto_buia.jpg",
         top_k=3,
