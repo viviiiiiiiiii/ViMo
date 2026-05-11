@@ -37,7 +37,7 @@ def start_motors(args):
         attn_implementation="eager",
         local_files_only=True,
         trust_remote_code=True
-    ).to(device).eval() 
+    ).eval() 
     
     print("✅ motors good to goo")
 
