@@ -2,6 +2,7 @@
 #SBATCH --job-name=vimo_agent_test
 #SBATCH --partition=all_serial  # La partizione GPU che abbiamo trovato
 #SBATCH --gres=gpu:1             #Chiediamo 1 GPU
+#SBATCH --cpus-per-task=4
 #SBATCH --mem=40G                  # Qwen2.5-VL ha bisogno di molta RAM
 #SBATCH --time=00:20:00
 #SBATCH --account=cvcs2026
