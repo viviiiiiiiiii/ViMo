@@ -17,7 +17,7 @@ sys.path.append(str(ROOT_VIMO)) # Permette di importare Qwen_retrieval
 from Qwen_retrieval import extract_features, load_clip_and_index
 
 # 📍 DEFINIZIONE PERCORSI (Presi dal tuo config.json)
-MODEL_NAME = str(ROOT_VIMO / "modelli" / "EVA-CLIP-8B")
+MODEL_NAME = str(ROOT_VIMO / "modelli" / "clip-vit-large-patch14")
 KB_PATH = BASE_DATI / "encyclopedic_kb_wiki.json"
 INDEX_JSON_PATH = BASE_DATI / "knn.json"
 OUT_INDEX_PATH = BASE_DATI / "knn.index"
