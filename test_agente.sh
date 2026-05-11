@@ -17,4 +17,4 @@ export TRANSFORMERS_IGNORE_LOAD_VULNERABILITY=1
 
 # Entra nella cartella ed esegui l'agente
 cd /work/cvcs2026/ViMo/
-python agent_real.py
+python -u agent_real.py

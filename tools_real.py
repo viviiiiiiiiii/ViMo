@@ -36,7 +36,8 @@ def start_motors(args):
         torch_dtype=torch.bfloat16,
         attn_implementation="eager",
         local_files_only=True,
-        trust_remote_code=True
+        trust_remote_code=True,
+        device_map="auto"
     ).eval() 
     
     print("✅ motors good to goo")
