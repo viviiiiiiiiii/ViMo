@@ -100,7 +100,7 @@ def extract_features(image=None, text=None, model=None, processor=None, out_dim=
             if hasattr(model, "get_image_features"):
                 features = model.get_image_features(pixel_values=pixel_values)
             else:
-                features = model.encode_image(pixel_values=pixel_values)
+                features = model(pixel_values=pixel_values)
             
         elif text is not None:
             inputs = processor.tokenizer(text=text, return_tensors="pt", truncation=True, max_length=77)
@@ -112,11 +112,20 @@ def extract_features(image=None, text=None, model=None, processor=None, out_dim=
             if hasattr(model, "get_text_features"):
                 features = model.get_text_features(input_ids=input_ids)
             else:
-                features = model.encode_text(input_ids)
+                features = model(input_ids=input_ids)
         
-        # 📍 NESSUN TAGLIO A 512! Lasciamo a FAISS i suoi 1280.
+        # 🚀 FIX DEFINITIVO: Se CLIP ci dà una "scatola" (oggetto) invece di un Tensore, la apriamo!
+        if not isinstance(features, torch.Tensor):
+            if hasattr(features, "image_embeds") and features.image_embeds is not None:
+                features = features.image_embeds
+            elif hasattr(features, "text_embeds") and features.text_embeds is not None:
+                features = features.text_embeds
+            elif hasattr(features, "pooler_output") and features.pooler_output is not None:
+                features = features.pooler_output
+            else:
+                features = features[0] # Estrazione forzata bruta
         
-        # Normalizzazione sicura anti NaN
+        # Ora che siamo sicuri di avere un Tensore puro, facciamo la matematica
         features = features / torch.clamp(features.norm(p=2, dim=-1, keepdim=True), min=1e-7)
         
     return features.to(torch.float32).cpu().numpy()
