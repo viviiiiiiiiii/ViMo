@@ -43,7 +43,11 @@ class QwenServerLLM(LLM):
         return "qwen2.5-vl-custom"
 
     def _call(self, prompt: str, stop: Optional[List[str]] = None, **kwargs) -> str:
-            messages = [{"role": "user", "content": prompt}]
+            # 🚀 FIX: Aggiungiamo il System Prompt per uccidere la "personalità" di Qwen
+            messages = [
+                {"role": "system", "content": "You are a rigid, robotic backend system. You MUST communicate ONLY using the requested ReAct format (Thought, Action, Action Input). NO conversational filler, NO greetings, NO explanations of your plan."},
+                {"role": "user", "content": prompt}
+            ]
             
             if tools_real.qwen_model is None or tools_real.qwen_processor is None:
                 raise ValueError("Errore: I motori del server non sono stati accesi!")
@@ -53,8 +57,8 @@ class QwenServerLLM(LLM):
                         tools_real.qwen_model, 
                         tools_real.qwen_processor, 
                         messages,
-                        repetition_penalty=1.5,  # 📍 Alza ancora per stroncare i "blissfully"
-                        max_new_tokens=256       # Riduciamo per sicurezza
+                        repetition_penalty=1.15,  # 📍 Abbassato a 1.15 (1.5 è troppo aggressivo)
+                        max_new_tokens=256       
                     )
 
             
@@ -81,9 +85,12 @@ TOOLS AVAILABLE:
 
 RULES OF ENGAGEMENT:
 1. ALWAYS evaluate the 'Observation'. Ask yourself: "Does this actually answer the user's question or is it irrelevant?"
-2. CROSS-REFERENCE: if the visual tool identifies something that doesn't match the user's context (e.g., a landscape instead of a person), do NOT stop. Use the textual tool to search for the correct subject.
-3. NO LOOPS: do not repeat the same Action with the same Action Input if the first result was insufficient.
-4. MULTI-STEP: you can use tools multiple times to build a complete answer (e.g., identify first, then search for details).
+2. CROSS-REFERENCE: if the visual tool identifies something that doesn't match the user's context, do NOT stop. Use the textual tool.
+3. NO LOOPS: do not repeat the same Action with the same Action Input.
+4. MULTI-STEP: you can use tools multiple times to build a complete answer.
+
+🚀 CRITICAL RULE FOR YOUR OUTPUT:
+You MUST output ONLY the Action and Action Input. Do NOT write conversational text like "I will start by...". Do NOT explain your plan. Stop generating immediately after writing the Action Input!
 
 MANDATORY FORMAT:
 Thought: [Your detailed reasoning about what you have and what you still need]
