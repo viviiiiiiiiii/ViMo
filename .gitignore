@@ -5,6 +5,7 @@ modelli/
 dati/immagini/
 dati/knn.json
 dati/encyclopedic_index.json
+dati/encyclopedic_kb_wiki.json
 
 # Ignora i file generati da noi e i log
 risultati/

@@ -122,7 +122,7 @@ def extract_features(image=None, text=None, model=None, processor=None, out_dim=
     return features.to(torch.float32).cpu().numpy()
 
 
-def generate_answer(model, processor, messages, stop=None,**kwargs):
+def generate_answer(model, processor, messages, stop=None, **kwargs):
     clean_messages = []
     for m in messages:
         if isinstance(m["content"], list):
@@ -134,18 +134,26 @@ def generate_answer(model, processor, messages, stop=None,**kwargs):
     text = processor.apply_chat_template(clean_messages, tokenize=False, add_generation_prompt=True)
     inputs = processor(text=[text], return_tensors="pt").to(model.device)
 
-    # 📍 Impostiamo un default solo se non è già presente in kwargs
+    # 📍 1. Impostiamo i default in modo sicuro dentro kwargs
     if 'max_new_tokens' not in kwargs:
         kwargs['max_new_tokens'] = 512
 
+    # 📍 2. FIX ANTI-ALLUCINAZIONI: Forziamo Greedy Decoding e togliamo i conflitti
+    kwargs['do_sample'] = False
+    kwargs.pop('temperature', None)
+    kwargs.pop('top_p', None)
+    kwargs.pop('top_k', None)
+
+    # 📍 3. Aggiungiamo i token di sistema per sicurezza
+    kwargs['pad_token_id'] = processor.tokenizer.pad_token_id
+    kwargs['eos_token_id'] = processor.tokenizer.eos_token_id
+    kwargs['use_cache'] = True
+
     with torch.no_grad():
+        # Ora passiamo SOLO gli input e i kwargs ripuliti! Nessun parametro doppio.
         outputs = model.generate(
             **inputs, 
-            **kwargs,            
-            do_sample=False,
-            use_cache=True,
-            pad_token_id=processor.tokenizer.pad_token_id,
-            eos_token_id=processor.tokenizer.eos_token_id,
+            **kwargs 
         )
     
     generated_ids = outputs[0][inputs["input_ids"].shape[-1]:]
