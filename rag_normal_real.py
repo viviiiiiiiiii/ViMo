@@ -193,7 +193,7 @@ if __name__ == "__main__":
             "Chi ha dipinto 'foto_buia.jpg'?"
         ),
         image_path="foto_buia.jpg",
-        top_k=3,
+        top_k=1,
     )
 
     print("\n==============================")
