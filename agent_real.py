@@ -34,41 +34,48 @@ def image_to_base64(image_path):
         return base64.b64encode(img_file.read()).decode('utf-8')
 
 
-# ==========================================
-# L'ADATTATORE QWEN (Corretto con Freno a Mano)
+## ==========================================
+# L'ADATTATORE QWEN (Ora 100% Multimodale)
 # ==========================================
 class QwenServerLLM(LLM):
+    # 📍 NOVITÀ: Aggiungiamo un campo per tenere in memoria l'immagine
+    current_image_path: Optional[str] = None
+
     @property
     def _llm_type(self) -> str:
-        return "qwen2.5-vl-custom"
+        return "qwen2.5-vl-custom-multimodal"
 
     def _call(self, prompt: str, stop: Optional[List[str]] = None, **kwargs) -> str:
-            # 🚀 FIX: Aggiungiamo il System Prompt per uccidere la "personalità" di Qwen
+            
+            # 📍 NOVITÀ: Costruiamo un input ibrido (Vision + Language)
+            user_content = []
+            
+            # Se abbiamo caricato un'immagine negli "occhi" dell'agente, la inseriamo
+            if self.current_image_path and os.path.exists(self.current_image_path):
+                user_content.append({"type": "image", "image": self.current_image_path})
+            
+            # Aggiungiamo il gigantesco prompt testuale generato da LangChain
+            user_content.append({"type": "text", "text": prompt})
+
             messages = [
                 {"role": "system", "content": "You are a rigid, robotic backend system. You MUST communicate ONLY using the requested ReAct format (Thought, Action, Action Input). NO conversational filler, NO greetings, NO explanations of your plan."},
-                {"role": "user", "content": prompt}
+                {"role": "user", "content": user_content}
             ]
             
             if tools_real.qwen_model is None or tools_real.qwen_processor is None:
                 raise ValueError("Errore: I motori del server non sono stati accesi!")
 
-            # 1. Chiamiamo la generazione SENZA stop_words (che causava l'errore)
             risposta = generate_answer(
                         tools_real.qwen_model, 
                         tools_real.qwen_processor, 
                         messages,
-                        repetition_penalty=1.15,  # 📍 Abbassato a 1.15 (1.5 è troppo aggressivo)
+                        repetition_penalty=1.15,
                         max_new_tokens=256       
                     )
 
-            
-            # 2. Gestiamo gli STOP WORDS manualmente qui (Freno a mano software)
-            # Se Qwen prova a scrivere "Observation:" da solo, noi lo tagliamo fuori.
             manual_stops = (stop or []) + ["Observation:", "Observation", "\nObservation:"]
-            
             for stop_word in manual_stops:
                 if stop_word in risposta:
-                    # Teniamo solo quello che c'è PRIMA della parola di stop
                     risposta = risposta.split(stop_word)[0]
 
             return risposta.strip()
@@ -149,8 +156,15 @@ if __name__ == "__main__":
     # 2. ACCENSIONE MOTORI (Popola tools_real.qwen_model, ecc.)
     tools_real.start_motors(args)
     
-    # 3. TEST AGENTE
-# 3. TEST AGENTE SOLO TESTO
-percorso_immagine = "foto_buia.jpg"
-input_semplice = "Identifica chi ha dipinto 'foto_buia.jpg'. Una volta capito chi è, usa la ricerca testuale per dirmi quali sono le sue invenzioni citate nel database che NON siano quadri."
-esecutore.invoke({"input": input_semplice})
+    # ==========================================
+    # 3. TEST AGENTE MULTIMODALE PURO
+    # ==========================================
+    percorso_immagine = "foto_buia.jpg"
+    
+    # 📍 IL MOMENTO MAGICO: Diamo l'immagine in pasto a Qwen prima di iniziare
+    vero_qwen.current_image_path = percorso_immagine
+
+    input_semplice = f"Guarda l'immagine '{percorso_immagine}'. Identifica chi l'ha dipinta. Una volta capito chi è, usa la ricerca testuale per dirmi quali sono le sue invenzioni citate nel database che NON siano quadri."
+    
+    print(f"\n🧠 Avvio indagine di Qwen. Occhi puntati su: {percorso_immagine}...")
+    esecutore.invoke({"input": input_semplice})
