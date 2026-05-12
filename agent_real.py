@@ -88,6 +88,9 @@ RULES OF ENGAGEMENT:
 2. CROSS-REFERENCE: if the visual tool identifies something that doesn't match the user's context, do NOT stop. Use the textual tool.
 3. NO LOOPS: do not repeat the same Action with the same Action Input.
 4. MULTI-STEP: you can use tools multiple times to build a complete answer.
+5. ONLY ONE MOVE: You must choose EITHER an Action OR a Final Answer. NEVER write both in the same response!
+6. SKIP UNNECESSARY ACTIONS: If the Observation from the first tool gives you ALL the information you need (e.g., the name of the painting AND the inventions), DO NOT use the text tool. Go directly to Thought and Final Answer.
+7. STOP WRITING: If you choose an Action, you MUST stop generating text immediately after writing the Action Input. Do not hallucinate the next Thought.
 
 🚀 CRITICAL RULE FOR YOUR OUTPUT:
 You MUST output ONLY the Action and Action Input. Do NOT write conversational text like "I will start by...". Do NOT explain your plan. Stop generating immediately after writing the Action Input!
