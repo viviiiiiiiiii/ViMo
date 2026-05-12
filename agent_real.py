@@ -130,6 +130,42 @@ esecutore = AgentExecutor(
 )
 
 # ==========================================
+# FUNZIONI PER LA EVALUATION AUTOMATICA
+# ==========================================
+
+def build_args(top_k=3):
+    """Costruisce gli argomenti per l'agente durante la valutazione."""
+    config_dict = load_config()
+    class CostruttoreArgs: pass
+    args = CostruttoreArgs()
+    for key, value in config_dict.items():
+        setattr(args, key, str(value))
+    args.top_k = top_k
+    return args
+
+def load_agentic_engines(args):
+    """Accende i motori globali in tools_real una sola volta per tutte le 1000 domande."""
+    print("Accensione motori globali dell'agente in corso...")
+    tools_real.start_motors(args)
+    return True # Ritorna un check, i modelli sono salvati in tools_real
+
+def agentic_rag_answer(question: str, image_path: Optional[str] = None, top_k: int = 3, engines=None):
+    """La funzione che la pipeline di valutazione chiama per ogni domanda."""
+    
+    # Se c'è un'immagine, la uniamo testualmente alla domanda in modo che l'agente lo sappia
+    if image_path:
+        prompt_completo = f"Immagine fornita: '{image_path}'.\nDomanda: {question}"
+    else:
+        prompt_completo = f"Domanda: {question}"
+
+    # Eseguiamo l'agente
+    risultato = esecutore.invoke({"input": prompt_completo})
+    
+    # LangChain AgentExecutor di solito restituisce la risposta finale nella chiave "output"
+    return risultato.get("output", str(risultato))
+
+
+# ==========================================
 # MAIN EXECUTION
 # ==========================================
 if __name__ == "__main__":

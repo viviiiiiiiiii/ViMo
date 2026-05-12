@@ -43,7 +43,7 @@ RESUME_IF_OUTPUT_EXISTS = True # Riprende da dove si è interrotto se salta la c
 SAVE_RETRIEVED_CONTEXT = True
 
 # --- SETTINGS AGENTE ---
-AGENT_MODULE = "agentic_rag_real"
+AGENT_MODULE = "agent_real"
 AGENT_FUNCTION = "agentic_rag_answer"
 AGENT_BUILD_ARGS_FUNCTION = "build_args"
 AGENT_LOAD_ENGINES_FUNCTION = "load_agentic_engines"
