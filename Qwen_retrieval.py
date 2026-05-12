@@ -99,6 +99,8 @@ def extract_features(image=None, text=None, model=None, processor=None, out_dim=
             
             if hasattr(model, "get_image_features"):
                 features = model.get_image_features(pixel_values=pixel_values)
+            elif hasattr(model, "encode_image"): # 🚀 LA CHIAVE PER EVA-CLIP
+                features = model.encode_image(pixel_values)
             else:
                 features = model(pixel_values=pixel_values)
             
@@ -111,10 +113,12 @@ def extract_features(image=None, text=None, model=None, processor=None, out_dim=
             
             if hasattr(model, "get_text_features"):
                 features = model.get_text_features(input_ids=input_ids)
+            elif hasattr(model, "encode_text"): # 🚀 LA CHIAVE PER EVA-CLIP
+                features = model.encode_text(input_ids)
             else:
                 features = model(input_ids=input_ids)
         
-        # 🚀 FIX DEFINITIVO: Se CLIP ci dà una "scatola" (oggetto) invece di un Tensore, la apriamo!
+        # 🚀 L'apriscatole universale (che ha funzionato prima)
         if not isinstance(features, torch.Tensor):
             if hasattr(features, "image_embeds") and features.image_embeds is not None:
                 features = features.image_embeds
@@ -123,9 +127,8 @@ def extract_features(image=None, text=None, model=None, processor=None, out_dim=
             elif hasattr(features, "pooler_output") and features.pooler_output is not None:
                 features = features.pooler_output
             else:
-                features = features[0] # Estrazione forzata bruta
+                features = features[0]
         
-        # Ora che siamo sicuri di avere un Tensore puro, facciamo la matematica
         features = features / torch.clamp(features.norm(p=2, dim=-1, keepdim=True), min=1e-7)
         
     return features.to(torch.float32).cpu().numpy()
