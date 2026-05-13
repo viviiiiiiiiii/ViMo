@@ -4,7 +4,8 @@ import faiss
 import numpy as np
 import torch
 from transformers import AutoModel, CLIPImageProcessor, AutoTokenizer
-
+from transformers import set_seed
+set_seed(42) # O qualunque numero preferisci, basta che sia fisso
 #d
 
 def load_clip_and_index(args, load_faiss=True):

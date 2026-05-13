@@ -136,6 +136,18 @@ esecutore = AgentExecutor(
     early_stopping_method='force'
 )
 
+def run_agentic_rag(image_path, question):
+    """Funzione pronta per essere chiamata dallo script di valutazione"""
+    # Puntiamo gli occhi di Qwen sull'immagine corrente
+    vero_qwen.current_image_path = image_path
+    
+    # Esecuzione
+    try:
+        result = esecutore.invoke({"input": question})
+        return result["output"]
+    except Exception as e:
+        return f"Errore Agente: {str(e)}"
+
 # ==========================================
 # MAIN EXECUTION    
 # ==========================================
