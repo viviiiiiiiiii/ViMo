@@ -1,44 +1,30 @@
-
-
 import base64
 import torch
 import re
+import os
 from PIL import Image
 from typing import Optional, List
 
-import os
 os.environ['CUDA_LAUNCH_BLOCKING'] = "1"
 
-# 📍 Import dal core (sempre validi)
 from langchain_core.language_models.llms import LLM
 from langchain_core.prompts import PromptTemplate
 
-# 📍 Import per AgentExecutor e ReAct (Versione 2026 / Classic)
-# Proviamo i due percorsi più probabili per la v1.2.15
 try:
     from langchain.agents import AgentExecutor, create_react_agent
 except ImportError:
     from langchain_classic.agents import AgentExecutor, create_react_agent
 
-# Importiamo l'intero modulo per accedere alle variabili globali aggiornate
 import tools_real 
 from load_config import load_config
 from Qwen_retrieval import generate_answer
 
-
-# ==========================================
-# FUNZIONI DI SUPPORTO
-# ==========================================
 def image_to_base64(image_path):
     with open(image_path, "rb") as img_file:
         return base64.b64encode(img_file.read()).decode('utf-8')
 
 
-## ==========================================
-# L'ADATTATORE QWEN (Ora 100% Multimodale)
-# ==========================================
 class QwenServerLLM(LLM):
-    # 📍 NOVITÀ: Aggiungiamo un campo per tenere in memoria l'immagine
     current_image_path: Optional[str] = None
 
     @property
@@ -47,18 +33,23 @@ class QwenServerLLM(LLM):
 
     def _call(self, prompt: str, stop: Optional[List[str]] = None, **kwargs) -> str:
             
-            # 📍 NOVITÀ: Costruiamo un input ibrido (Vision + Language)
             user_content = []
             
-            # Se abbiamo caricato un'immagine negli "occhi" dell'agente, la inseriamo
+            # 1. Immagine principale dell'utente
             if self.current_image_path and os.path.exists(self.current_image_path):
                 user_content.append({"type": "image", "image": self.current_image_path})
             
-            # Aggiungiamo il gigantesco prompt testuale generato da LangChain
+            # 2. Immagini wiki scaricate al volo dal tool
+            wiki_images = re.findall(r'\[IMG_WIKI: (.*?)\]', prompt)
+            for img_path in set(wiki_images): 
+                if os.path.exists(img_path):
+                    user_content.append({"type": "image", "image": img_path})
+                    print(f"👁️ Qwen sta guardando un'immagine extra da Wikipedia: {img_path}")
+            
             user_content.append({"type": "text", "text": prompt})
 
             messages = [
-                {"role": "system", "content": "You are a rigid, robotic backend system. You MUST communicate ONLY using the requested ReAct format (Thought, Action, Action Input). NO conversational filler, NO greetings, NO explanations of your plan."},
+                {"role": "system", "content": "You are a rigid, robotic backend system. You MUST communicate ONLY using the requested ReAct format (Thought, Action, Action Input). NO conversational filler."},
                 {"role": "user", "content": user_content}
             ]
             
@@ -82,36 +73,32 @@ class QwenServerLLM(LLM):
 
 
 # ==========================================
-# SETUP AGENTE (Globali) - VERSIONE CORRETTA
+# SETUP AGENTE - NUOVO PROMPT A DUE FASI
 # ==========================================
 
-template_universale = """You are an investigative research assistant. Your goal is to provide accurate and complete answers by critically evaluating the information you find.
+template_universale = """You are an investigative research assistant. Your goal is to provide accurate answers.
 
 TOOLS AVAILABLE:
 {tools}
 
 RULES OF ENGAGEMENT:
-1. ALWAYS evaluate the 'Observation'. Ask yourself: "Does this actually answer the user's question or is it irrelevant?"
-2. CROSS-REFERENCE: if the visual tool identifies something that doesn't match the user's context, do NOT stop. Use the textual tool.
-3. NO LOOPS: do not repeat the same Action with the same Action Input.
-4. MULTI-STEP: you can use tools multiple times to build a complete answer.
-5. ONLY ONE MOVE: You must choose EITHER an Action OR a Final Answer. NEVER write both in the same response!
-6. SKIP UNNECESSARY ACTIONS: If the Observation from the first tool gives you ALL the information you need (e.g., the name of the painting AND the inventions), DO NOT use the text tool. Go directly to Thought and Final Answer.
-7. STOP WRITING: If you choose an Action, you MUST stop generating text immediately after writing the Action Input. Do not hallucinate the next Thought.
-
-🚀 CRITICAL RULE FOR YOUR OUTPUT:
-You MUST output ONLY the Action and Action Input. Do NOT write conversational text like "I will start by...". Do NOT explain your plan. Stop generating immediately after writing the Action Input!
+1. TWO-STEP PROCESS: First, use a search tool (visual or text) to find relevant documents. The search tool will return a list of URL_DOCs and Sections.
+2. READING: Second, use the 'tool_leggi_sezione' to read the specific text of a section. ALWAYS ask to include images (use 'SI').
+3. SEPARATOR: When using 'tool_leggi_sezione', you MUST separate the arguments with a pipe symbol '|'. Example: http://url.com/ | 1 | SI
+4. MULTIPLE IMAGES: If the read tool returns [IMG_WIKI: path], I am automatically looking at that image right now.
+5. ONLY ONE MOVE: Choose EITHER an Action OR a Final Answer. 
+6. FORMAT STRICTLY: Stop generating text immediately after writing the Action Input.
 
 MANDATORY FORMAT:
-Thought: [Your detailed reasoning about what you have and what you still need]
+Thought: [Your reasoning]
 Action: [{tool_names}]
-Action Input: [The specific query for the tool]
+Action Input: [The specific query]
 Observation: [Result from the tool]
 
-... (Repeat Thought/Action/Action Input/Observation if the information is incomplete)
+... (Repeat if needed)
 
-Thought: I have verified all data and it is complete.
-Final Answer: [Summarize only the verified facts that directly answer the question]
+Thought: I have verified the data.
+Final Answer: [Your answer]
 
 Begin!
 
@@ -125,58 +112,41 @@ prompt = PromptTemplate(
 
 vero_qwen = QwenServerLLM()
 
-# Inizializziamo l'agente e l'esecutore
 agente = create_react_agent(vero_qwen, tools_real.miei_tools_reali, prompt)
 esecutore = AgentExecutor(
     agent=agente, 
     tools=tools_real.miei_tools_reali, 
     verbose=True,
     handle_parsing_errors="Check your output format! Remember to use Action: and Action Input:.",
-    max_iterations=5, # Per evitare loop infiniti
+    max_iterations=6, 
     early_stopping_method='force'
 )
 
 def run_agentic_rag(image_path, question):
-    """Funzione pronta per essere chiamata dallo script di valutazione"""
-    # Puntiamo gli occhi di Qwen sull'immagine corrente
     vero_qwen.current_image_path = image_path
-    
-    # Esecuzione
     try:
         result = esecutore.invoke({"input": question})
         return result["output"]
     except Exception as e:
         return f"Errore Agente: {str(e)}"
 
-# ==========================================
-# MAIN EXECUTION    
-# ==========================================
 if __name__ == "__main__":
     print("🚀 Inizializzazione sistema sul server...")
     
-    # 1. Caricamento configurazione
     config_dict = load_config()
 
-    class CostruttoreArgs:
-        pass
-    
+    class CostruttoreArgs: pass
     args = CostruttoreArgs()
     for key, value in config_dict.items():
         setattr(args, key, str(value))
     args.top_k = 3
     
-    # 2. ACCENSIONE MOTORI (Popola tools_real.qwen_model, ecc.)
     tools_real.start_motors(args)
     
-    # ==========================================
-    # 3. TEST AGENTE MULTIMODALE PURO
-    # ==========================================
     percorso_immagine = "foto_buia.jpg"
-    
-    # 📍 IL MOMENTO MAGICO: Diamo l'immagine in pasto a Qwen prima di iniziare
     vero_qwen.current_image_path = percorso_immagine
 
-    input_semplice = f"Guarda l'immagine '{percorso_immagine}'. Identifica chi l'ha dipinta. Una volta capito chi è, usa la ricerca testuale per dirmi quali sono le sue invenzioni citate nel database che NON siano quadri."
+    input_semplice = f"Guarda l'immagine '{percorso_immagine}'. Cerca chi l'ha dipinta usando la ricerca visiva. Poi leggi la sezione che parla delle sue invenzioni usando tool_leggi_sezione e dimmi cosa trovi."
     
     print(f"\n🧠 Avvio indagine di Qwen. Occhi puntati su: {percorso_immagine}...")
     esecutore.invoke({"input": input_semplice})

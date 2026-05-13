@@ -2,6 +2,9 @@ import json
 import os
 import faiss
 import numpy as np
+import requests
+import hashlib
+import os
 import torch
 from transformers import AutoModel, CLIPImageProcessor, AutoTokenizer
 from transformers import set_seed
@@ -173,11 +176,92 @@ def generate_answer(model, processor, messages, stop=None, **kwargs):
     return processor.tokenizer.decode(generated_ids, skip_special_tokens=True).strip()
 
 
+def download_wiki_image_online(url, save_dir="./tmp_wiki_images"):
+    """Scarica l'immagine al volo da internet e la salva temporaneamente."""
+    os.makedirs(save_dir, exist_ok=True)
+    
+    if url.startswith("//"): 
+        url = "https:" + url
+        
+    hash_name = hashlib.md5(url.encode()).hexdigest() + ".jpg"
+    save_path = os.path.join(save_dir, hash_name)
+    
+    if os.path.exists(save_path): 
+        return save_path 
+    
+    try:
+        headers = {'User-Agent': 'ViMo_Research_Bot/1.0'}
+        r = requests.get(url, stream=True, timeout=5, headers=headers)
+        if r.status_code == 200:
+            with open(save_path, 'wb') as f:
+                for chunk in r.iter_content(1024): 
+                    f.write(chunk)
+            return save_path
+    except Exception as e:
+        print(f"⚠️ Impossibile scaricare l'immagine {url}: {e}")
+    return None
+
+
 def retrieve_topk_pages(features, index, index_map, wiki, k):
+    """Fase 1: Ritorna SOLO un riassunto dei documenti trovati."""
     _, I = index.search(features, k)
     
-    # 📍 IL FIX DEFINITIVO (Nessun [0] letale sulla stringa)
-    doc_ids = [index_map[i][0] for i in I[0]]
-    texts = ["\n".join(wiki[doc_id]["section_texts"][:2]) for doc_id in doc_ids]
+    # In knn.json, index_map[i] è una lista: [URL, Titolo, Path_Leonardo]
+    # Usiamo l'URL come chiave di ricerca per il dictionary wiki
+    doc_urls = [index_map[i][0] for i in I[0]]
+    sommario = []
     
-    return "\n\n".join(texts)
+    for url in doc_urls:
+        if url not in wiki: 
+            continue
+        page = wiki[url]
+        title = page.get("title", "Senza Titolo")
+        sezioni = page.get("section_titles", [])
+        
+        doc_info = f"📌 [URL_DOC: {url}]\nTitolo: {title}\nSezioni disponibili per la lettura:"
+        for idx, sec_title in enumerate(sezioni):
+            doc_info += f"\n  - Sezione {idx}: {sec_title}"
+        sommario.append(doc_info)
+        
+    if not sommario:
+        return "Nessun documento utile trovato nel Knowledge Base testuale per questa query."
+        
+    return "\n\n".join(sommario)
+
+
+def read_wiki_section_with_images(url_doc, section_idx, use_images, wiki):
+    """Fase 2: Legge la singola sezione e scarica MAX 3 immagini valide."""
+    if url_doc not in wiki:
+        return "Errore: Documento non trovato nel database."
+        
+    page = wiki[url_doc]
+    
+    try:
+        section_idx = int(section_idx)
+        testo_sezione = page["section_texts"][section_idx]
+        titolo_sezione = page["section_titles"][section_idx]
+    except IndexError:
+        return f"Errore: La sezione {section_idx} non esiste in questo documento."
+
+    risposta = f"📖 Testo della Sezione '{titolo_sezione}':\n{testo_sezione}\n"
+    
+    if use_images:
+        img_urls = page.get("image_urls", [])
+        img_sec_idx = page.get("image_section_indices", [])
+        
+        # Trova le immagini di questa sezione e filtra SVG/file non supportati
+        immagini_della_sezione = [img_urls[i] for i, s_idx in enumerate(img_sec_idx) if s_idx == section_idx]
+        
+        # 📍 FIX VRAM & SVG: Prendiamo solo file immagine veri e MAX 3 per non far esplodere la GPU
+        immagini_valide = [url for url in immagini_della_sezione if not url.lower().endswith(('.svg', '.pdf', '.gif', '.ogg'))][:3]
+        
+        if immagini_valide:
+            risposta += "\n🖼️ Immagini allegate trovate (scaricate al volo):\n"
+            for url in immagini_valide:
+                local_path = download_wiki_image_online(url)
+                if local_path:
+                    risposta += f"[IMG_WIKI: {local_path}]\n"
+        else:
+            risposta += "\n(Nessuna immagine supportata presente in questa sezione)."
+            
+    return risposta

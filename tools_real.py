@@ -2,7 +2,7 @@ import torch
 from PIL import Image
 import ast
 from langchain_core.tools import tool
-from Qwen_retrieval import extract_features, retrieve_topk_pages, load_clip_and_index
+from Qwen_retrieval import extract_features, retrieve_topk_pages, load_clip_and_index, read_wiki_section_with_images
 
 import traceback
 
@@ -166,4 +166,41 @@ def tool_ricerca_testuale(query: str) -> str:
         return f"Errore nel database testuale: {str(e)}"
 
 # Li impacchettiamo per LangChain
-miei_tools_reali = [tool_ricerca_visiva,tool_ricerca_testuale]
+@tool
+def tool_leggi_sezione(input_str: str) -> str:
+    """Usa questo tool DOPO la ricerca per leggere una sezione specifica di un documento trovato.
+    Devi passare 3 parametri separati dal simbolo PIPE (|): URL_DOC | NUMERO_SEZIONE | USA_IMMAGINI(SI/NO).
+    Esempio di Action Input: http://jenniferprovencher.com/ | 1 | SI
+    """
+    try:
+        # 📍 FIX ALLUCINAZIONI: Pulizia aggressiva dell'input
+        clean_input = input_str.strip()
+        if clean_input.startswith("{"):
+            parsed = ast.literal_eval(clean_input)
+            clean_input = list(parsed.values())[0] if parsed else clean_input
+            
+        clean_input = clean_input.replace('"', '').replace("'", "")
+        
+        # Usiamo la PIPE (|) perché gli URL contengono virgole o altri simboli strani
+        parti = [p.strip() for p in clean_input.split("|")]
+        if len(parti) < 2:
+            return "Errore: Formato errato. Usa 'URL_DOC | NUMERO_SEZIONE | SI/NO' separati da pipe (|)."
+            
+        url_doc = parti[0]
+        section_idx = parti[1]
+        use_images_str = parti[2].upper() if len(parti) > 2 else "NO"
+        use_images = True if "SI" in use_images_str or "YES" in use_images_str else False
+        
+        print(f"\n[TOOL LETTURA] Estrazione URL={url_doc}, Sezione={section_idx}, Immagini={use_images}")
+        
+        # Passiamo wiki_data (la variabile globale caricata in start_motors)
+        return read_wiki_section_with_images(url_doc, section_idx, use_images, wiki_data)
+        
+    except Exception as e:
+        print("\n=== DETTAGLIO ERRORE LETTURA ===")
+        traceback.print_exc()
+        print("================================\n")
+        return f"Errore durante la lettura del documento: {str(e)}"
+
+# Aggiungi il nuovo tool alla lista!
+miei_tools_reali = [tool_ricerca_visiva, tool_ricerca_testuale, tool_leggi_sezione]
