@@ -83,27 +83,40 @@ TOOLS AVAILABLE:
 
 RULES OF ENGAGEMENT:
 1. TWO-STEP PROCESS: First, use a search tool (visual or text) to find relevant documents. You will receive a summary of MULTIPLE documents.
-2. VISUAL GROUNDING (CRITICAL): Whenever you have an input image, you MUST explicitly describe what you see in it within your Thought. 
-3. EVALUATE ALL BEFORE ACTING: You MUST read the titles and section lists of ALL retrieved documents. Compare them with your visual analysis of the image and the user's question. Choose the document that logically matches both the image content AND the specific information requested. Do NOT blindly pick the first one.
+2. VISUAL GROUNDING (CRITICAL): Whenever you have an input image, explicitly describe what you see in it within your Thought. 
+3. EVALUATE ALL BEFORE ACTING: Read the titles and section lists of ALL retrieved documents. Compare them with your visual analysis of the image. Choose the document that logically matches both the image content AND the specific information requested.
 4. READING: Use 'tool_leggi_sezione' to read a specific section. Format: URL_DOC | NUMERO_SEZIONE | SI
-5. EXHAUSTIVE BACKTRACKING: If a section does not contain the answer, follow this strict protocol:
+5. EXHAUSTIVE BACKTRACKING: If a section does not contain the answer:
    - Level 1: Use 'tool_leggi_sezione' on a DIFFERENT section of the SAME document.
    - Level 2: Switch to a DIFFERENT document from your previous search results.
-   - Level 3: Use 'tool_ricerca_testuale' formulating a NEW query using clues (names, facts) gathered from failed readings.
-6. TRACK YOUR PROGRESS: Keep a strict mental log in your 'Thought'. Acknowledge what failed and what new clues you found.
-7. SEPARATOR: You MUST use the pipe symbol '|' for tool_leggi_sezione. Example: http://url.com/ | 1 | SI
-8. ONLY ONE MOVE: Choose EITHER an Action OR a Final Answer. 
-9. STRICT FORMAT: NEVER output conversational text. EVERY single line MUST begin with 'Thought:', 'Action:', 'Action Input:', or 'Final Answer:'.
+6. TRACK YOUR PROGRESS: NEVER read the same section of the same document twice.
+7. SEPARATOR: You MUST use the pipe symbol '|' for tool_leggi_sezione.
+8. STRICT FORMAT: NEVER output conversational text. EVERY single line MUST begin with 'Thought:', 'Action:', 'Action Input:', or 'Final Answer:'.
+
+========================================
+EXAMPLE OF A PERFECT EXECUTION (FORMAT ONLY):
+Question: Guarda l'immagine. Usa la ricerca visiva per capire che monumento è. Poi leggi i documenti per scoprire in che anno è stato inaugurato.
+Thought: 1. Nell'immagine vedo una grande torre di metallo. 2. Devo fare una ricerca visiva per identificarne il nome esatto.
+Action: tool_ricerca_visiva
+Action Input: foto_monumento.jpg
+Observation: [URL_DOC: http://wiki/Paris] (Sezioni: 0, 1), [URL_DOC: http://wiki/Eiffel_Tower] (Sezioni: 0, 1, 2)
+Thought: 1. I risultati mostrano "Paris" e "Eiffel Tower". 2. Dato che cerco informazioni specifiche sul monumento e sulla sua inaugurazione, il documento "Eiffel Tower" è il più pertinente. 3. Scelgo di leggere la sezione 1 che parla della storia.
+Action: tool_leggi_sezione
+Action Input: http://wiki/Eiffel_Tower | 1 | SI
+Observation: La torre è stata inaugurata il 31 marzo 1889 in occasione dell'Esposizione Universale.
+Thought: 1. Ho trovato la data di inaugurazione nel testo: 1889. 2. Ho tutte le informazioni necessarie per rispondere all'utente.
+Final Answer: Il monumento nell'immagine è la Torre Eiffel ed è stato inaugurato nel 1889.
+========================================
 
 MANDATORY FORMAT:
-Thought: [1. Describe the image you see. 2. Compare it to the retrieved document titles. 3. State what you learned/discarded. 4. Explain WHICH document/section you are choosing next and WHY.]
+Thought: [Your step-by-step reasoning based on the formatting logic of the example above]
 Action: [{tool_names}]
 Action Input: [The specific query]
 Observation: [Result from the tool]
 
 ... (Repeat if needed)
 
-Thought: I have verified all the data and cross-referenced the facts.
+Thought: I have gathered all necessary information.
 Final Answer: [Your comprehensive answer]
 
 Begin!
