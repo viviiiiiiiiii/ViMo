@@ -203,4 +203,4 @@ def tool_leggi_sezione(input_str: str) -> str:
         return f"Errore durante la lettura del documento: {str(e)}"
 
 # Aggiungi il nuovo tool alla lista!
-miei_tools_reali = [tool_ricerca_visiva, tool_ricerca_testuale, tool_leggi_sezione]
+miei_tools_reali = [tool_ricerca_visiva, tool_leggi_sezione]

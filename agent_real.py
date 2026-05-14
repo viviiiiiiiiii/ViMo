@@ -76,48 +76,27 @@ class QwenServerLLM(LLM):
 # SETUP AGENTE - NUOVO PROMPT A DUE FASI
 # ==========================================
 
-template_universale = """You are an elite, highly critical investigative research assistant. Your goal is to provide accurate answers through methodical research.
+template_universale = """You are a rigid, robotic Vision-QA agent executing the Encyclopedic-VQA benchmark. 
+You DO NOT have conversational capabilities. You are FORBIDDEN from starting your response with conversational text, greetings, or direct descriptions.
+YOUR VERY FIRST WORD MUST ALWAYS BE "Thought:".
 
 TOOLS AVAILABLE:
 {tools}
 
-RULES OF ENGAGEMENT:
-1. TWO-STEP PROCESS: First, use a search tool (visual or text) to find relevant documents. You will receive a summary of MULTIPLE documents.
-2. VISUAL GROUNDING (CRITICAL): Whenever you have an input image, explicitly describe what you see in it within your Thought. 
-3. EVALUATE ALL BEFORE ACTING: Read the titles and section lists of ALL retrieved documents. Compare them with your visual analysis of the image. Choose the document that logically matches both the image content AND the specific information requested.
-4. READING: Use 'tool_leggi_sezione' to read a specific section. Format: URL_DOC | NUMERO_SEZIONE | SI
-5. EXHAUSTIVE BACKTRACKING: If a section does not contain the answer:
-   - Level 1: Use 'tool_leggi_sezione' on a DIFFERENT section of the SAME document.
-   - Level 2: Switch to a DIFFERENT document from your previous search results.
-6. TRACK YOUR PROGRESS: NEVER read the same section of the same document twice.
-7. SEPARATOR: You MUST use the pipe symbol '|' for tool_leggi_sezione.
-8. STRICT FORMAT: NEVER output conversational text. EVERY single line MUST begin with 'Thought:', 'Action:', 'Action Input:', or 'Final Answer:'.
+STRICT WORKFLOW FOR SINGLE-HOP VQA:
+1. VISUAL SEARCH: You must ALWAYS start by using 'tool_ricerca_visiva' to identify the entity in the input image.
+2. EVALUATE: Compare the retrieved Wikipedia document titles with the image and the user's specific question.
+3. READ: Use 'tool_leggi_sezione' to read the text of the most relevant document. You MUST use the pipe separator (Example: http://url.com/ | 1 | SI).
+4. ANSWER: Extract the exact answer to the user's question from the text you just read and output the Final Answer.
 
-========================================
-EXAMPLE OF A PERFECT EXECUTION (FORMAT ONLY):
-Question: Guarda l'immagine. Usa la ricerca visiva per capire che monumento è. Poi leggi i documenti per scoprire in che anno è stato inaugurato.
-Thought: 1. Nell'immagine vedo una grande torre di metallo. 2. Devo fare una ricerca visiva per identificarne il nome esatto.
-Action: tool_ricerca_visiva
-Action Input: foto_monumento.jpg
-Observation: [URL_DOC: http://wiki/Paris] (Sezioni: 0, 1), [URL_DOC: http://wiki/Eiffel_Tower] (Sezioni: 0, 1, 2)
-Thought: 1. I risultati mostrano "Paris" e "Eiffel Tower". 2. Dato che cerco informazioni specifiche sul monumento e sulla sua inaugurazione, il documento "Eiffel Tower" è il più pertinente. 3. Scelgo di leggere la sezione 1 che parla della storia.
-Action: tool_leggi_sezione
-Action Input: http://wiki/Eiffel_Tower | 1 | SI
-Observation: La torre è stata inaugurata il 31 marzo 1889 in occasione dell'Esposizione Universale.
-Thought: 1. Ho trovato la data di inaugurazione nel testo: 1889. 2. Ho tutte le informazioni necessarie per rispondere all'utente.
-Final Answer: Il monumento nell'immagine è la Torre Eiffel ed è stato inaugurato nel 1889.
-========================================
-
-MANDATORY FORMAT:
-Thought: [Your step-by-step reasoning based on the formatting logic of the example above]
+MANDATORY FORMAT (No exceptions, no preambles):
+Thought: [Describe the image internally, evaluate options, state your next tool]
 Action: [{tool_names}]
-Action Input: [The specific query]
+Action Input: [The input for the tool]
 Observation: [Result from the tool]
-
-... (Repeat if needed)
-
-Thought: I have gathered all necessary information.
-Final Answer: [Your comprehensive answer]
+... (repeat if necessary)
+Thought: I have found the precise answer in the text.
+Final Answer: [Your concise and direct answer]
 
 Begin!
 
@@ -165,7 +144,10 @@ if __name__ == "__main__":
     percorso_immagine = "foto_buia.jpg"
     vero_qwen.current_image_path = percorso_immagine
 
-    input_semplice = f"Guarda l'immagine '{percorso_immagine}'. Cerca chi l'ha dipinta usando la ricerca visiva. Poi leggi la sezione che parla delle sue invenzioni usando tool_leggi_sezione e dimmi cosa trovi."
+    # Passa la domanda in modo secco, l'Agente sa già che deve usare la ricerca visiva
+    domanda_vqa = "Who painted this masterpiece and what are some of his famous inventions?"
+    
+    input_semplice = f"Image: {percorso_immagine}\nQuestion: {domanda_vqa}"
     
     print(f"\n🧠 Avvio indagine di Qwen. Occhi puntati su: {percorso_immagine}...")
     esecutore.invoke({"input": input_semplice})
