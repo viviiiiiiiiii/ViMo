@@ -76,28 +76,26 @@ class QwenServerLLM(LLM):
 # SETUP AGENTE - NUOVO PROMPT A DUE FASI
 # ==========================================
 
-template_universale = """You are a highly analytical, robotic Vision-QA agent. You DO NOT possess conversational abilities. 
-You are STRICTLY FORBIDDEN from wrapping your thoughts in brackets like [ ] or using conversational preambles. 
-EVERY line you generate MUST begin with 'Thought:', 'Action:', 'Action Input:', or 'Final Answer:'.
+template_universale = """You are a highly analytical, robotic Vision-QA agent. You DO NOT possess conversational abilities.
+You are STRICTLY FORBIDDEN from starting lines with anything other than 'Thought:', 'Action:', 'Action Input:', or 'Final Answer:'.
 
 TOOLS AVAILABLE:
 {tools}
 
-CRITICAL RULES FOR REASONING AND EVALUATION:
-1. START VISUALLY: Always use 'tool_ricerca_visiva' first to identify the context of the image.
-2. NO GUESSWORK OR LOOPING: You are FORBIDDEN from reading sections sequentially (e.g., section 1, then 2, then 3). 
-3. MANDATORY GLOBAL EVALUATION: When a tool returns multiple documents, you MUST read all titles and their respective section names. You MUST evaluate which specific document AND which specific section matches the user's exact question before using the reading tool.
-4. READING TOOL: Use 'tool_leggi_sezione' passing exactly: URL_DOC | NUMERO_SEZIONE | SI
+CRITICAL RULES:
+1. THE FILENAME IS JUST A PATH: NEVER assume the filename (e.g., 'image.jpg') is the name of the subject. You MUST identify the subject by looking at the image or using the search tools.
+2. START VISUALLY: Always use 'tool_ricerca_visiva' first to identify the image context.
+3. MANDATORY THOUGHT CHECKLIST: Your 'Thought:' MUST be a single paragraph containing exactly these 4 numbered steps. Do not use brackets like [ ].
 
 MANDATORY FORMAT:
-Thought: 1) What the user is asking. 2) Evaluation of ALL retrieved document titles and sections. 3) Logical deduction of the SINGLE best document and section to read.
+Thought: 1) Task: [What to do] 2) Visuals: [What you see or what the tool found] 3) Evaluation: [Compare findings to the task] 4) Next: [What tool to use next and why]
 Action: [{tool_names}]
 Action Input: [The exact tool input]
 Observation: [Result from the tool]
 
-... (Repeat ONLY if the chosen section was definitively wrong)
+... (Repeat until you have the answer)
 
-Thought: I have the information needed to answer the user's question.
+Thought: 1) Task: Answer user. 2) Visuals: Analyzed. 3) Evaluation: All data gathered. 4) Next: Provide Final Answer.
 Final Answer: [Your precise and direct answer]
 
 Begin!
@@ -146,10 +144,8 @@ if __name__ == "__main__":
     percorso_immagine = "foto_buia.jpg"
     vero_qwen.current_image_path = percorso_immagine
 
-    # Passa la domanda in modo secco, l'Agente sa già che deve usare la ricerca visiva
-    domanda_vqa = "Who painted this masterpiece and what are some of his famous inventions?"
-    
-    input_semplice = f"Image: {percorso_immagine}\nQuestion: {domanda_vqa}"
-    
-    print(f"\n🧠 Avvio indagine di Qwen. Occhi puntati su: {percorso_immagine}...")
-    esecutore.invoke({"input": input_semplice})
+    percorso_immagine = "foto_buia.jpg"
+    vero_qwen.current_image_path = percorso_immagine
+
+    # Gli passiamo il path tecnico e poi la domanda "umana" senza confonderlo col nome file
+    input_semplice = f"IMAGE PATH: {percorso_immagine}\nDOMANDA: Guarda questa immagine. Identifica l'opera e il soggetto usando la ricerca visiva. Poi leggi i documenti Wikipedia trovati per scoprire l'autore dell'opera e indicami le sue invenzioni più famose."
