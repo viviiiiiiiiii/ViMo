@@ -148,21 +148,20 @@ if __name__ == "__main__":
     
     tools_real.start_motors(args)
     
-    percorso_immagine = "foto_buia.jpg"
+    percorso_immagine = "esempio3.jpg"
     vero_qwen.current_image_path = percorso_immagine
 
+    # 2. DOMANDA TECNICA: Materiali e specifiche di peso
+    domanda = "Identify this structure. What specific type of iron was used in its construction and what is the estimated weight of the metal framework alone?" 
 
-# INIETTIAMO IL TAG [IMG] E GLI DIAMO ISTRUZIONI PRECISE SUL FILE E SULLE INVENZIONI
-    # INIETTIAMO IL TAG [IMG] E GLI DIAMO IL TASK SINGLE-HOP
-    input_semplice = f"[IMG]{percorso_immagine}[/IMG]\nLook at the attached image (filename: {percorso_immagine}). Use 'tool_ricerca_visiva' with input '{percorso_immagine}' to find the correct Wikipedia documents. Then, read the correct document to find out: Who painted this artwork and in what year was it started?"
+    input_semplice = f"[IMG]{percorso_immagine}[/IMG]\nLook at the attached image (filename: {percorso_immagine}). Then, read the correct document to find the technical answer: {domanda}"
 
-    print(f"\n🧠 Avvio indagine di Qwen. Occhi puntati su: {percorso_immagine}...")
+    print(f"\n🧠 Avvio indagine TECNICA di Qwen. Target: {percorso_immagine}...")
     
-    # Salva e stampa a caratteri cubitali per forzare la scrittura nel log di SLURM!
     risultato_finale = esecutore.invoke({"input": input_semplice})
     
     print("\n" + "🔥"*25)
-    print("🎯 RISPOSTA FINALE DELL'AGENTE:")
+    print("🎯 RISPOSTA FINALE TECNICA:")
     if isinstance(risultato_finale, dict) and "output" in risultato_finale:
         print(risultato_finale["output"])
     else:
