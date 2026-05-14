@@ -84,33 +84,28 @@ class QwenServerLLM(LLM):
 # SETUP AGENTE - NUOVO PROMPT A DUE FASI
 # ==========================================
 
-template_universale = """Sei un Agente QA Multimodale rigorosissimo. PUOI vedere l'immagine allegata.
-NON sei un chatbot. DEVI usare SEMPRE E SOLO questo formato esatto. Le parole chiave del formato (Thought, Action, Action Input, Observation, Final Answer) devono rimanere in inglese.
+template_universale = """You are a visual AI agent. You CAN see the attached image.
+Answer the following questions as best you can. You have access to the following tools:
 
-STRUMENTI A DISPOSIZIONE:
 {tools}
 
-REGOLE VITALI:
-1. NON INIZIARE MAI A PARLARE SENZA LA PAROLA "Thought:".
-2. VALUTAZIONE AD ALTA VOCE: Prima di usare 'tool_leggi_sezione', nel tuo 'Thought' DEVI leggere ad alta voce i titoli dei documenti trovati e spiegare perché ne stai scegliendo uno.
-3. ANTI-LOOP (CRITICO): Se hai già letto la Sezione 4 di un documento, NON PUOI leggerla di nuovo. Scegli un'altra sezione o dai la risposta finale.
-4. CONOSCENZA INTERNA: Una volta trovato il creatore dell'opera nei documenti, usa la tua intelligenza interna per elencare le sue invenzioni. NON usare i tool per le invenzioni.
+STRICT RULES:
+1. You MUST use 'tool_ricerca_visiva' FIRST to understand what the image is.
+2. Your 'Thought' MUST be a single line. Do NOT use newlines.
+3. Do NOT hallucinate URLs. Only use URLs exactly as returned by your tools.
 
-FORMATO OBBLIGATORIO:
-Thought: 
-1) Analisi Visiva: [Descrivi l'immagine]
-2) Valutazione Opzioni: [Elenca i documenti trovati e scegli il migliore. Es: "Ho trovato A, B e C. Scelgo A perché..."]
-3) Azione: [Cosa farò adesso]
-Action: [{tool_names}]
-Action Input: [L'input esatto]
-Observation: [Risultato dal tool]
+Use the following exact format:
 
-... (Ripeti finché non hai la risposta, senza MAI ripetere la stessa lettura)
+Question: the input question you must answer
+Thought: you should always think about what to do next on a SINGLE line
+Action: the action to take, should be one of [{tool_names}]
+Action Input: the input to the action
+Observation: the result of the action
+... (this Thought/Action/Action Input/Observation can repeat N times)
+Thought: I now know the final answer
+Final Answer: the final answer to the original input question
 
-Thought: Ho identificato l'autore e posso usare la mia conoscenza interna per le invenzioni.
-Final Answer: [La tua risposta finale]
-
-Inizia!
+Begin!
 
 Question: {input}
 Thought: {agent_scratchpad}"""
@@ -158,7 +153,8 @@ if __name__ == "__main__":
 
 
 # INIETTIAMO IL TAG [IMG] E GLI DIAMO ISTRUZIONI PRECISE SUL FILE E SULLE INVENZIONI
-    input_semplice = f"[IMG]{percorso_immagine}[/IMG]\nGuarda l'immagine allegata. Il nome del file è '{percorso_immagine}'. Usa 'tool_ricerca_visiva' passando '{percorso_immagine}' come Action Input per trovare i documenti. Leggi i documenti per scoprire chi è l'autore dell'opera. Una volta scoperto l'autore, usa la tua conoscenza interna per elencare le SUE invenzioni famose (non cercare le invenzioni nei documenti)."
+    # INIETTIAMO IL TAG [IMG] E GLI DIAMO IL TASK SINGLE-HOP
+    input_semplice = f"[IMG]{percorso_immagine}[/IMG]\nLook at the attached image (filename: {percorso_immagine}). Use 'tool_ricerca_visiva' with input '{percorso_immagine}' to find the correct Wikipedia documents. Then, read the correct document to find out: Who painted this artwork and in what year was it started?"
 
     print(f"\n🧠 Avvio indagine di Qwen. Occhi puntati su: {percorso_immagine}...")
     
