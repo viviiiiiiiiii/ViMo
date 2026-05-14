@@ -68,7 +68,7 @@ class QwenServerLLM(LLM):
                         tools_real.qwen_model, 
                         tools_real.qwen_processor, 
                         messages,
-                        #repetition_penalty=1.15,
+                        repetition_penalty=1.15,
                         max_new_tokens=512 # Aumentato per evitare tagli a metà frase
                     )
 
@@ -84,21 +84,20 @@ class QwenServerLLM(LLM):
 # SETUP AGENTE - NUOVO PROMPT A DUE FASI
 # ==========================================
 
-template_universale = """You are a highly analytical visual AI agent. You CAN see the attached image.
+template_universale = """You are a visual AI agent. You CAN see the attached image.
 Answer the following questions as best you can. You have access to the following tools:
 
 {tools}
 
 STRICT RULES:
-1. START VISUALLY: You MUST use 'tool_ricerca_visiva' FIRST.
-2. NO NEWLINES IN THOUGHTS: Your 'Thought' MUST be exactly ONE single line. NEVER use newlines (\n) inside your thought.
-3. EXPLICIT REASONING: Your single-line thought MUST explicitly contain three parts separated by ' | ': 1) Visuals (what you see) | 2) Eval (evaluate the tools output) | 3) Next (your next action).
-4. Do NOT hallucinate URLs.
+1. You MUST use 'tool_ricerca_visiva' FIRST to understand what the image is.
+2. Your 'Thought' MUST be a single line. Do NOT use newlines.
+3. Do NOT hallucinate URLs. Only use URLs exactly as returned by your tools.
 
 Use the following exact format:
 
 Question: the input question you must answer
-Thought: Visuals: [describe image] | Eval: [evaluate documents] | Next: [what to do next]
+Thought: you should always think about what to do next on a SINGLE line
 Action: the action to take, should be one of [{tool_names}]
 Action Input: the input to the action
 Observation: the result of the action
