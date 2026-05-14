@@ -91,20 +91,21 @@ TOOLS AVAILABLE:
 {tools}
 
 CRITICAL RULES:
-1. VISUALIZE: The user has attached an image. Look at it to understand the subject.
-2. START WITH TOOL: Even though you can see the image, you MUST use 'tool_ricerca_visiva' passing the image filename to fetch the official Wikipedia documents.
-3. ANTI-LOOP PROTOCOL: You are STRICTLY FORBIDDEN from reading the exact same section of the same document twice.
-4. MANDATORY THOUGHT CHECKLIST: Your 'Thought:' MUST be a single paragraph with 4 numbered steps. Do not use brackets like [ ].
+1. NO NEWLINES IN THOUGHTS: Your 'Thought:' MUST be a single continuous paragraph. NEVER use newlines or bullet points inside a Thought.
+2. EXPLICIT VISUAL DESCRIPTION: Before choosing which document to read, you MUST explicitly describe what you see in the attached image. Use this exact description to logically select the most relevant Wikipedia document.
+3. START WITH TOOL: You MUST use 'tool_ricerca_visiva' passing the exact image filename provided in the prompt to fetch the official Wikipedia documents.
+4. USE INTERNAL KNOWLEDGE: Once you identify the creator/artist from the documents, do NOT search Wikipedia for their general facts (like their inventions). Use your internal knowledge to answer that part.
+5. ANTI-LOOP: Never read the exact same section of a document twice.
 
 MANDATORY FORMAT:
-Thought: 1) Task: [What to do] 2) Visuals: [What you see directly in the image and what the tool found] 3) Evaluation: [Compare findings] 4) Next: [Next tool to use and WHY]
+Thought: [1) Task: your goal. 2) Image Description: Describe what you see in the attached image in detail. 3) Evaluation: Compare your image description to the tool results to find the perfect match. 4) Next: Choose the best action and WHY]
 Action: [{tool_names}]
 Action Input: [The exact tool input]
 Observation: [Result from the tool]
 
 ... (Repeat until you have the answer)
 
-Thought: 1) Task: Answer user. 2) Visuals: Analyzed. 3) Evaluation: All data gathered. 4) Next: Provide Final Answer.
+Thought: I have identified the artwork and the artist, I can now use my internal knowledge for the rest.
 Final Answer: [Your precise and direct answer]
 
 Begin!
@@ -154,8 +155,18 @@ if __name__ == "__main__":
     vero_qwen.current_image_path = percorso_immagine
 
 
-    # Gli passiamo il path tecnico e poi la domanda "umana" senza confonderlo col nome file
-    input_semplice = f"[IMG]{percorso_immagine}[/IMG]\nGuarda l'immagine allegata. Usa 'tool_ricerca_visiva' per trovare l'opera e il soggetto nei documenti ufficiali. Poi leggi i documenti Wikipedia trovati per scoprire l'autore dell'opera e indicami le sue invenzioni più famose."
+# INIETTIAMO IL TAG [IMG] E GLI DIAMO ISTRUZIONI PRECISE SUL FILE E SULLE INVENZIONI
+    input_semplice = f"[IMG]{percorso_immagine}[/IMG]\nGuarda l'immagine allegata. Il nome del file è '{percorso_immagine}'. Usa 'tool_ricerca_visiva' passando '{percorso_immagine}' come Action Input per trovare i documenti. Leggi i documenti per scoprire chi è l'autore dell'opera. Una volta scoperto l'autore, usa la tua conoscenza interna per elencare le SUE invenzioni famose (non cercare le invenzioni nei documenti)."
 
     print(f"\n🧠 Avvio indagine di Qwen. Occhi puntati su: {percorso_immagine}...")
-    esecutore.invoke({"input": input_semplice})
+    
+    # Salva e stampa a caratteri cubitali per forzare la scrittura nel log di SLURM!
+    risultato_finale = esecutore.invoke({"input": input_semplice})
+    
+    print("\n" + "🔥"*25)
+    print("🎯 RISPOSTA FINALE DELL'AGENTE:")
+    if isinstance(risultato_finale, dict) and "output" in risultato_finale:
+        print(risultato_finale["output"])
+    else:
+        print(risultato_finale)
+    print("🔥"*25 + "\n")
