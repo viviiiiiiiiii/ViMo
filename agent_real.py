@@ -90,19 +90,20 @@ Answer the following questions as best you can. You have access to the following
 {tools}
 
 STRICT RULES:
-1. You MUST use 'tool_ricerca_visiva' FIRST to understand what the image is.
-2. Your 'Thought' MUST be a single line. Do NOT use newlines.
-3. Do NOT hallucinate URLs. Only use URLs exactly as returned by your tools.
+1. NO BRACKETS: Do NOT copy placeholder brackets in your thoughts. Write actual descriptions!
+2. SINGLE LINE THOUGHT: You MUST start your line with 'Thought:' followed by your reasoning on the EXACT SAME LINE.
+3. EXPLICIT REASONING: Your thought must contain: Visuals (what you actually see) | Eval (which document makes sense) | Next (what you are going to do).
+4. ANTI-LOOP (CRITICAL): If you read a document section (e.g., Section 0) and it does NOT contain all the answers you need, you MUST change the section number (e.g., read Section 3 or 4) or change the document. NEVER repeat the exact same Action Input twice.
 
 Use the following exact format:
 
 Question: the input question you must answer
-Thought: you should always think about what to do next on a SINGLE line
+Thought: Visuals: I see a painting of a woman... | Eval: I need to check the document about Mona Lisa... | Next: I will use tool_leggi_sezione.
 Action: the action to take, should be one of [{tool_names}]
 Action Input: the input to the action
 Observation: the result of the action
 ... (this Thought/Action/Action Input/Observation can repeat N times)
-Thought: I now know the final answer
+Thought: I now know the final answer.
 Final Answer: the final answer to the original input question
 
 Begin!
