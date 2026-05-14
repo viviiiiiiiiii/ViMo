@@ -35,12 +35,20 @@ class QwenServerLLM(LLM):
             
             user_content = []
             
-            # 1. Immagine principale dell'utente
-            if self.current_image_path and os.path.exists(self.current_image_path):
+            # 1. TRUCCO DEL TAG: Intercettiamo l'immagine nascosta nel prompt di LangChain
+            match = re.search(r'\[IMG\](.*?)\[/IMG\]', prompt)
+            if match:
+                image_path = match.group(1).strip()
+                if os.path.exists(image_path):
+                    user_content.append({"type": "image", "image": image_path})
+                # Rimuoviamo il tag dal testo per non confondere Qwen
+                prompt = re.sub(r'\[IMG\].*?\[/IMG\]\n?', '', prompt)
+            # Fallback di sicurezza se usi il vecchio metodo
+            elif self.current_image_path and os.path.exists(self.current_image_path):
                 user_content.append({"type": "image", "image": self.current_image_path})
             
             # 2. Immagini wiki scaricate al volo dal tool
-            wiki_images = re.findall(r'\[IMG_WIKI: (.*?)\]', prompt)
+            wiki_images = re.findall(r'\[IMG_WIKI:\s*(.*?)\]', prompt)
             for img_path in set(wiki_images): 
                 if os.path.exists(img_path):
                     user_content.append({"type": "image", "image": img_path})
@@ -61,7 +69,7 @@ class QwenServerLLM(LLM):
                         tools_real.qwen_processor, 
                         messages,
                         repetition_penalty=1.15,
-                        max_new_tokens=256       
+                        max_new_tokens=512 # Aumentato per evitare tagli a metà frase
                     )
 
             manual_stops = (stop or []) + ["Observation:", "Observation", "\nObservation:"]
@@ -76,19 +84,20 @@ class QwenServerLLM(LLM):
 # SETUP AGENTE - NUOVO PROMPT A DUE FASI
 # ==========================================
 
-template_universale = """You are a highly analytical, robotic Vision-QA agent. You DO NOT possess conversational abilities.
+template_universale = """You are a highly analytical Multimodal QA agent. You CAN see the images attached to this message directly.
 You are STRICTLY FORBIDDEN from starting lines with anything other than 'Thought:', 'Action:', 'Action Input:', or 'Final Answer:'.
 
 TOOLS AVAILABLE:
 {tools}
 
 CRITICAL RULES:
-1. THE FILENAME IS JUST A PATH: NEVER assume the filename (e.g., 'image.jpg') is the name of the subject. You MUST identify the subject by looking at the image or using the search tools.
-2. START VISUALLY: Always use 'tool_ricerca_visiva' first to identify the image context.
-3. MANDATORY THOUGHT CHECKLIST: Your 'Thought:' MUST be a single paragraph containing exactly these 4 numbered steps. Do not use brackets like [ ].
+1. VISUALIZE: The user has attached an image. Look at it to understand the subject.
+2. START WITH TOOL: Even though you can see the image, you MUST use 'tool_ricerca_visiva' passing the image filename to fetch the official Wikipedia documents.
+3. ANTI-LOOP PROTOCOL: You are STRICTLY FORBIDDEN from reading the exact same section of the same document twice.
+4. MANDATORY THOUGHT CHECKLIST: Your 'Thought:' MUST be a single paragraph with 4 numbered steps. Do not use brackets like [ ].
 
 MANDATORY FORMAT:
-Thought: 1) Task: [What to do] 2) Visuals: [What you see or what the tool found] 3) Evaluation: [Compare findings to the task] 4) Next: [What tool to use next and why]
+Thought: 1) Task: [What to do] 2) Visuals: [What you see directly in the image and what the tool found] 3) Evaluation: [Compare findings] 4) Next: [Next tool to use and WHY]
 Action: [{tool_names}]
 Action Input: [The exact tool input]
 Observation: [Result from the tool]
@@ -146,7 +155,7 @@ if __name__ == "__main__":
 
 
     # Gli passiamo il path tecnico e poi la domanda "umana" senza confonderlo col nome file
-    input_semplice = f"IMAGE PATH: {percorso_immagine}\nDOMANDA: Guarda questa immagine. Identifica l'opera e il soggetto usando la ricerca visiva. Poi leggi i documenti Wikipedia trovati per scoprire l'autore dell'opera e indicami le sue invenzioni più famose."
+    input_semplice = f"[IMG]{percorso_immagine}[/IMG]\nGuarda l'immagine allegata. Usa 'tool_ricerca_visiva' per trovare l'opera e il soggetto nei documenti ufficiali. Poi leggi i documenti Wikipedia trovati per scoprire l'autore dell'opera e indicami le sue invenzioni più famose."
 
     print(f"\n🧠 Avvio indagine di Qwen. Occhi puntati su: {percorso_immagine}...")
     esecutore.invoke({"input": input_semplice})
