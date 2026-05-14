@@ -12,7 +12,7 @@
 source /work/cvcs2026/ViMo/.venvMo/bin/activate
 
 # Entra nella cartella corretta
-cd "$SLURM_SUBMIT_DIR"
+cd "$SLURM_SUBMIT_DIR"/dati
 
 # Lancia lo script di indicizzazione
 export CUDA_VISIBLE_DEVICES=""
