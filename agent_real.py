@@ -68,7 +68,7 @@ class QwenServerLLM(LLM):
                         tools_real.qwen_model, 
                         tools_real.qwen_processor, 
                         messages,
-                        repetition_penalty=1.15,
+                        #repetition_penalty=1.15,
                         max_new_tokens=512 # Aumentato per evitare tagli a metà frase
                     )
 
@@ -84,31 +84,33 @@ class QwenServerLLM(LLM):
 # SETUP AGENTE - NUOVO PROMPT A DUE FASI
 # ==========================================
 
-template_universale = """You are a highly analytical Multimodal QA agent. You CAN see the images attached to this message directly.
-You are STRICTLY FORBIDDEN from starting lines with anything other than 'Thought:', 'Action:', 'Action Input:', or 'Final Answer:'.
+template_universale = """Sei un Agente QA Multimodale rigorosissimo. PUOI vedere l'immagine allegata.
+NON sei un chatbot. DEVI usare SEMPRE E SOLO questo formato esatto. Le parole chiave del formato (Thought, Action, Action Input, Observation, Final Answer) devono rimanere in inglese.
 
-TOOLS AVAILABLE:
+STRUMENTI A DISPOSIZIONE:
 {tools}
 
-CRITICAL RULES:
-1. NO NEWLINES IN THOUGHTS: Your 'Thought:' MUST be a single continuous paragraph. NEVER use newlines or bullet points inside a Thought.
-2. EXPLICIT VISUAL DESCRIPTION: Before choosing which document to read, you MUST explicitly describe what you see in the attached image. Use this exact description to logically select the most relevant Wikipedia document.
-3. START WITH TOOL: You MUST use 'tool_ricerca_visiva' passing the exact image filename provided in the prompt to fetch the official Wikipedia documents.
-4. USE INTERNAL KNOWLEDGE: Once you identify the creator/artist from the documents, do NOT search Wikipedia for their general facts (like their inventions). Use your internal knowledge to answer that part.
-5. ANTI-LOOP: Never read the exact same section of a document twice.
+REGOLE VITALI:
+1. NON INIZIARE MAI A PARLARE SENZA LA PAROLA "Thought:".
+2. VALUTAZIONE AD ALTA VOCE: Prima di usare 'tool_leggi_sezione', nel tuo 'Thought' DEVI leggere ad alta voce i titoli dei documenti trovati e spiegare perché ne stai scegliendo uno.
+3. ANTI-LOOP (CRITICO): Se hai già letto la Sezione 4 di un documento, NON PUOI leggerla di nuovo. Scegli un'altra sezione o dai la risposta finale.
+4. CONOSCENZA INTERNA: Una volta trovato il creatore dell'opera nei documenti, usa la tua intelligenza interna per elencare le sue invenzioni. NON usare i tool per le invenzioni.
 
-MANDATORY FORMAT:
-Thought: [1) Task: your goal. 2) Image Description: Describe what you see in the attached image in detail. 3) Evaluation: Compare your image description to the tool results to find the perfect match. 4) Next: Choose the best action and WHY]
+FORMATO OBBLIGATORIO:
+Thought: 
+1) Analisi Visiva: [Descrivi l'immagine]
+2) Valutazione Opzioni: [Elenca i documenti trovati e scegli il migliore. Es: "Ho trovato A, B e C. Scelgo A perché..."]
+3) Azione: [Cosa farò adesso]
 Action: [{tool_names}]
-Action Input: [The exact tool input]
-Observation: [Result from the tool]
+Action Input: [L'input esatto]
+Observation: [Risultato dal tool]
 
-... (Repeat until you have the answer)
+... (Ripeti finché non hai la risposta, senza MAI ripetere la stessa lettura)
 
-Thought: I have identified the artwork and the artist, I can now use my internal knowledge for the rest.
-Final Answer: [Your precise and direct answer]
+Thought: Ho identificato l'autore e posso usare la mia conoscenza interna per le invenzioni.
+Final Answer: [La tua risposta finale]
 
-Begin!
+Inizia!
 
 Question: {input}
 Thought: {agent_scratchpad}"""
