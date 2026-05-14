@@ -144,8 +144,9 @@ if __name__ == "__main__":
     percorso_immagine = "foto_buia.jpg"
     vero_qwen.current_image_path = percorso_immagine
 
-    percorso_immagine = "foto_buia.jpg"
-    vero_qwen.current_image_path = percorso_immagine
 
     # Gli passiamo il path tecnico e poi la domanda "umana" senza confonderlo col nome file
     input_semplice = f"IMAGE PATH: {percorso_immagine}\nDOMANDA: Guarda questa immagine. Identifica l'opera e il soggetto usando la ricerca visiva. Poi leggi i documenti Wikipedia trovati per scoprire l'autore dell'opera e indicami le sue invenzioni più famose."
+
+    print(f"\n🧠 Avvio indagine di Qwen. Occhi puntati su: {percorso_immagine}...")
+    esecutore.invoke({"input": input_semplice})

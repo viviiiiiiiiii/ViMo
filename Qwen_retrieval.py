@@ -46,7 +46,7 @@ def load_clip_and_index(args, load_faiss=True):
     clip_model = clip_model.to(device_clip).eval()
     
     modelli_dir = os.path.dirname(str(args.retriever_path))
-    local_clip_processor_path = os.path.join(modelli_dir, "clip-vit-large-patch14")
+    local_clip_processor_path = os.path.join(modelli_dir, "EVAL_CLIP_8B")
     
     print(f"🔄 Caricamento processore visivo da locale: {local_clip_processor_path}")
     

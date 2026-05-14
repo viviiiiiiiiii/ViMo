@@ -1,0 +1,4 @@
+dobbiamo poi insegnarli a usare poi a usare il tool di ricerca visiva una volta trovata
+ la sezione della monna lisa in cui si parla di leonardo per usare le img di quella sezione 
+ per cercare doc rilevanti di leonardo e scegliere quello con la sezione 
+migliore per rispondere alla domanda  per avere un ricerca più precisa, nel caso non trova img usa le info che ha trovato li
