@@ -1,116 +1,115 @@
-
-
 import base64
 import torch
 import re
+import os
 from PIL import Image
 from typing import Optional, List
 
-import os
 os.environ['CUDA_LAUNCH_BLOCKING'] = "1"
 
-# 📍 Import dal core (sempre validi)
 from langchain_core.language_models.llms import LLM
 from langchain_core.prompts import PromptTemplate
 
-# 📍 Import per AgentExecutor e ReAct (Versione 2026 / Classic)
-# Proviamo i due percorsi più probabili per la v1.2.15
 try:
     from langchain.agents import AgentExecutor, create_react_agent
 except ImportError:
     from langchain_classic.agents import AgentExecutor, create_react_agent
 
-# Importiamo l'intero modulo per accedere alle variabili globali aggiornate
 import tools_real 
 from load_config import load_config
 from Qwen_retrieval import generate_answer
 
-
-# ==========================================
-# FUNZIONI DI SUPPORTO
-# ==========================================
 def image_to_base64(image_path):
     with open(image_path, "rb") as img_file:
         return base64.b64encode(img_file.read()).decode('utf-8')
 
 
-# ==========================================
-# L'ADATTATORE QWEN (Corretto con Freno a Mano)
-# ==========================================
 class QwenServerLLM(LLM):
+    current_image_path: Optional[str] = None
+
     @property
     def _llm_type(self) -> str:
-        return "qwen2.5-vl-custom"
+        return "qwen2.5-vl-custom-multimodal"
 
     def _call(self, prompt: str, stop: Optional[List[str]] = None, **kwargs) -> str:
-        messages = [{"role": "user", "content": prompt}]
-        
-        if tools_real.qwen_model is None or tools_real.qwen_processor is None:
-            raise ValueError("Errore: I motori del server non sono stati accesi!")
+            
+            user_content = []
+            
+            # 1. TRUCCO DEL TAG: Intercettiamo l'immagine nascosta nel prompt di LangChain
+            match = re.search(r'\[IMG\](.*?)\[/IMG\]', prompt)
+            if match:
+                image_path = match.group(1).strip()
+                if os.path.exists(image_path):
+                    user_content.append({"type": "image", "image": image_path})
+                # Rimuoviamo il tag dal testo per non confondere Qwen
+                prompt = re.sub(r'\[IMG\].*?\[/IMG\]\n?', '', prompt)
+            # Fallback di sicurezza se usi il vecchio metodo
+            elif self.current_image_path and os.path.exists(self.current_image_path):
+                user_content.append({"type": "image", "image": self.current_image_path})
+            
+            # 2. Immagini wiki scaricate al volo dal tool
+            wiki_images = re.findall(r'\[IMG_WIKI:\s*(.*?)\]', prompt)
+            for img_path in set(wiki_images): 
+                if os.path.exists(img_path):
+                    user_content.append({"type": "image", "image": img_path})
+                    print(f"👁️ Qwen sta guardando un'immagine extra da Wikipedia: {img_path}")
+            
+            user_content.append({"type": "text", "text": prompt})
 
-        # 📍 AGGIUNGIAMO PARAMETRI ANTI-LOOP
-        # Nota: assicurati che generate_answer accetti **kwargs o parametri extra
-        risposta = generate_answer(
-            tools_real.qwen_model, 
-            tools_real.qwen_processor, 
-            messages,
-            temperature=0.1,         # Più basso = meno fantasia
-            repetition_penalty=1.2,  # 📍 BLOCCA I LOOP DI RIPETIZIONE
-            max_new_tokens=512       # Evita risposte infinite
-        )
+            messages = [
+                {"role": "system", "content": "You are a rigid, robotic backend system. You MUST communicate ONLY using the requested ReAct format (Thought, Action, Action Input). NO conversational filler."},
+                {"role": "user", "content": user_content}
+            ]
+            
+            if tools_real.qwen_model is None or tools_real.qwen_processor is None:
+                raise ValueError("Errore: I motori del server non sono stati accesi!")
 
-        if stop is not None:
-            for stop_word in stop:
+            risposta = generate_answer(
+                        tools_real.qwen_model, 
+                        tools_real.qwen_processor, 
+                        messages,
+                        #repetition_penalty=1.15,
+                        max_new_tokens=512 # Aumentato per evitare tagli a metà frase
+                    )
+
+            manual_stops = (stop or []) + ["Observation:", "Observation", "\nObservation:"]
+            for stop_word in manual_stops:
                 if stop_word in risposta:
                     risposta = risposta.split(stop_word)[0]
 
-        return risposta.strip()
+            return risposta.strip()
+
 
 # ==========================================
-# SETUP AGENTE (Globali)
-# ==========================================
-# 📍 Modificato il template per essere 100% compatibile con create_react_agent
-# In agent_real.py
-
-# Modifica il template in agent_real.py
-# ==========================================
-# SETUP AGENTE (Globali) - VERSIONE GROUNDED
+# SETUP AGENTE - NUOVO PROMPT A DUE FASI
 # ==========================================
 
-# ==========================================
-# SETUP AGENTE (Globali) - VERSIONE CORRETTA
-# ==========================================
+template_universale = """You are a visual AI agent. You CAN see the attached image.
+Answer the following questions as best you can. You have access to the following tools:
 
-template_universale = """You are a DATA-ONLY research assistant. 
-You must identify subjects and then verify details ONLY using the provided tools.
-
-You have access to the following tools:
 {tools}
 
-RULES:
-1. NEVER invent information. If it's not in the 'Observation', it doesn't exist.
-2. If you identify a subject (e.g., Leonardo) but the user asks for details (e.g., inventions) that are NOT in the visual observation, you MUST call 'tool_ricerca_testuale' before answering.
-3. If BOTH tools fail to provide specific info, say: "The database does not contain information about [X]".
-4. Do not repeat yourself.
+STRICT RULES:
+1. You MUST use 'tool_ricerca_visiva' FIRST to understand what the image is.
+2. Your 'Thought' MUST be a single line. Do NOT use newlines.
+3. Do NOT hallucinate URLs. Only use URLs exactly as returned by your tools.
 
-To use a tool, please use the following format:
+Use the following exact format:
 
-Thought: Do I need to use a tool? Yes
+Question: the input question you must answer
+Thought: you should always think about what to do next on a SINGLE line
 Action: the action to take, should be one of [{tool_names}]
 Action Input: the input to the action
 Observation: the result of the action
-
-(this Thought/Action/Action Input/Observation can repeat N times)
-
+... (this Thought/Action/Action Input/Observation can repeat N times)
 Thought: I now know the final answer
-Final Answer: [Summarize ONLY what was found in the observations]
+Final Answer: the final answer to the original input question
 
 Begin!
 
 Question: {input}
 Thought: {agent_scratchpad}"""
 
-# Assicurati che PromptTemplate rimanga così:
 prompt = PromptTemplate(
     template=template_universale,
     input_variables=["input", "tools", "tool_names", "agent_scratchpad"]
@@ -118,75 +117,53 @@ prompt = PromptTemplate(
 
 vero_qwen = QwenServerLLM()
 
-# Inizializziamo l'agente e l'esecutore
 agente = create_react_agent(vero_qwen, tools_real.miei_tools_reali, prompt)
 esecutore = AgentExecutor(
     agent=agente, 
     tools=tools_real.miei_tools_reali, 
     verbose=True,
-    handle_parsing_errors=True,
-    max_iterations=5, # Per evitare loop infiniti
+    handle_parsing_errors="Check your output format! Remember to use Action: and Action Input:.",
+    max_iterations=6, 
     early_stopping_method='force'
 )
 
-# ==========================================
-# FUNZIONI PER LA EVALUATION AUTOMATICA
-# ==========================================
+def run_agentic_rag(image_path, question):
+    vero_qwen.current_image_path = image_path
+    try:
+        result = esecutore.invoke({"input": question})
+        return result["output"]
+    except Exception as e:
+        return f"Errore Agente: {str(e)}"
 
-def build_args(top_k=3):
-    """Costruisce gli argomenti per l'agente durante la valutazione."""
-    config_dict = load_config()
-    class CostruttoreArgs: pass
-    args = CostruttoreArgs()
-    for key, value in config_dict.items():
-        setattr(args, key, str(value))
-    args.top_k = top_k
-    return args
-
-def load_agentic_engines(args):
-    """Accende i motori globali in tools_real una sola volta per tutte le 1000 domande."""
-    print("Accensione motori globali dell'agente in corso...")
-    tools_real.start_motors(args)
-    return True # Ritorna un check, i modelli sono salvati in tools_real
-
-def agentic_rag_answer(question: str, image_path: Optional[str] = None, top_k: int = 3, engines=None):
-    """La funzione che la pipeline di valutazione chiama per ogni domanda."""
-    
-    # Se c'è un'immagine, la uniamo testualmente alla domanda in modo che l'agente lo sappia
-    if image_path:
-        prompt_completo = f"Immagine fornita: '{image_path}'.\nDomanda: {question}"
-    else:
-        prompt_completo = f"Domanda: {question}"
-
-    # Eseguiamo l'agente
-    risultato = esecutore.invoke({"input": prompt_completo})
-    
-    # LangChain AgentExecutor di solito restituisce la risposta finale nella chiave "output"
-    return risultato.get("output", str(risultato))
-
-
-# ==========================================
-# MAIN EXECUTION
-# ==========================================
 if __name__ == "__main__":
     print("🚀 Inizializzazione sistema sul server...")
     
-    # 1. Caricamento configurazione
     config_dict = load_config()
 
-    class CostruttoreArgs:
-        pass
-    
+    class CostruttoreArgs: pass
     args = CostruttoreArgs()
     for key, value in config_dict.items():
         setattr(args, key, str(value))
     args.top_k = 3
     
-    # 2. ACCENSIONE MOTORI (Popola tools_real.qwen_model, ecc.)
     tools_real.start_motors(args)
     
-    # 3. TEST AGENTE
-# 3. TEST AGENTE SOLO TESTO
-percorso_immagine = "foto_buia.jpg"
-input_semplice = "Identifica il soggetto in 'foto_buia.jpg'. Una volta capito chi è, usa la ricerca testuale per dirmi quali sono le sue invenzioni citate nel database che NON siano quadri."
-esecutore.invoke({"input": input_semplice})
+    percorso_immagine = "esempio3.jpg"
+    vero_qwen.current_image_path = percorso_immagine
+
+    # 2. DOMANDA TECNICA: Materiali e specifiche di peso
+    domanda = "Identify this structure. What specific type of iron was used in its construction and what is the estimated weight of the metal framework alone?" 
+
+    input_semplice = f"[IMG]{percorso_immagine}[/IMG]\nLook at the attached image (filename: {percorso_immagine}). Then, read the correct document to find the technical answer: {domanda}"
+
+    print(f"\n🧠 Avvio indagine TECNICA di Qwen. Target: {percorso_immagine}...")
+    
+    risultato_finale = esecutore.invoke({"input": input_semplice})
+    
+    print("\n" + "🔥"*25)
+    print("🎯 RISPOSTA FINALE TECNICA:")
+    if isinstance(risultato_finale, dict) and "output" in risultato_finale:
+        print(risultato_finale["output"])
+    else:
+        print(risultato_finale)
+    print("🔥"*25 + "\n")
