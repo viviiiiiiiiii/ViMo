@@ -60,9 +60,10 @@ def normalize_question_type(qtype: str) -> str:
 def is_single_hop(qtype: str) -> bool:
     qtype = normalize_question_type(qtype)
 
-    # Robusto rispetto a possibili varianti:
-    # "single-hop", "single_hop", "single hop", ecc.
-    return "single" in qtype and "hop" in qtype and "two" not in qtype and "2" not in qtype
+    # In Encyclopedic-VQA, nello split che stai usando, i tipi sono:
+    # automatic, templated, multi-answer, 2-hop.
+    # Quindi consideriamo single-hop tutte le domande che NON sono 2-hop.
+    return qtype not in {"2-hop", "two-hop", "2hop", "twohop"}
 
 
 def gld_relative_image_path(image_id: str, gld_split: str = "index") -> str:
