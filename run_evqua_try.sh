@@ -17,4 +17,4 @@ cd "$SLURM_SUBMIT_DIR"/dati
 # Lancia lo script di indicizzazione
 export CUDA_VISIBLE_DEVICES=""
 
-python prova_evqua_con_img.py --out data/evqa_1000 --n 1000 --split val --images-per-question 1
+python prepare_evqa_1000_landmarks_singlehop.py --out data/evqa_1000_landmarks_singlehop --n 1000 --split val  --images-per-question 1

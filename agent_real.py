@@ -2,7 +2,6 @@ import base64
 import torch
 import re
 import os
-from PIL import Image
 from typing import Optional, List
 
 os.environ['CUDA_LAUNCH_BLOCKING'] = "1"
@@ -18,6 +17,19 @@ except ImportError:
 import tools_real 
 from load_config import load_config
 from Qwen_retrieval import generate_answer
+from eval_utils import (
+    build_common_record, elapsed, now_seconds, 
+    parse_retrieved_urls, retrieval_metrics, token_estimate,
+)
+
+# Configurazione
+config_dict = load_config()
+class Args: pass
+args = Args()
+for key, value in config_dict.items(): setattr(args, key, str(value))
+args.top_k = 3
+
+tools_real.start_motors(args)
 
 def image_to_base64(image_path):
     with open(image_path, "rb") as img_file:
@@ -124,29 +136,53 @@ esecutore = AgentExecutor(
     verbose=True,
     handle_parsing_errors="Check your output format! Remember to use Action: and Action Input:.",
     max_iterations=6, 
-    early_stopping_method='force'
+    early_stopping_method='force',
+    return_intermediate_steps=True
 )
 
-def run_agentic_rag(image_path, question):
+def _summarize_intermediate_steps(intermediate_steps):
+    # La tua logica di estrazione metadati (fondamentale per la valutazione)
+    tool_calls =[]
+    all_observations = []
+    for step in intermediate_steps or[]:
+        action, observation = step
+        tool_calls.append({"tool": getattr(action, "tool", None), "tool_input": str(getattr(action, "tool_input", None))})
+        all_observations.append(str(observation))
+    
+    retrieved_urls =[]
+    for obs in all_observations: retrieved_urls.extend(parse_retrieved_urls(obs))
+    
+    return {
+        "tool_calls": tool_calls,
+        "retrieved_urls": list(set(retrieved_urls)),
+        "num_tool_calls": len(tool_calls),
+        "observations_tokens_est": token_estimate("\n".join(all_observations)),
+    }
+
+def run_agentic_rag(image_path, questionquestion_id=None, ground_truth="", question_type="unknown", expected_sources=None):
     vero_qwen.current_image_path = image_path
+    start = now_seconds()
     try:
         result = esecutore.invoke({"input": question})
-        return result["output"]
+        answer = result.get("output", "")
+        error = None
     except Exception as e:
-        return f"Errore Agente: {str(e)}"
+        answer = ""
+        error = str(e)
+        
+    step_info = _summarize_intermediate_steps(result.get("intermediate_steps",[]))
+    ret_metrics = retrieval_metrics(step_info.get("retrieved_urls",[]), expected_sources or[], k=args.top_k)
+    
+    return build_common_record(
+        question_id=question_id, model_name="agentic_rag", image_path=image_path,
+        question=question, ground_truth=ground_truth, answer=answer, 
+        question_type=question_type, latency_seconds=elapsed(start), error=error,
+        extra={"num_steps": step_info["num_tool_calls"], **step_info, **ret_metrics}
+    )
+    
 
 if __name__ == "__main__":
-    print("🚀 Inizializzazione sistema sul server...")
-    
-    config_dict = load_config()
-
-    class CostruttoreArgs: pass
-    args = CostruttoreArgs()
-    for key, value in config_dict.items():
-        setattr(args, key, str(value))
-    args.top_k = 3
-    
-    tools_real.start_motors(args)
+    print("🚀 Inizializzazione sistema sul server...")    
     
     percorso_immagine = "esempio3.jpg"
     vero_qwen.current_image_path = percorso_immagine
