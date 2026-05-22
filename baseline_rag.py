@@ -29,6 +29,8 @@ def run_standard_rag(image_path, question, return_metadata=False, question_id=No
     retrieved_urls = []
     sections =[]
     answer = ""
+    # Cerchiamo solo il primissimo documento (K=1)
+    k = 1
     
     try:
         # 1. RETRIEVE: Estrazione feature e ricerca su FAISS
@@ -40,8 +42,6 @@ def run_standard_rag(image_path, question, return_metadata=False, question_id=No
             out_dim=512
         )
         
-        # Cerchiamo solo il primissimo documento (K=1)
-        k = 1
         _, I = tools_real.knn_index_immagini.search(features, k)
         url_doc_trovato = tools_real.wiki_map[I[0][0]][0]
         retrieved_urls = [url_doc_trovato]

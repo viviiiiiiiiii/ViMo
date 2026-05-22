@@ -159,9 +159,10 @@ def _summarize_intermediate_steps(intermediate_steps):
         "observations_tokens_est": token_estimate("\n".join(all_observations)),
     }
 
-def run_agentic_rag(image_path, questionquestion_id=None, ground_truth="", question_type="unknown", expected_sources=None):
+def run_agentic_rag(image_path, question, question_id=None, ground_truth="", question_type="unknown", expected_sources=None):
     vero_qwen.current_image_path = image_path
     start = now_seconds()
+    result = {}
     try:
         result = esecutore.invoke({"input": question})
         answer = result.get("output", "")
