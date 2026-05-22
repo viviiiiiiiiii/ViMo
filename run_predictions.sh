@@ -17,7 +17,7 @@ cd /work/cvcs2026/ViMo/
 # Lancia lo script di indicizzazione
 export CUDA_VISIBLE_DEVICES=""
 
-python run_prediction_vlm.py \
+python run_prediction_baseline_vlm.py \
   --input /work/cvcs2026/encyclopedic/single_hop.json \
   --image-root /work/cvcs2026/encyclopedic \
   --pred-out predictions_vlm_test.jsonl \
