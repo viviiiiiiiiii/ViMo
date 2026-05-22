@@ -3,7 +3,7 @@
 #SBATCH --partition=all_usr_prod      #CAMBIATO: Chiediamo un nodo con GPU
 #SBATCH --gres=gpu:1             #AGGIUNTO: Vogliamo 1 scheda video
 #SBATCH --cpus-per-task=4        #AUMENTATO: Più core per caricare i dati
-#SBATCH --mem=64G                #AUMENTATO: Almeno 32GB per EVA-CLIP-8B
+#SBATCH --mem=32G                #AUMENTATO: Almeno 32GB per EVA-CLIP-8B
 #SBATCH --time=01:00:00          # 1 ora basta e avanza per 3 documenti
 #SBATCH --account=cvcs2026
 #SBATCH --output=/homes/%u/cvcs2026/index_%j.out
