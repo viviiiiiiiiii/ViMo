@@ -1,10 +1,10 @@
 #!/bin/bash
-#SBATCH --job-name=vimo_indexing
-#SBATCH --partition=all_usr_prod      #CAMBIATO: Chiediamo un nodo con GPU
-#SBATCH --gres=gpu:1             #AGGIUNTO: Vogliamo 1 scheda video
-#SBATCH --cpus-per-task=4        #AUMENTATO: Più core per caricare i dati
-#SBATCH --mem=32G                #AUMENTATO: Almeno 32GB per EVA-CLIP-8B
-#SBATCH --time=01:00:00          # 1 ora basta e avanza per 3 documenti
+#SBATCH --job-name=vimo_agent_test
+#SBATCH --partition=all_usr_prod  # La partizione GPU che abbiamo trovato
+#SBATCH --gres=gpu:2             #Chiediamo 1 GPU
+#SBATCH --cpus-per-task=4
+#SBATCH --mem=64G                # Qwen2.5-VL ha bisogno di molta RAM
+#SBATCH --time=00:20:00
 #SBATCH --account=cvcs2026
 #SBATCH --output=/homes/%u/cvcs2026/index_%j.out
 
