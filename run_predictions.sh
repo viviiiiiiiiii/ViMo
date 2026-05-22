@@ -18,20 +18,6 @@ export TRANSFORMERS_IGNORE_LOAD_VULNERABILITY=1
 # Entra nella cartella ed esegui l'agente
 cd /work/cvcs2026/ViMo/
 
-echo "Nodo:"
-hostname
-
-echo "Controllo GPU:"
-nvidia-smi
-
-echo "Controllo CUDA da Python:"
-python - <<'PY'
-import torch
-print("CUDA available:", torch.cuda.is_available())
-print("GPU count:", torch.cuda.device_count())
-if torch.cuda.is_available():
-    print("GPU name:", torch.cuda.get_device_name(0))
-PY
 
 python run_prediction_baseline_vlm.py \
   --input /work/cvcs2026/encyclopedic/encyclopedic_test_subset.json \
@@ -46,12 +32,12 @@ python run_prediction_baseline_rag.py \
   --image-root /work/cvcs2026/encyclopedic \
   --pred-out predictions_rag_test.jsonl \
   --records-out records_rag_test.jsonl \
-  --limit 
+  --limit 1
 # Check: head predictions_rag_test.jsonl  head records_rag_test.json
 python run_prediction_agentic.py \
   --input /work/cvcs2026/encyclopedic/encyclopedic_test_subset.json \
   --image-root /work/cvcs2026/encyclopedic \
   --pred-out predictions_agentic_test.jsonl \
   --records-out records_agentic_test.jsonl \
-  --limit 
+  --limit 1
 # Check: head predictions_agentic_test.jsonl  head records_agentic_test.jsonl
