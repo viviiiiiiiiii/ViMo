@@ -56,7 +56,7 @@ def get_question(sample: Dict[str, Any]) -> str:
 def get_image_path(sample: Dict[str, Any], image_root: Optional[Path]) -> str:
     raw_path = get_first_existing(
         sample,
-        ["image_path", "image", "image_file", "filename", "file_name", "img_path"],
+        ["related_images", "image_path", "image", "image_file", "filename", "file_name", "img_path"],
         default=""
     )
 
