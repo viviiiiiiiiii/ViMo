@@ -17,6 +17,21 @@ cd /work/cvcs2026/ViMo/
 # Lancia lo script di indicizzazione
 export CUDA_VISIBLE_DEVICES=""
 
+echo "Nodo:"
+hostname
+
+echo "Controllo GPU:"
+nvidia-smi
+
+echo "Controllo CUDA da Python:"
+python - <<'PY'
+import torch
+print("CUDA available:", torch.cuda.is_available())
+print("GPU count:", torch.cuda.device_count())
+if torch.cuda.is_available():
+    print("GPU name:", torch.cuda.get_device_name(0))
+PY
+
 python run_prediction_baseline_vlm.py \
   --input /work/cvcs2026/encyclopedic/single_hop.json \
   --image-root /work/cvcs2026/encyclopedic \
@@ -24,22 +39,22 @@ python run_prediction_baseline_vlm.py \
   --records-out records_vlm_test.jsonl \
   --limit 1
 
-  # Check: head predictions_vlm_test.jsonl  head records_vlm_test.jsonl
-
-  python run_prediction_baseline_rag.py \
-  --input /work/cvcs2026/encyclopedic/single_hop.json \
-  --image-root /work/cvcs2026/encyclopedic \
-  --pred-out predictions_rag_test.jsonl \
-  --records-out records_rag_test.jsonl \
-  --limit 1
-
-  # Check: head predictions_rag_test.jsonl  head records_rag_test.jsonl
-
-  python run_prediction_agentic.py \
-  --input /work/cvcs2026/encyclopedic/single_hop.json \
-  --image-root /work/cvcs2026/encyclopedic \
-  --pred-out predictions_agentic_test.jsonl \
-  --records-out records_agentic_test.jsonl \
-  --limit 1
-
-  # Check: head predictions_agentic_test.jsonl  head records_agentic_test.jsonl
+#  # Check: head predictions_vlm_test.jsonl  head records_vlm_test.jsonl
+#
+#  python run_prediction_baseline_rag.py \
+#  --input /work/cvcs2026/encyclopedic/single_hop.json \
+#  --image-root /work/cvcs2026/encyclopedic \
+#  --pred-out predictions_rag_test.jsonl \
+#  --records-out records_rag_test.jsonl \
+#  --limit 1
+#
+#  # Check: head predictions_rag_test.jsonl  head records_rag_test.jsonl
+#
+#  python run_prediction_agentic.py \
+#  --input /work/cvcs2026/encyclopedic/single_hop.json \
+#  --image-root /work/cvcs2026/encyclopedic \
+#  --pred-out predictions_agentic_test.jsonl \
+#  --records-out records_agentic_test.jsonl \
+#  --limit 1
+#
+#  # Check: head predictions_agentic_test.jsonl  head records_agentic_test.jsonl
