@@ -6,16 +6,17 @@
 #SBATCH --mem=64G                # Qwen2.5-VL ha bisogno di molta RAM
 #SBATCH --time=00:20:00
 #SBATCH --account=cvcs2026
-#SBATCH --output=/homes/%u/cvcs2026/index_%j.out
+#SBATCH --output=/homes/%u/cvcs2026/agent_output_%j.out
 
-# Carica l'ambiente corretto (assicurati che il percorso sia giusto!)
+
+# Carica l'ambiente
 source /work/cvcs2026/ViMo/.venvMo/bin/activate
+ 
+# Bypass per i pesi locali e vulnerabilità
+export TRANSFORMERS_IGNORE_LOAD_VULNERABILITY=1
 
-# Entra nella cartella corretta
+# Entra nella cartella ed esegui l'agente
 cd /work/cvcs2026/ViMo/
-
-# Lancia lo script di indicizzazione
-export CUDA_VISIBLE_DEVICES=""
 
 echo "Nodo:"
 hostname
