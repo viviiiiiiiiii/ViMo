@@ -24,7 +24,7 @@ python run_prediction_baseline_vlm.py \
   --image-root /work/cvcs2026/encyclopedic \
   --pred-out predictions_vlm_test.jsonl \
   --records-out records_vlm_test.jsonl \
-  --limit 1
+  --limit 10
 
 # Check: head predictions_vlm_test.jsonl  head records_vlm_test.json
 python run_prediction_baseline_rag.py \
@@ -32,12 +32,12 @@ python run_prediction_baseline_rag.py \
   --image-root /work/cvcs2026/encyclopedic \
   --pred-out predictions_rag_test.jsonl \
   --records-out records_rag_test.jsonl \
-  --limit 1
+  --limit 10
 # Check: head predictions_rag_test.jsonl  head records_rag_test.json
 python run_prediction_agentic.py \
   --input /work/cvcs2026/encyclopedic/encyclopedic_test_subset.json \
   --image-root /work/cvcs2026/encyclopedic \
   --pred-out predictions_agentic_test.jsonl \
   --records-out records_agentic_test.jsonl \
-  --limit 1
+  --limit 10
 # Check: head predictions_agentic_test.jsonl  head records_agentic_test.jsonl
