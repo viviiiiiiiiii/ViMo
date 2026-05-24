@@ -8,6 +8,8 @@ import os
 import torch
 from transformers import AutoModel, CLIPImageProcessor, AutoTokenizer
 from transformers import set_seed
+from qwen_vl_utils import process_vision_info
+
 set_seed(42) # O qualunque numero preferisci, basta che sia fisso
 #d
 
@@ -137,7 +139,7 @@ def extract_features(image=None, text=None, model=None, processor=None, out_dim=
         
     return features.to(torch.float32).cpu().numpy()
 
-
+'''
 def generate_answer(model, processor, messages, stop=None, **kwargs):
     clean_messages = []
     for m in messages:
@@ -172,6 +174,45 @@ def generate_answer(model, processor, messages, stop=None, **kwargs):
             **kwargs 
         )
     
+    generated_ids = outputs[0][inputs["input_ids"].shape[-1]:]
+    return processor.tokenizer.decode(generated_ids, skip_special_tokens=True).strip()
+'''
+
+def generate_answer(model, processor, messages, stop=None, **kwargs):
+    text = processor.apply_chat_template(
+        messages,
+        tokenize=False,
+        add_generation_prompt=True
+    )
+
+    image_inputs, video_inputs = process_vision_info(messages)
+
+    inputs = processor(
+        text=[text],
+        images=image_inputs,
+        videos=video_inputs,
+        padding=True,
+        return_tensors="pt"
+    ).to(model.device)
+
+    if "max_new_tokens" not in kwargs:
+        kwargs["max_new_tokens"] = 512
+
+    kwargs["do_sample"] = False
+    kwargs.pop("temperature", None)
+    kwargs.pop("top_p", None)
+    kwargs.pop("top_k", None)
+
+    kwargs["pad_token_id"] = processor.tokenizer.pad_token_id
+    kwargs["eos_token_id"] = processor.tokenizer.eos_token_id
+    kwargs["use_cache"] = True
+
+    with torch.no_grad():
+        outputs = model.generate(
+            **inputs,
+            **kwargs
+        )
+
     generated_ids = outputs[0][inputs["input_ids"].shape[-1]:]
     return processor.tokenizer.decode(generated_ids, skip_special_tokens=True).strip()
 

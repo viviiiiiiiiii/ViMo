@@ -164,7 +164,17 @@ def run_agentic_rag(image_path, question, question_id=None, ground_truth="", que
     start = now_seconds()
     result = {}
     try:
-        result = esecutore.invoke({"input": question})
+#CAMBIO TRY 
+        #result = esecutore.invoke({"input": question})
+        ####
+        input_agent = (
+            f"[IMG]{image_path}[/IMG]\n"
+            f"Image path: {image_path}\n"
+            f"Question: {question}"
+        )
+        
+        result = esecutore.invoke({"input": input_agent})
+        ####
         answer = result.get("output", "")
         error = None
     except Exception as e:

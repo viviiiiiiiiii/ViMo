@@ -143,6 +143,8 @@ def main():
 
             question = get_question(sample)
             image_path = get_image_path(sample, image_root)
+            if image_path and not Path(image_path).exists():
+                print(f"⚠️ IMAGE NOT FOUND for id={question_id}: {image_path}")
             ground_truth = get_ground_truth(sample)
             question_type = str(sample.get("question_type", "unknown"))
 
