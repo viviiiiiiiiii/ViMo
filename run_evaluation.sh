@@ -20,21 +20,21 @@ cd /work/cvcs2026/ViMo/
 
 
 python evaluate_evqa_predictions.py \
-  --gold /work/cvcs2026/encyclopedic/single_hop.json \
+  --gold /work/cvcs2026/encyclopedic/encyclopedic_test_subset.json \
   --pred predictions_vlm.jsonl \
   --out evqa_scores_vlm.json \
   --eval-utils-dir .
 
 
 python evaluate_evqa_predictions.py \
-  --gold /work/cvcs2026/encyclopedic/single_hop.json \
+  --gold /work/cvcs2026/encyclopedic/encyclopedic_test_subset.json \
   --pred predictions_baseline.jsonl \
   --out evqa_scores_baseline_rag.json \
   --eval-utils-dir .
 
 
 python evaluate_evqa_predictions.py \
-  --gold /work/cvcs2026/encyclopedic/single_hop.json \
+  --gold /work/cvcs2026/encyclopedic/encyclopedic_test_subset.json \
   --pred predictions_agentic.jsonl \
   --out evqa_scores_agentic.json \
   --eval-utils-dir .
