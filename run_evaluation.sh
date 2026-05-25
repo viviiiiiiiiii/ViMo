@@ -22,19 +22,21 @@ cd /work/cvcs2026/ViMo/
 python evaluate_evqa_predictions.py \
   --gold /work/cvcs2026/encyclopedic/encyclopedic_test_subset.json \
   --pred predictions_vlm_test.jsonl \
-  --out evqa_scores_vlm.json 
+  --out evqa_scores_vlm.json \
+  --eval-utils-dir external/encyclopedic_vqa \
   --limit 10
 
 
 python evaluate_evqa_predictions.py \
   --gold /work/cvcs2026/encyclopedic/encyclopedic_test_subset.json \
   --pred predictions_rag_test.jsonl \
-  --out evqa_scores_baseline_rag.json 
+  --out evqa_scores_baseline_rag.json \
+  --eval-utils-dir external/encyclopedic_vqa \
   --limit 10
-
 
 python evaluate_evqa_predictions.py \
   --gold /work/cvcs2026/encyclopedic/encyclopedic_test_subset.json \
   --pred predictions_agentic_test.jsonl \
-  --out evqa_scores_agentic.json 
+  --out evqa_scores_agentic.json   \
+  --eval-utils-dir external/encyclopedic_vqa \
   --limit 10
