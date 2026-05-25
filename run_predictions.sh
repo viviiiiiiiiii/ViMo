@@ -35,11 +35,11 @@ python run_prediction_baseline_rag.py \
   --limit 10
 # Check: head predictions_rag_test.jsonl  head records_rag_test.json
 
-# 
-# python run_prediction_agentic.py \
-#   --input /work/cvcs2026/encyclopedic/encyclopedic_test_subset.json \
-#   --image-root /work/cvcs2026/encyclopedic \
-#   --pred-out predictions_agentic_test.jsonl \
-#   --records-out records_agentic_test.jsonl \
-#   --limit 10
-# # Check: head predictions_agentic_test.jsonl  head records_agentic_test.jsonl
+
+python run_prediction_agentic.py \
+  --input /work/cvcs2026/encyclopedic/encyclopedic_test_subset.json \
+  --image-root /work/cvcs2026/encyclopedic \
+  --pred-out predictions_agentic_test.jsonl \
+  --records-out records_agentic_test.jsonl \
+  --limit 10
+# Check: head predictions_agentic_test.jsonl  head records_agentic_test.jsonl

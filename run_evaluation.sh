@@ -23,15 +23,18 @@ python evaluate_evqa_predictions.py \
   --gold /work/cvcs2026/encyclopedic/encyclopedic_test_subset.json \
   --pred predictions_vlm_test.jsonl \
   --out evqa_scores_vlm.json 
+  --limit 10
 
 
 python evaluate_evqa_predictions.py \
   --gold /work/cvcs2026/encyclopedic/encyclopedic_test_subset.json \
   --pred predictions_rag_test.jsonl \
   --out evqa_scores_baseline_rag.json 
+  --limit 10
 
 
 python evaluate_evqa_predictions.py \
   --gold /work/cvcs2026/encyclopedic/encyclopedic_test_subset.json \
   --pred predictions_agentic_test.jsonl \
   --out evqa_scores_agentic.json 
+  --limit 10

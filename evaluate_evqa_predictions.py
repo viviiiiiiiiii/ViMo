@@ -90,6 +90,12 @@ def main():
         default="external/encyclopedic_vqa",
         help="Cartella che contiene evaluation_utils.py ufficiale.",
     )
+    parser.add_argument(
+        "--limit",
+        type=int,
+        default=None,
+        help="Numero massimo di esempi gold da valutare. Utile per test rapidi."
+    )
 
     args = parser.parse_args()
 
@@ -100,6 +106,9 @@ def main():
 
     gold = load_json_or_jsonl(Path(args.gold))
     pred = load_json_or_jsonl(Path(args.pred))
+    
+    if args.limit is not None:
+        gold = gold[:args.limit]
 
     pred_by_id = {}
     for idx, p in enumerate(pred):
