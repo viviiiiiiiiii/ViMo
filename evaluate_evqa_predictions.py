@@ -68,6 +68,16 @@ def get_reference_list(sample):
 
     return refs
 
+def get_sample_id(sample, fallback_idx=None):
+    for key in ["id", "unique_id", "question_id", "qid", "sample_id"]:
+        value = sample.get(key)
+        if value is not None and value != "":
+            return str(value)
+
+    if fallback_idx is not None:
+        return str(fallback_idx)
+
+    raise KeyError(f"Nessun campo id trovato. Campi disponibili: {list(sample.keys())}")
 
 def main():
     parser = argparse.ArgumentParser()
@@ -92,8 +102,9 @@ def main():
     pred = load_json_or_jsonl(Path(args.pred))
 
     pred_by_id = {}
-    for p in pred:
-        pred_by_id[str(p["id"])] = str(p.get("prediction", ""))
+    for idx, p in enumerate(pred):
+        pred_id = get_sample_id(p, idx)
+        pred_by_id[pred_id] = str(p.get("prediction", p.get("answer", "")))
 
     results = []
     scores = []
@@ -101,8 +112,8 @@ def main():
     missing_predictions = 0
     errored = 0
 
-    for sample in tqdm(gold, desc="Evaluating"):
-        sample_id = str(sample["id"])
+    for idx, sample in enumerate(tqdm(gold, desc="Evaluating")):
+        sample_id = get_sample_id(sample, idx)
         question = str(sample.get("question", ""))
         candidate = pred_by_id.get(sample_id, "")
 

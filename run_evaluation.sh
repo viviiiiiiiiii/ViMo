@@ -6,7 +6,7 @@
 #SBATCH --mem=64G                # Qwen2.5-VL ha bisogno di molta RAM
 #SBATCH --time=00:20:00
 #SBATCH --account=cvcs2026
-#SBATCH --output=/homes/%u/cvcs2026/predictions_%j.out
+#SBATCH --output=/homes/%u/cvcs2026/evaluation_%j.out
 
 
 # Carica l'ambiente

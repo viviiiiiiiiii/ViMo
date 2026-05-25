@@ -56,7 +56,7 @@ def get_question_id(sample: Dict[str, Any], fallback_idx: int) -> str:
     return str(
         get_first_existing(
             sample,
-            ["id", "question_id", "qid", "sample_id"],
+            ["id", "unique_id", "question_id", "qid", "sample_id"],
             default=fallback_idx
         )
     )
