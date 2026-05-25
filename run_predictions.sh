@@ -19,19 +19,19 @@ export TRANSFORMERS_IGNORE_LOAD_VULNERABILITY=1
 cd /work/cvcs2026/ViMo/
 
 
-python run_prediction_baseline_vlm.py \
-  --input /work/cvcs2026/encyclopedic/encyclopedic_test_subset.json \
-  --image-root /work/cvcs2026/encyclopedic \
-  --pred-out predictions_vlm_test.jsonl \
-  --records-out records_vlm_test.jsonl 
-
-
-# Check: head predictions_vlm_test.jsonl  head records_vlm_test.json
-python run_prediction_baseline_rag.py \
-  --input /work/cvcs2026/encyclopedic/encyclopedic_test_subset.json \
-  --image-root /work/cvcs2026/encyclopedic \
-  --pred-out predictions_rag_test.jsonl \
-  --records-out records_rag_test.jsonl 
+# python run_prediction_baseline_vlm.py \
+#   --input /work/cvcs2026/encyclopedic/encyclopedic_test_subset.json \
+#   --image-root /work/cvcs2026/encyclopedic \
+#   --pred-out predictions_vlm_test.jsonl \
+#   --records-out records_vlm_test.jsonl 
+# 
+# 
+# # Check: head predictions_vlm_test.jsonl  head records_vlm_test.json
+# python run_prediction_baseline_rag.py \
+#   --input /work/cvcs2026/encyclopedic/encyclopedic_test_subset.json \
+#   --image-root /work/cvcs2026/encyclopedic \
+#   --pred-out predictions_rag_test.jsonl \
+#   --records-out records_rag_test.jsonl 
 
 # Check: head predictions_rag_test.jsonl  head records_rag_test.json
 
@@ -41,5 +41,5 @@ python run_prediction_agentic.py \
   --image-root /work/cvcs2026/encyclopedic \
   --pred-out predictions_agentic_test.jsonl \
   --records-out records_agentic_test.jsonl 
-  
+
 # Check: head predictions_agentic_test.jsonl  head records_agentic_test.jsonl
