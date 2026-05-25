@@ -71,7 +71,7 @@ def run_standard_rag(image_path, question, return_metadata=False, question_id=No
         context = contesto_testuale
         
         # 3. GENERATE: Creiamo il prompt blindato per Qwen
-        prompt_rag = f"""Sei un assistente AI preciso. Rispondi alla domanda finale dell'utente utilizzando ESCLUSIVAMENTE il seguente contesto tratto da Wikipedia e l'immagine fornita. Se la risposta non è nel contesto o nell'immagine, di' che non lo sai.
+        prompt_rag = f"""You are a precise AI assistant. Answer the user's final question using EXCLUSIVELY the following context extracted from Wikipedia and the provided image. If the answer is not present in the context or in the image, say that you do not know.
 
 === CONTESTO WIKIPEDIA ===
 {contesto_testuale}
