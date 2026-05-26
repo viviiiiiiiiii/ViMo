@@ -1,0 +1,20 @@
+#!/bin/bash
+#SBATCH --job-name=vimo_indexing
+#SBATCH --partition=all_serial      #CAMBIATO: Chiediamo un nodo con GPU
+#SBATCH --gres=gpu:1             #AGGIUNTO: Vogliamo 1 scheda video
+#SBATCH --cpus-per-task=4        #AUMENTATO: Più core per caricare i dati
+#SBATCH --mem=32G                #AUMENTATO: Almeno 32GB per EVA-CLIP-8B
+#SBATCH --time=01:00:00          # 1 ora basta e avanza per 3 documenti
+#SBATCH --account=cvcs2026
+#SBATCH --output=/homes/%u/cvcs2026/index_%j.out
+
+# Carica l'ambiente corretto (assicurati che il percorso sia giusto!)
+source /work/cvcs2026/ViMo/.venvMo/bin/activate
+
+# Entra nella cartella corretta
+cd "$SLURM_SUBMIT_DIR"/dati
+
+# Lancia lo script di indicizzazione
+export CUDA_VISIBLE_DEVICES=""
+
+python prepare_evqa_1000_landmarks_singlehop.py --out data/evqa_1000_landmarks_singlehop --n 100 --split val  --images-per-question 1

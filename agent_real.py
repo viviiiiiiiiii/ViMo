@@ -105,6 +105,8 @@ STRICT RULES:
 1. You MUST use 'tool_ricerca_visiva' FIRST to understand what the image is.
 2. Your 'Thought' MUST be a single line. Do NOT use newlines.
 3. Do NOT hallucinate URLs. Only use URLs exactly as returned by your tools.
+4. If you have searched the documents and still cannot find the exact answer, DO NOT loop. 
+   Immediately output 'Thought: I cannot find the answer.' followed by 'Final Answer: Information not available in the provided context.
 
 Use the following exact format:
 
@@ -135,8 +137,8 @@ esecutore = AgentExecutor(
     tools=tools_real.miei_tools_reali, 
     verbose=True,
     handle_parsing_errors="Check your output format! Remember to use Action: and Action Input:.",
-    max_iterations=6, 
-    early_stopping_method='force',
+    max_iterations=10, 
+    early_stopping_method='generate',
     return_intermediate_steps=True
 )
 
