@@ -5,6 +5,7 @@ import numpy as np
 import requests
 import hashlib
 import os
+import re
 import torch
 from transformers import AutoModel, CLIPImageProcessor, AutoTokenizer
 from transformers import set_seed
@@ -139,46 +140,9 @@ def extract_features(image=None, text=None, model=None, processor=None, out_dim=
         
     return features.to(torch.float32).cpu().numpy()
 
-'''
-def generate_answer(model, processor, messages, stop=None, **kwargs):
-    clean_messages = []
-    for m in messages:
-        if isinstance(m["content"], list):
-            text = " ".join([c["text"] for c in m["content"] if c["type"] == "text"])
-            clean_messages.append({"role": m["role"], "content": text})
-        else:
-            clean_messages.append(m)
-
-    text = processor.apply_chat_template(clean_messages, tokenize=False, add_generation_prompt=True)
-    inputs = processor(text=[text], return_tensors="pt").to(model.device)
-
-    # 📍 1. Impostiamo i default in modo sicuro dentro kwargs
-    if 'max_new_tokens' not in kwargs:
-        kwargs['max_new_tokens'] = 512
-
-    # 📍 2. FIX ANTI-ALLUCINAZIONI: Forziamo Greedy Decoding e togliamo i conflitti
-    kwargs['do_sample'] = False
-    kwargs.pop('temperature', None)
-    kwargs.pop('top_p', None)
-    kwargs.pop('top_k', None)
-
-    # 📍 3. Aggiungiamo i token di sistema per sicurezza
-    kwargs['pad_token_id'] = processor.tokenizer.pad_token_id
-    kwargs['eos_token_id'] = processor.tokenizer.eos_token_id
-    kwargs['use_cache'] = True
-
-    with torch.no_grad():
-        # Ora passiamo SOLO gli input e i kwargs ripuliti! Nessun parametro doppio.
-        outputs = model.generate(
-            **inputs, 
-            **kwargs 
-        )
-    
-    generated_ids = outputs[0][inputs["input_ids"].shape[-1]:]
-    return processor.tokenizer.decode(generated_ids, skip_special_tokens=True).strip()
-'''
 
 def generate_answer(model, processor, messages, stop=None, **kwargs):
+    # Applica il template di chat
     text = processor.apply_chat_template(
         messages,
         tokenize=False,
@@ -201,6 +165,7 @@ def generate_answer(model, processor, messages, stop=None, **kwargs):
     kwargs["do_sample"] = False
     kwargs.pop("temperature", None)
     kwargs.pop("top_p", None)
+    #kwargs["temperature"] = 0.0
     kwargs.pop("top_k", None)
 
     kwargs["pad_token_id"] = processor.tokenizer.pad_token_id
@@ -213,9 +178,15 @@ def generate_answer(model, processor, messages, stop=None, **kwargs):
             **kwargs
         )
 
+    # Decodifica e pulizia tag <think>
     generated_ids = outputs[0][inputs["input_ids"].shape[-1]:]
-    return processor.tokenizer.decode(generated_ids, skip_special_tokens=True).strip()
+    risposta_raw = processor.tokenizer.decode(generated_ids, skip_special_tokens=True).strip()
 
+    # Pulizia aggressiva del tag <think> (per evitare che LangChain lo legga)
+    risposta_pulita = re.sub(r'<think>.*?</think>', '', risposta_raw, flags=re.DOTALL | re.IGNORECASE)
+    risposta_pulita = risposta_pulita.replace("</think>", "").strip()
+    
+    return risposta_pulita
 
 def download_wiki_image_online(url, save_dir="./tmp_wiki_images"):
     """Scarica l'immagine al volo da internet e la salva temporaneamente."""

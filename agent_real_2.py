@@ -14,65 +14,19 @@ try:
 except ImportError:
     from langchain_classic.agents import AgentExecutor, create_react_agent
 
-import tools_real
+import tools_real_2 as tools_real
 
-from tools_real import (
+from tools_real_2 import (
     reset_query_state, set_current_question,
     get_logged_urls, get_read_urls,
 )
 
 from load_config import load_config
-from Qwen_retrieval_3 import generate_answer
+from Qwen_retrieval import generate_answer
 from eval_utils import (
     build_common_record, elapsed, now_seconds,
     parse_retrieved_urls, retrieval_metrics, token_estimate,
 )
-
-# =====================================================================
-# 🛡️ MONKEY PATCH: CHIRURGIA SINTATTICA AUTO-AGGANCIANTE PER QWEN 3
-# =====================================================================
-import re
-from langchain_core.agents import AgentFinish
-
-# 1. Scanner automatico per scovare dov'è finito il Parser di LangChain
-_ReActParserClass = None
-for _path in [
-    "langchain.agents.output_parsers",
-    "langchain.agents.output_parsers.react_single_input",
-    "langchain.agents.react.output_parser",
-    "langchain_classic.agents.output_parsers",
-    "langchain_classic.agents.output_parsers.react_single_input"
-]:
-    try:
-        _mod = __import__(_path, fromlist=["ReActSingleInputOutputParser"])
-        _ReActParserClass = getattr(_mod, "ReActSingleInputOutputParser")
-        print(f"🔧 [MonkeyPatch] Parser di LangChain agganciato con successo da: {_path}")
-        break
-    except (ImportError, AttributeError):
-        continue
-
-if _ReActParserClass is None:
-    raise ImportError("Errore critico: impossibile trovare ReActSingleInputOutputParser nella tua versione di LangChain.")
-
-_vecchio_parser = _ReActParserClass.parse
-
-def _parser_blindato(self, text: str):
-    # Epura totalmente qualsiasi traccia di <think> o </think>
-    text_pulito = re.sub(r'<think>.*?</think>', '', text, flags=re.DOTALL | re.IGNORECASE).strip()
-    text_pulito = text_pulito.replace("</think>", "").strip()
-    
-    # Cura il Bug: se Qwen ha usato "Action: Final Answer" come tool
-    if "Action: Final Answer" in text_pulito or "Action: final_answer" in text_pulito:
-        risposta = text_pulito.split("Action Input:")[-1].strip()
-        return AgentFinish({"output": risposta}, text_pulito)
-        
-    # Elimina gli "spazi fantasma" a fine tool (es. "tool_cerca_wikipedia ")
-    text_pulito = re.sub(r'(Action:\s*tool_[a-z_]+)[ \t]+', r'\1\n', text_pulito)
-    
-    return _vecchio_parser(self, text_pulito)
-
-_ReActParserClass.parse = _parser_blindato
-# =====================================================================
 
 # ---------------------------------------------------------------------------
 # Config
@@ -127,10 +81,9 @@ class QwenServerLLM(LLM):
         if tools_real.qwen_model is None:
             raise ValueError("Models not initialized.")
 
-        # ALZATO DA 512 A 1536 PER EVITARE CHE SI SPEGNA MENTRE RAGIONA
         risposta = generate_answer(
             tools_real.qwen_model, tools_real.qwen_processor,
-            messages, max_new_tokens=512, 
+            messages, max_new_tokens=512,
         )
 
         for sw in (stop or []) + ["Observation:", "\nObservation:", "Observation:\n"]:

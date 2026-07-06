@@ -1,9 +1,10 @@
 import os
 import json
 from PIL import Image
+import traceback
 import tools_real
 from load_config import load_config
-from Qwen_retrieval import extract_features, read_wiki_section_with_images, generate_answer
+from Qwen_retrieval import extract_features, generate_answer
 
 from eval_utils import (
     build_common_record, elapsed, now_seconds,
@@ -16,85 +17,99 @@ class Args: pass
 args = Args()
 for k, v in config.items():
     setattr(args, k, str(v))
-args.top_k = 3
+args.top_k = 5  # <--- SETTATO A 5 PER ALLINEARSI ALL'AGENTIC
 
 tools_real.start_motors(args)
 
-def run_standard_rag(image_path, question, return_metadata=False, question_id=None, ground_truth="", question_type="unknown", expected_sources=None, top_k=3,):
-    print(f"\n🔍 [STANDARD RAG] Avvio ricerca per: {image_path}")
+def run_standard_rag(image_path, question, return_metadata=False, question_id=None, ground_truth="", question_type="unknown", expected_sources=None, top_k=5):
+    print(f"\n🔍 [BASELINE RAG K={top_k}] Avvio ricerca per: {image_path}")
     
     start = now_seconds()
     error = None
     context = ""
     retrieved_urls = []
-    sections =[]
+    sections = []
     answer = ""
-    # Cerchiamo solo il primissimo documento (K=1)
-    k = 1
     
     try:
-        # 1. RETRIEVE: Estrazione feature e ricerca su FAISS
+        # ==========================================
+        # 1. RETRIEVE: Estrazione feature e ricerca
+        # ==========================================
         image_pil = Image.open(image_path).convert("RGB")
         features = extract_features(
             image=image_pil, 
+            text=None,
             model=tools_real.clip_model, 
             processor=tools_real.clip_processor, 
             out_dim=512
         )
         
-        _, I = tools_real.knn_index_immagini.search(features, k)
-        url_doc_trovato = tools_real.wiki_map[I[0][0]][0]
-        retrieved_urls = [url_doc_trovato]
+        _, I = tools_real.knn_index_immagini.search(features, top_k)
         
-        print(f"📄 Documento trovato: {url_doc_trovato}")
-        
-    # 2. AUGMENT: Estraiamo TUTTO il testo del documento
-        page = tools_real.wiki_data[url_doc_trovato]
-        
-        # Uniamo i titoli e i testi di tutte le sezioni
-        sezioni_unite = []
-        for titolo, testo in zip(page["section_titles"], page["section_texts"]):
-            sezioni_unite.append(f"--- {titolo} ---\n{testo}")
-        
-        tutto_il_testo = "\n\n".join(sezioni_unite)
-        
-        # 🛡️ SCUDO ANTI-ESPLOSIONE GPU: Mettiamo un limite di sicurezza.
-        # 15.000 caratteri sono circa 4000 token, più che sufficienti per rispondere 
-        # senza saturare la VRAM e far crashare CUDA.
-        limite_caratteri = 15000
-        if len(tutto_il_testo) > limite_caratteri:
-            print("⚠️ Documento lunghissimo, taglio il testo in eccesso per salvare la GPU.")
-            tutto_il_testo = tutto_il_testo[:limite_caratteri] + "\n... [TESTO TRONCATO PER LIMITI DI MEMORIA]"
-        
-        contesto_testuale = tutto_il_testo
-        sections = page.get("section_titles", [])
-        context = contesto_testuale
-        
-        # 3. GENERATE: Creiamo il prompt blindato per Qwen
-        prompt_rag = f"""Try to answer the question based on the retrieved Wikipedia context. If the context does not contain the answer, do your best to provide a plausible answer based on the information available.
+        # Filtriamo URL validi
+        for idx in I[0]:
+            if idx < len(tools_real.wiki_map):
+                url = tools_real.wiki_map[idx][0]
+                if url in tools_real.wiki_data and url not in retrieved_urls:
+                    retrieved_urls.append(url)
 
-=== CONTESTO WIKIPEDIA ===
-{contesto_testuale}
-==========================
+        # ==========================================
+        # 2. BUILD CONTEXT: Unione di tutti i doc (Nessun filtro)
+        # ==========================================
+        context_parts = []
 
-Domanda: {question}"""
+        for url in retrieved_urls:
+            page = tools_real.wiki_data[url]
+            title = page.get("title", "Unknown")
+            page_text = f"=== Document Title: {title} (URL: {url}) ===\n"
+
+            sezioni_doc = []
+            for sec_title, sec_text in zip(page.get("section_titles", []), page.get("section_texts", [])):
+                # Rimosso il filtro SKIP_SECTIONS. Aggiungiamo tutto il testo grezzo.
+                sezioni_doc.append(f"--- {sec_title} ---\n{sec_text}")
+
+            tutto_testo = "\n\n".join(sezioni_doc)
+            
+            # Limite di sicurezza: 10.000 caratteri per doc (circa 50.000 totali)
+            # Indispensabile per non causare Out Of Memory su GPU da 48GB.
+            limit = 15000
+            if len(tutto_testo) > limit:
+                tutto_testo = tutto_testo[:limit] + "\n...(TEXT TRUNCATED DUE TO LENGTH)..."
+
+            page_text += tutto_testo
+            context_parts.append(page_text)
+            sections.append(f"{title} - Full Page Raw")
+
+        context = "\n\n".join(context_parts)
+
+        # ==========================================
+        # 3. GENERATION: Prompting Qwen2.5-VL
+        # ==========================================
+        prompt_text = (
+            f"You are a precise AI assistant answering questions based on visual observation and the provided Wikipedia context.\n\n"
+            f"--- WIKIPEDIA CONTEXT ---\n"
+            f"{context}\n"
+            f"-------------------------\n\n"
+            f"Question: {question}\n"
+            f"Answer the question concisely using ONLY the provided context and the image."
+        )
 
         messages = [
             {"role": "user", "content": [
                 {"type": "image", "image": image_path},
-                {"type": "text", "text": prompt_rag}
+                {"type": "text", "text": prompt_text}
             ]}
         ]
-
-        print("🧠 Qwen sta generando la risposta in base al contesto...")
         
         answer = generate_answer(
             tools_real.qwen_model, 
             tools_real.qwen_processor, 
-            messages,
-            max_new_tokens=256
+            messages, 
+            max_new_tokens=128
         )
+
     except Exception as e:
+        traceback.print_exc()
         error = str(e)
         answer = f"ERRORE RAG: {error}"
 
@@ -103,10 +118,10 @@ Domanda: {question}"""
     if not return_metadata:
         return answer
 
-    ret_metrics = retrieval_metrics(retrieved_urls, expected_sources, k=k)
+    ret_metrics = retrieval_metrics(retrieved_urls, expected_sources, k=top_k)
     record = build_common_record(
         question_id=question_id,
-        model_name="standard_rag",
+        model_name="baseline_rag_k5", # Rinominiamo il modello per distinguerlo
         image_path=image_path,
         question=question,
         ground_truth=ground_truth,
@@ -116,13 +131,13 @@ Domanda: {question}"""
         error=error,
         extra={
             "has_retrieval": 1,
-            "retrieval_mode": "visual_k1",
-            "top_k": k,
+            "retrieval_mode": f"visual_k{top_k}",
+            "top_k": top_k,
             "retrieved_urls": retrieved_urls,
             "retrieved_sections": sections,
             "retrieved_context_chars": len(context),
             "context_tokens_est": token_estimate(context),
-            "num_steps": 2,
+            "num_steps": 1,
             "num_tool_calls": 0,
             "num_retrieval_calls": 1,
             "visual_input_used": 1,
@@ -132,15 +147,16 @@ Domanda: {question}"""
     return record
 
 if __name__ == "__main__":
-    print("🚀 Accensione motori per la Baseline RAG...")
+    print("🚀 Accensione motori per la Baseline RAG (Top-5 docs, Testo Grezzo)...")
     
-    # Facciamo il test sulla Gioconda
+    # Facciamo un test dummy per verifica
     immagine_test = "foto_buia.jpg"
-    domanda_test = "Chi ha dipinto quest'opera e quali sono alcune sue invenzioni famose?"
+    domanda_test = "Chi ha dipinto quest'opera e in che anno?"
     
-    risposta_finale = run_standard_rag(immagine_test, domanda_test)
-    
-    print("\n" + "="*50)
-    print("🎯 RISPOSTA STANDARD RAG:")
-    print(risposta_finale)
-    print("="*50)
+    if not os.path.exists(immagine_test):
+        Image.new('RGB', (224, 224), color = 'black').save(immagine_test)
+        
+    print("\nTest Esecuzione:")
+    record = run_standard_rag(immagine_test, domanda_test, return_metadata=True, top_k=5)
+    print("\nRisposta ottenuta:")
+    print(record["answer"])

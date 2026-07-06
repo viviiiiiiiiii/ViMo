@@ -1,4 +1,6 @@
+# load_config.py
 import json
+import os
 from pathlib import Path
 
 def load_config():
@@ -7,8 +9,10 @@ def load_config():
     with open(base_dir / "config.json", "r", encoding="utf-8") as f:
         config = json.load(f)
 
+    model_path = os.environ.get("QWEN_MODEL_PATH", config["model_path"])
+
     return {
-        "model_path": base_dir / config["model_path"],
+        "model_path": base_dir / model_path,
         "retriever_path": base_dir / config["retriever_path"],
         "index_path": base_dir / config["index_path"],
         "index_json_path": base_dir / config["index_json_path"],

@@ -6,7 +6,7 @@ import re
 import traceback
 import os
 from langchain_core.tools import tool
-from Qwen_retrieval_3 import extract_features, load_clip_and_index, generate_answer
+from Qwen_retrieval import extract_features, load_clip_and_index, generate_answer
 
 # ---------------------------------------------------------------------------
 # Globali server
@@ -64,20 +64,12 @@ def start_motors(args):
     print("Accensione CLIP e FAISS...")
     clip_model, clip_processor, knn_index_immagini, wiki_map, wiki_data = load_clip_and_index(args)
 
-    print("Accensione Qwen3-VL...")
-    
-    # 🚀 CHIAMIAMO IL LEGGITTIMO PROPRIETARIO DEI PESI: Qwen3VLForConditionalGeneration
-    from transformers import AutoProcessor, Qwen3VLForConditionalGeneration
-    
+    print("Accensione Qwen2.5-VL...")
+    from transformers import AutoProcessor, Qwen2_5_VLForConditionalGeneration
     qwen_processor = AutoProcessor.from_pretrained(args.model_path, local_files_only=True)
-    
-    qwen_model = Qwen3VLForConditionalGeneration.from_pretrained(
-        args.model_path, 
-        torch_dtype=torch.bfloat16, 
-        attn_implementation="sdpa", # <-- Accende il Turbo su GPU Blackwell
-        local_files_only=True, 
-        trust_remote_code=True, 
-        device_map="cuda:0",
+    qwen_model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
+        args.model_path, torch_dtype=torch.bfloat16, attn_implementation="eager",
+        local_files_only=True, trust_remote_code=True, device_map="cuda:0",
     ).eval()
     print("✅ Motori accesi!")
 

@@ -1,5 +1,14 @@
 # Ignora i modelli pesanti
 modelli/
+modelli_corrotti/
+images/
+immagini/
+sh_inutili/
+py_not_used/
+tfhub_modules/
+tmp_wiki_images/
+
+
 
 # Ignora i dataset e gli indici vettoriali
 dati/immagini/
@@ -13,10 +22,17 @@ risultati/
 
 # Ignora gli ambienti virtuali e la cache di Python
 venv/
-.env
+.env/
+.vscode/
+.hf_home/
 __pycache__/
 *.pycmodelli/
 .venvMo/
 __pycache__/
 *.index
 *.out
+*.json
+*.log
+*.jsonlrm -f .git/index.lock
+*.swp
+*.swo
