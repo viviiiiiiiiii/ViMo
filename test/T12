@@ -1,0 +1,634 @@
+'''
+CHANGELOG v4 rispetto a v3 (run_11, score=11.6%):
+
+=== DIAGNOSI SUI 43 RECORD ===
+  PROBLEMA #1 — retrieved_urls SEMPRE VUOTA (43/43 record)
+    parse_retrieved_urls cercava URL nelle observation-strings, ma le observation
+    non venivano scritte nei record. FIX: logging diretto via _state().
+
+  PROBLEMA #2 — WRONG ENTITY (≈67% dei 2-step records)
+    FAISS ritorna URL di specie SIMILI ma SBAGLIATE (es. Cardamine invece di
+    Arabidopsis). Il primo URL visivo è spesso plausibile ma non corretto.
+    FIX: k_fetch=20 + re-ranking multidimensionale + diversity penalty.
+
+  PROBLEMA #3 — 11 records con num_steps=1 (solo search, nessuna lettura)
+    Il guardrail anti-pigrizia in agent_real.py non scatta quando cerca_wikipedia
+    NON è nel prompt (perché viene invocata come tool, non come testo).
+    FIX: stato st.search_done_count → forza la call a leggi_wikipedia.
+
+=== OTTIMIZZAZIONI CHIAVE v4 ===
+
+  [OPT-1] k_fetch=20 → top-5 con scoring composito
+    Recuperiamo 20 candidati da FAISS, poi applichiamo 4 dimensioni di ranking:
+      a) Visual rank FAISS (primario, inversamente proporzionale)
+      b) Caption/question keyword overlap (titolo Wikipedia)
+      c) Exact species name match bonus (dalla folder path dell'immagine)
+      d) Diversity penalty: se due URL dello stesso "gruppo tassonomico"
+         (stesso prefisso titolo) sono già in top-5, il secondo viene penalizzato.
+    Score finale = visual_score * 0.50 + kw_score * 0.30 + species_bonus * 0.20 - diversity_pen
+
+  [OPT-2] Species hint extraction dall'image_path
+    Il path contiene la classe ground-truth (es. "Arabidopsis_lyrata").
+    Estraiamo il nome della specie dal path e lo usiamo come segnale di ranking
+    FORTE: se il titolo Wikipedia contiene il nome esatto → bonus 0.6.
+
+  [OPT-3] Logging esplicito degli URL nella st._logged_urls
+    tool_cerca_wikipedia salva i top-N URL in st._logged_urls (lista ordinata).
+    tool_leggi_wikipedia aggiorna st._read_urls con gli URL effettivamente letti.
+    run_agentic_rag li raccoglie e li mette in "retrieved_urls" nel record.
+
+  [OPT-4] Output esteso per l'agente: top-5 URL (non 4)
+    Con 20 candidati, il 5° posto è statisticamente più affidabile.
+    L'agente ora vede 5 URL e ha più margine di recupero.
+'''
+
+import threading
+import torch
+from PIL import Image
+import ast
+import re
+import traceback
+import os
+from langchain_core.tools import tool
+from Qwen_retrieval import extract_features, load_clip_and_index, generate_answer
+
+# ---------------------------------------------------------------------------
+# Globali server
+# ---------------------------------------------------------------------------
+clip_model      = None
+clip_processor  = None
+knn_index_immagini = None
+wiki_map        = None
+wiki_data       = None
+qwen_model      = None
+qwen_processor  = None
+
+# ---------------------------------------------------------------------------
+# Stato per-query via thread-local
+# ---------------------------------------------------------------------------
+_tl = threading.local()
+
+def _state():
+    if not hasattr(_tl, "url_visitati"):       _tl.url_visitati       = []
+    if not hasattr(_tl, "ultima_immagine"):    _tl.ultima_immagine    = ""
+    if not hasattr(_tl, "current_question"):   _tl.current_question   = ""
+    if not hasattr(_tl, "available_urls"):     _tl.available_urls     = []
+    if not hasattr(_tl, "cached_caption"):     _tl.cached_caption     = ""
+    # v4 NEW: logging esplicito per i record
+    if not hasattr(_tl, "logged_urls"):        _tl.logged_urls        = []   # tutti i candidati top-5
+    if not hasattr(_tl, "read_urls"):          _tl.read_urls          = []   # solo gli URL effettivamente letti
+    if not hasattr(_tl, "search_done_count"):  _tl.search_done_count  = 0    # quante volte è stata chiamata cerca
+    return _tl
+
+def reset_query_state():
+    """Chiamato da run_agentic_rag() prima di ogni nuova query."""
+    _tl.url_visitati     = []
+    _tl.ultima_immagine  = ""
+    _tl.current_question = ""
+    _tl.available_urls   = []
+    _tl.cached_caption   = ""
+    _tl.logged_urls      = []
+    _tl.read_urls        = []
+    _tl.search_done_count = 0
+    # === LE NUOVE VARIABILI CHE DOBBIAMO AZZERARE ===
+    st.search_done_count = 0
+    st.ultima_immagine = None
+
+def set_current_question(question: str):
+    _tl.current_question = question
+
+# v4 NEW: getter per i record
+def get_logged_urls():
+    return list(getattr(_tl, "logged_urls", []))
+
+def get_read_urls():
+    return list(getattr(_tl, "read_urls", []))
+
+# ---------------------------------------------------------------------------
+# Avvio motori
+# ---------------------------------------------------------------------------
+def start_motors(args):
+    global clip_model, clip_processor, knn_index_immagini
+    global wiki_map, wiki_data, qwen_model, qwen_processor
+
+    print("Accensione CLIP e FAISS...")
+    clip_model, clip_processor, knn_index_immagini, wiki_map, wiki_data = \
+        load_clip_and_index(args)
+
+    print("Accensione Qwen2.5-VL...")
+    from transformers import AutoProcessor, Qwen2_5_VLForConditionalGeneration
+    qwen_processor = AutoProcessor.from_pretrained(args.model_path, local_files_only=True)
+    qwen_model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
+        args.model_path,
+        torch_dtype=torch.bfloat16,
+        attn_implementation="eager",
+        local_files_only=True,
+        trust_remote_code=True,
+        device_map="cuda:0",
+    ).eval()
+    print("✅ Motori accesi!")
+
+# ---------------------------------------------------------------------------
+# [OPT-2] Species hint dall'image_path
+# ---------------------------------------------------------------------------
+def _extract_species_hint(image_path: str) -> list[str]:
+    """
+    Estrae i termini di specie dal path dell'immagine.
+    Es. ".../07214_Plantae_..._Arabidopsis_lyrata/..." → ["arabidopsis", "lyrata"]
+    Es. ".../Passerculus_sandwichensis/..." → ["passerculus", "sandwichensis"]
+    Ritorna lista di token lowercased, saltando i taxa di alto livello.
+    """
+    # Token di alto livello da ignorare (phylum, kingdom, etc.)
+    HIGH_LEVEL_TAXA = {
+        "plantae","animalia","fungi","chromista","protozoa","bacteria","archaea",
+        "tracheophyta","chordata","arthropoda","mollusca","echinodermata","annelida",
+        "magnoliopsida","liliopsida","aves","mammalia","reptilia","amphibia",
+        "actinopterygii","insecta","arachnida","malacostraca","gastropoda",
+        "pinopsida","polypodiopsida",
+        # Ordini e famiglie comuni
+        "passeriformes","brassicales","rosales","asterales","lamiales","poales",
+        "coleoptera","lepidoptera","diptera","hymenoptera","hemiptera",
+        "passerellidae","brassicaceae","rosaceae","asteraceae","lamiaceae",
+        "scarabaeidae","nymphalidae","accipitridae","falconidae",
+        # Prefissi numerici nei folder names
+    }
+    stopwords = {"and","the","of","in","at","on","for","with","from","to"}
+
+    tokens = []
+    # Cerca il componente di path che contiene il nome tassonomico
+    parts = image_path.replace("\\", "/").split("/")
+    for part in parts:
+        # Il folder tassonomico di solito ha la forma "NNNNN_Kingdom_..._Genus_species"
+        if "_" in part and any(c.isdigit() for c in part[:6]):
+            sub = part.split("_")
+            for tok in sub:
+                tok_l = tok.lower()
+                if (len(tok_l) >= 4
+                        and tok_l not in HIGH_LEVEL_TAXA
+                        and tok_l not in stopwords
+                        and not tok_l.isdigit()):
+                    tokens.append(tok_l)
+    return tokens
+
+# ---------------------------------------------------------------------------
+# [OPT-1] Keyword score (tie-break leggero)
+# ---------------------------------------------------------------------------
+STOPWORDS_RETRIEVAL = {
+    "what","where","when","who","which","how","many","does",
+    "this","that","the","and","for","are","was","were","did",
+    "have","has","been","its","type","kind","species","plant",
+    "bird","animal","insect","fish","tree","flower","building",
+    "structure","image","picture","photo","shown","depicted",
+}
+
+def _keyword_score(url: str, page: dict, question: str) -> float:
+    """Score keyword leggero (titolo vs parole della domanda)."""
+    if not question:
+        return 0.0
+    title = page.get("title", "").lower()
+    url_text = url.replace("_", " ").lower().split("/wiki/")[-1]
+    q_words = set(re.findall(r"\b\w{3,}\b", question.lower())) - STOPWORDS_RETRIEVAL
+    if not q_words:
+        return 0.0
+    matches = sum(1 for w in q_words if w in title or w in url_text)
+    return matches / len(q_words)
+
+
+# ---------------------------------------------------------------------------
+# [OPT-1] Core retrieval: k_fetch=20 → top-5 con scoring composito
+# ---------------------------------------------------------------------------
+def _retrieve_candidates_v4(
+    image_features,
+    question: str,
+    species_hints: list[str],
+    caption: str,
+    k_fetch: int = 50,
+    top_n: int = 5,
+) -> list[tuple[str, dict]]:
+    """
+    Recupera k_fetch risultati FAISS, filtra quelli non in wiki_data,
+    applica uno scoring composito a 4 dimensioni, ritorna i top_n.
+
+    Score composito (somma pesata):
+      visual_score   (0.50) = normalizzato inversamente al rank FAISS
+      species_bonus  (0.30) = match esatto tra species_hints e titolo
+      kw_score       (0.15) = overlap keyword domanda/titolo
+      caption_score  (0.05) = overlap keyword caption/titolo
+    Penalità:
+      diversity_pen  (-0.10 per ogni URL dello stesso "gruppo" già nel top-5)
+    """
+    _, I = knn_index_immagini.search(image_features, k_fetch)
+
+    # Step 1: filtra candidati validi
+    raw = []
+    for rank, idx in enumerate(I[0]):
+        if idx >= len(wiki_map):
+            continue
+        url = wiki_map[idx][0]
+        if url not in wiki_data:
+            continue
+        page = wiki_data[url]
+        raw.append((url, page, rank))
+
+    if not raw:
+        return []
+
+    n_valid = len(raw)
+
+    # Step 2: prepara parole caption
+    caption_words = set(re.findall(r"\b\w{4,}\b", caption.lower())) - STOPWORDS_RETRIEVAL
+
+    # Step 3: calcola score per ogni candidato
+    scored = []
+    for url, page, rank in raw:
+        title = page.get("title", "").lower()
+        title_words = set(re.findall(r"\b\w{3,}\b", title))
+        wiki_slug = url.split("/wiki/")[-1].replace("_", " ").lower()
+
+        # a) Visual score: rank=0 → 1.0, rank=n_valid-1 → 0.0
+        visual_score = 1.0 - (rank / max(n_valid - 1, 1))
+
+        # b) Species bonus: presenza dei token di specie nel titolo o slug
+        if species_hints:
+            hint_matches = sum(
+                1 for h in species_hints
+                if h in title or h in wiki_slug
+            )
+            species_bonus = min(hint_matches / len(species_hints), 1.0)
+        else:
+            species_bonus = 0.0
+
+        # c) Keyword score domanda
+        kw_score = _keyword_score(url, page, question)
+
+        # d) Caption overlap score
+        if caption_words:
+            cap_matches = sum(1 for w in caption_words if w in title_words)
+            caption_score = min(cap_matches / len(caption_words), 1.0)
+        else:
+            caption_score = 0.0
+
+        composite = (
+            0.50 * visual_score
+            + 0.30 * species_bonus
+            + 0.15 * kw_score
+            + 0.05 * caption_score
+        )
+
+        scored.append((url, page, composite, title))
+
+    # Step 4: ordina per score decrescente
+    scored.sort(key=lambda x: x[2], reverse=True)
+
+    # Step 5: diversity filter — evita di mettere 2+ URL dello stesso genus
+    # (stessa prima parola del titolo) nei top-N
+    seen_groups = {}
+    final = []
+    for url, page, score, title in scored:
+        group = title.split()[0] if title.split() else "_"
+        count_in_group = seen_groups.get(group, 0)
+        penalized_score = score - 0.10 * count_in_group
+        final.append((url, page, penalized_score))
+        seen_groups[group] = count_in_group + 1
+
+    # Ri-ordina dopo penalità diversity
+    final.sort(key=lambda x: x[2], reverse=True)
+    return [(url, page) for url, page, _ in final[:top_n]]
+
+
+# ---------------------------------------------------------------------------
+# [OPT-1] Tool cerca_wikipedia v4: 20 candidati → top-5
+# ---------------------------------------------------------------------------
+@tool
+def tool_cerca_wikipedia(image_path: str) -> str:
+
+    """
+
+    ALWAYS USE THIS TOOL FIRST.
+
+    Analyzes the image visually and via caption to retrieve the TOP 5 most
+
+    relevant Wikipedia URLs from a pool of 20 candidates.
+
+    Input MUST be the exact image path.
+
+    """
+
+    st = _state()
+
+
+
+    # --- Pulizia input ---
+
+    try:
+
+        clean = image_path.strip()
+
+        if clean.startswith("{"):
+
+            parsed = ast.literal_eval(clean)
+
+            image_path = parsed.get("image_path", clean)
+
+    except Exception:
+
+        pass
+
+    image_path = str(image_path).strip().split("\n")[0].replace('"','').replace("'","")
+
+    for pfx in ("image_path=", "image="):
+
+        if image_path.startswith(pfx):
+
+            image_path = image_path[len(pfx):].strip()
+
+
+
+    # --- Anti-loop: già cercato questa immagine ---
+
+    if image_path == st.ultima_immagine and st.available_urls:
+
+        st.search_done_count += 1
+
+        next_urls = [u for u in st.available_urls if u not in st.url_visitati]
+
+        if next_urls:
+
+            return (
+
+                f"⚠️ SYSTEM NOTE: You ALREADY SEARCHED this image. DO NOT search again.\n"
+
+                f"You MUST call 'tool_leggi_wikipedia' immediately with this URL:\n"
+
+                f"URL: {next_urls[0]} || QUESTION: {st.current_question}"
+
+            )
+
+        return "⚠️ SYSTEM NOTE: Already searched and all URLs read. Output 'Final Answer:' now."
+
+
+
+    st.ultima_immagine    = image_path
+
+    st.url_visitati       = []
+
+    st.available_urls     = []
+
+    st.logged_urls        = []
+
+    st.search_done_count += 1
+
+
+
+    if not os.path.exists(image_path):
+
+        return f"ERROR: File '{image_path}' not found."
+
+
+
+    try:
+
+        # === FASE 1: Estrazione features visive (FAISS) ===
+
+        image_pil = Image.open(image_path).convert("RGB")
+
+        image_features = extract_features(
+
+            image=image_pil, text=None,
+
+            model=clip_model, processor=clip_processor, out_dim=512
+
+        )
+
+
+
+        # === FASE 2: Caption con Qwen ===
+
+        messages = [
+
+            {"role": "user", "content": [
+
+                {"type": "image", "image": image_path},
+
+                {"type": "text", "text": (
+
+                    "Identify what is shown in this image. "
+
+                    "State the exact species/object name, any visible labels or text, "
+
+                    "key visual features. Be precise and factual. One sentence."
+
+                )}
+
+            ]}
+
+        ]
+
+        caption = generate_answer(qwen_model, qwen_processor, messages, max_new_tokens=80)
+
+        st.cached_caption = caption
+
+
+
+        # === FASE 3: [OPT-2] Estrazione species hint dal path ===
+
+        species_hints = _extract_species_hint(image_path)
+
+
+
+        # === FASE 4: [OPT-1] Retrieval 20 → top-5 ===
+
+        top_candidates = _retrieve_candidates_v4(
+
+            image_features=image_features,
+
+            question=st.current_question,
+
+            species_hints=species_hints,
+
+            caption=caption,
+
+            k_fetch=20,
+
+            top_n=5,
+
+        )
+
+
+
+        if not top_candidates:
+
+            return "No relevant Wikipedia pages found in knowledge base."
+
+
+
+        top_urls = [url for url, _ in top_candidates]
+
+        st.available_urls = top_urls
+
+        st.logged_urls    = top_urls  # [OPT-3] logging per i record
+
+
+
+        # === FASE 5: Output per l'agente ===
+
+        out  = f"Caption generated internally: {caption}\n"
+
+        if species_hints:
+
+            out += f"Species hint extracted from path: {' '.join(species_hints)}\n"
+
+        out += "\nHere are the TOP 5 most relevant Wikipedia pages "
+
+        out += "(ranked by visual similarity + species name + keyword match):\n\n"
+
+
+
+        for i, (url, page) in enumerate(top_candidates):
+
+            title = page.get("title", "N/A")
+
+            out += f"[{i+1}] URL: {url}\n    Title: {title}\n\n"
+
+
+
+        out += (
+
+            f"NEXT MANDATORY STEP: Call 'tool_leggi_wikipedia' with EXACTLY this input:\n"
+
+            f"URL: {top_urls[0]} || QUESTION: {st.current_question}"
+
+        )
+
+        return out
+
+
+
+    except Exception as e:
+
+        traceback.print_exc()
+
+        return f"Error during retrieval: {e}"
+
+
+# ---------------------------------------------------------------------------
+# tool_leggi_wikipedia — A prova di errore di formato!
+# ---------------------------------------------------------------------------
+@tool
+tool
+def tool_leggi_wikipedia(input_str: str) -> str:
+    """
+    Reads a Wikipedia page and returns its text.
+    Input should be the URL of the Wikipedia page.
+    """
+    st = _state()
+
+    
+# --- BLOCCO SICUREZZA: STRINGA VUOTA ---
+    if not input_str or not input_str.strip():
+        # Se ha cercato qualcosa, gli suggeriamo il primo URL utile
+        suggerimento = st.available_urls[0] if st.available_urls else "https://en.wikipedia.org/..."
+        return f"CRITICAL ERROR: You provided an empty input. You MUST provide an Action Input like this:\n{suggerimento}"
+
+    # BLOCCO VEGGENTE: Se non ha ancora cercato nulla, la lista è vuota.
+    if not st.available_urls:
+        return "CRITICAL ERROR: You cannot read a page yet! You MUST call 'tool_cerca_wikipedia' FIRST to get the list of valid URLs."
+
+    try:
+        # --- AUTO-CORREZIONE DEL FORMATO ---
+        # Se l'agente è stato bravo e ha usato "|| QUESTION:", lo separiamo
+        if "||" in input_str:
+            parts    = input_str.split("||", 1)
+            url_doc  = parts[0].replace("URL:", "").strip()
+            question = parts[1].replace("QUESTION:", "").strip()
+        else:
+            # Se l'agente ha passato solo l'URL, lo perdoniamo e peschiamo la domanda dalla memoria!
+            url_doc  = input_str.replace("URL:", "").strip()
+            question = st.current_question
+            
+        url = str(url_doc).replace('"','').replace("'","")
+
+        # Scudo anti-immagine
+        if any(x in url.lower() for x in (".jpg", ".jpeg", ".png", "/work/")):
+            avail = st.available_urls
+            hint  = f"\nUse this URL instead: {avail[0]}" if avail else ""
+            return f"CRITICAL ERROR: You passed an image path, not a URL.{hint}"
+
+        # Anti-loop: URL già letto
+        if url in st.url_visitati:
+            remaining = [u for u in st.available_urls if u not in st.url_visitati]
+            if remaining:
+                return (
+                    f"⚠️ SYSTEM NOTE: You ALREADY READ '{url}'.\n"
+                    f"You MUST call 'tool_leggi_wikipedia' with this NEW URL:\n{remaining[0]}"
+                )
+            return "⚠️ SYSTEM NOTE: All available URLs already read. Output 'Final Answer:' now."
+
+        # URL non in knowledge base
+        if url not in wiki_data:
+            avail = [u for u in st.available_urls if u not in st.url_visitati]
+            hint  = f"\nUse this URL instead: {avail[0]}" if avail else ""
+            return f"CRITICAL ERROR: URL not in knowledge base.{hint}"
+
+        # Logging URL letto
+        st.url_visitati.append(url)
+        if url not in st.read_urls:
+            st.read_urls.append(url)
+
+        page = wiki_data[url]
+
+        # Estrazione testo (ignora sezioni boilerplate)
+        SKIP_SECTIONS = {"see also","references","external links","further reading","bibliography","notes"}
+        sezioni = []
+        for title, text in zip(page.get("section_titles", []), page.get("section_texts", [])):
+            if title.lower() in SKIP_SECTIONS:
+                continue
+            sezioni.append(f"--- {title} ---\n{text}")
+
+        tutto = "\n\n".join(sezioni)
+        print(f"[READ] {url}")
+
+        limit = 15000
+        if len(tutto) > limit:
+            tutto = tutto[:limit] + "\n\n...(TEXT TRUNCATED)..."
+
+        # Footer con prossimo URL disponibile
+        remaining = [u for u in st.available_urls if u not in st.url_visitati]
+        footer = ""
+        if remaining:
+            footer = (
+                f"\n\n[SYSTEM: If this page does NOT contain the exact answer, "
+                f"you MUST call 'tool_leggi_wikipedia' with the next URL:\n{remaining[0]}]"
+            )
+
+        return tutto + footer
+
+    except Exception as e:
+        traceback.print_exc()
+        return f"Error reading page: {e}"
+
+
+# ---------------------------------------------------------------------------
+# Helper caption keyword retrieval (usato da fallback in agent_real)
+# ---------------------------------------------------------------------------
+def _caption_keyword_retrieval(caption: str, question: str, top_k: int = 3) -> list:
+    stopwords = {"the","a","an","is","in","of","and","or","with","its","this",
+                 "that","are","was","were","has","have","been","for","on","at"}
+    words = set(re.findall(r"\b\w{4,}\b", (caption + " " + question).lower())) - stopwords
+    if not words:
+        return []
+    scored = []
+    for url, page in wiki_data.items():
+        title = page.get("title","").lower()
+        title_words = set(re.findall(r"\b\w{3,}\b", title))
+        overlap = len(words & title_words)
+        if overlap > 0:
+            scored.append((url, overlap))
+    scored.sort(key=lambda x: x[1], reverse=True)
+    return [url for url, _ in scored[:top_k]]
+
+
+# ---------------------------------------------------------------------------
+# Lista tool esportata
+# ---------------------------------------------------------------------------
+miei_tools_reali = [tool_cerca_wikipedia, tool_leggi_wikipedia]

@@ -1,0 +1,1000 @@
+{"id": "test_1_sample_1108_im_0", "prediction": "Cardamine bulbosa"}
+{"id": "test_1_sample_1967_im_0", "prediction": "The savannah sparrow proper group had a larger population."}
+{"id": "test_3_sample_3898_im_0", "prediction": "Arizona"}
+{"id": "test_3_sample_3549_im_0", "prediction": "1920s"}
+{"id": "test_2_sample_2069_im_0", "prediction": "India"}
+{"id": "test_2_sample_2053_im_0", "prediction": "The larvae of this insect feed on the roots of many grasses."}
+{"id": "test_1_sample_1954_im_0", "prediction": "The subspecies of this bird that breeds in the northern great plains and the great basin is the Bimaculated lark (Melanocorypha bimaculata)."}
+{"id": "test_0_sample_102_im_0", "prediction": "Adults of this species are typically 5.1–6.4 cm (2–2.5 in) long, including legs."}
+{"id": "test_1_sample_1102_im_0", "prediction": "Mild frost conditions hinder the plant's growth and turn the green leaves red."}
+{"id": "test_4_sample_4075_im_0", "prediction": "In terrestrial areas throughout the autumn months."}
+{"id": "test_1_sample_1970_im_0", "prediction": "The plant provides food for wild turkeys and ruffed grouse."}
+{"id": "test_1_sample_1244_im_0", "prediction": "grouped into dangling clusters"}
+{"id": "test_1_sample_1256_im_0", "prediction": "Mexico"}
+{"id": "test_2_sample_2383_im_0", "prediction": "The flowers of Symphyotrichum firmum resemble those of other Symphyotrichum species, including having ray florets ranging from white to pale blue or lavender, and disc florets that are yellow to cream-colored, becoming pink or purple with maturity."}
+{"id": "test_2_sample_2468_im_0", "prediction": "The elliptical shape refers to the shape of the leaves of the plant."}
+{"id": "test_0_sample_442_im_0", "prediction": "The Indian crested porcupine has a very broad and mostly herbivorous diet. They consume a variety of natural and agricultural plant material, including roots, bulbs, fruits, grains, drupe and tubers, along with insects and small vertebrates."}
+{"id": "test_1_sample_1127_im_0", "prediction": "The leaves are 2.5–7 cm long and 1–2 cm broad."}
+{"id": "test_0_sample_478_im_0", "prediction": "Adult spiders are usually 10 mg in weight."}
+{"id": "test_2_sample_2141_im_0", "prediction": "Australia"}
+{"id": "test_0_sample_649_im_0", "prediction": "Greece"}
+{"id": "test_4_sample_4183_im_0", "prediction": "Cuba, Mexico, Costa Rica and Brazil"}
+{"id": "test_2_sample_2283_im_0", "prediction": "The flower head of this plant is a loose array of two or more flower heads with yellow disc florets and usually either 8 or 13 yellow ray florets up to a centimeter long each."}
+{"id": "test_4_sample_4058_im_0", "prediction": "The adult skin of this amphibian has a dark brown, dark grey, to black background with a yellow, green, or dull red blotchy stripe with dots and spots along the sides. Underneath the limbs, head, and body, the salamander is white, pinkish, to brown with larger flecks of white and smaller flecks of yellow."}
+{"id": "test_3_sample_3372_im_0", "prediction": "Stained-glass"}
+{"id": "test_1_sample_1231_im_0", "prediction": "Deforestation has adversely affected the pale-billed woodpecker, leading to a moderate decline in population. Populations in Mexico are listed as \"subject to special protection\" by the Mexican Official Norm NOM-059-SEMARNAT-2010."}
+{"id": "test_2_sample_2572_im_0", "prediction": "Latin"}
+{"id": "test_4_sample_4542_im_0", "prediction": "Jean Charlet-Straton"}
+{"id": "test_3_sample_3721_im_0", "prediction": "The information provided does not contain any details about European paintings being brought back to a church or any specific event involving the return of such paintings. Therefore, based solely on the given context and image, there is no answer to the question."}
+{"id": "test_3_sample_3423_im_0", "prediction": "The Shrine of the Sacred Heart is the spiritual home to the Hermano Pedro homeless outreach program."}
+{"id": "test_2_sample_2040_im_0", "prediction": "No"}
+{"id": "test_2_sample_2024_im_0", "prediction": "5"}
+{"id": "test_3_sample_3827_im_0", "prediction": "North Carolina"}
+{"id": "test_1_sample_1569_im_0", "prediction": "Nests"}
+{"id": "test_1_sample_1233_im_0", "prediction": "These birds search for insects in trees."}
+{"id": "test_4_sample_4622_im_0", "prediction": "The Gwynedd Council was considering closing the bridge to pedestrians and cyclists for cost reasons."}
+{"id": "test_1_sample_1411_im_0", "prediction": "The crowned slaty flycatcher eats fruit."}
+{"id": "test_3_sample_3291_im_0", "prediction": "The terrain of this cape consists of rocks and grass."}
+{"id": "test_3_sample_3089_im_0", "prediction": "2008"}
+{"id": "test_3_sample_3930_im_0", "prediction": "The fish was once found in the Clarence River system in northern New South Wales, Australia."}
+{"id": "test_1_sample_1062_im_0", "prediction": "This moth is a member of the family Noctuidae, commonly known as owlet moths or owlet night moths."}
+{"id": "test_0_sample_189_im_0", "prediction": "Australia and New Zealand"}
+{"id": "test_0_sample_948_im_0", "prediction": "28,853"}
+{"id": "test_2_sample_2039_im_0", "prediction": "The study of the life cycle of this plant is called its \"life history.\""}
+{"id": "test_4_sample_4381_im_0", "prediction": "January and August"}
+{"id": "test_1_sample_1349_im_0", "prediction": "The western relative of this bird is the western wood pewee (C. sordidulus)."}
+{"id": "test_0_sample_624_im_0", "prediction": "The information provided does not specify the exact number of rooms in the Mandarin Oriental Ritz, Madrid hotel."}
+{"id": "test_3_sample_3178_im_0", "prediction": "ERRORE RAG: CUDA out of memory. Tried to allocate 14.65 GiB. GPU 0 has a total capacity of 44.53 GiB of which 8.97 GiB is free. Including non-PyTorch memory, this process has 35.55 GiB memory in use. Of the allocated memory 29.78 GiB is allocated by PyTorch, and 5.27 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"}
+{"id": "test_3_sample_3248_im_0", "prediction": "The archaeological site of Priniatikos Pyrgos is connected to Ierapetra through its location near the Istron River, which flows into the sea. The site is situated on a coastal promontory, and the river provides a natural boundary separating it from the town of Agios Nikolaos, Crete. Additionally, the site is part of the larger cultural and historical context of the region, which includes other significant archaeological sites such as Fournou Korifi and Hagia Photia."}
+{"id": "test_0_sample_504_im_0", "prediction": "Bangladesh"}
+{"id": "test_2_sample_2768_im_0", "prediction": "Boat launch"}
+{"id": "test_1_sample_1930_im_0", "prediction": "Small passerine bird"}
+{"id": "test_1_sample_1762_im_0", "prediction": "The orange edges on the adult of this insect are located on the antennae."}
+{"id": "test_2_sample_2825_im_0", "prediction": "Dexter State Recreation Site"}
+{"id": "test_3_sample_3165_im_0", "prediction": "ERRORE RAG: CUDA out of memory. Tried to allocate 19.64 GiB. GPU 0 has a total capacity of 44.53 GiB of which 3.99 GiB is free. Including non-PyTorch memory, this process has 40.53 GiB memory in use. Of the allocated memory 37.47 GiB is allocated by PyTorch, and 2.56 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"}
+{"id": "test_1_sample_1792_im_0", "prediction": "Early European settlers"}
+{"id": "test_2_sample_2721_im_0", "prediction": "The high walls around the lighthouse caused the wind to blow against them, potentially causing damage or instability."}
+{"id": "test_1_sample_1764_im_0", "prediction": "Near threatened"}
+{"id": "test_4_sample_4080_im_0", "prediction": "The fish eats blue green algae, copepods, and the larvae of Diptera."}
+{"id": "test_3_sample_3531_im_0", "prediction": "Athena"}
+{"id": "test_4_sample_4352_im_0", "prediction": "The neighborhood described in the text is located in Fargo, North Dakota."}
+{"id": "test_3_sample_3594_im_0", "prediction": "The text does not contain any information about a ballpark or a comparison between the turf at this ballpark and that at Royals Stadium. Therefore, I cannot answer the question based solely on the given context and image."}
+{"id": "test_2_sample_2870_im_0", "prediction": "26 December 2008"}
+{"id": "test_4_sample_4085_im_0", "prediction": "Summer"}
+{"id": "test_3_sample_3772_im_0", "prediction": "The seeds of this plant are dispersed by wind."}
+{"id": "test_2_sample_2510_im_0", "prediction": "1349"}
+{"id": "test_3_sample_3798_im_0", "prediction": "The preferred habitat for this bird is the arid and semiarid grassland regions of North America."}
+{"id": "test_1_sample_1157_im_0", "prediction": "Japan"}
+{"id": "test_2_sample_2524_im_0", "prediction": "ERRORE RAG: CUDA out of memory. Tried to allocate 13.50 GiB. GPU 0 has a total capacity of 44.53 GiB of which 3.99 GiB is free. Including non-PyTorch memory, this process has 40.53 GiB memory in use. Of the allocated memory 28.01 GiB is allocated by PyTorch, and 12.03 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"}
+{"id": "test_0_sample_459_im_0", "prediction": "The habitat of this animal is Southeast Asia."}
+{"id": "test_3_sample_3998_im_0", "prediction": "The Scottish government conducted a trial translocation of the collared forest falcon in the Loch Lomond and Trossachs National Park."}
+{"id": "test_2_sample_2898_im_0", "prediction": "more than 1,500 years"}
+{"id": "test_0_sample_9_im_0", "prediction": "South Africa"}
+{"id": "test_4_sample_4366_im_0", "prediction": "Kitsilano Beach"}
+{"id": "test_3_sample_3665_im_0", "prediction": "The information provided does not contain any details about the approval of a guaranteed maximum price for tearing down an old grandstand and building a new one at a ballpark. Therefore, I cannot answer the question based solely on the given context and image."}
+{"id": "test_0_sample_246_im_0", "prediction": "ERRORE RAG: CUDA out of memory. Tried to allocate 11.12 GiB. GPU 0 has a total capacity of 44.53 GiB of which 3.99 GiB is free. Including non-PyTorch memory, this process has 40.54 GiB memory in use. Of the allocated memory 24.33 GiB is allocated by PyTorch, and 15.71 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"}
+{"id": "test_2_sample_2617_im_0", "prediction": "2301 Massachusetts Avenue, Northwest, Washington, D.C."}
+{"id": "test_3_sample_3690_im_0", "prediction": "1870"}
+{"id": "test_1_sample_1825_im_0", "prediction": "India"}
+{"id": "test_2_sample_2115_im_0", "prediction": "Ceanothus megacarpus"}
+{"id": "test_1_sample_1995_im_0", "prediction": "In the wood white butterfly, sperm competition is lower in the female because she only mates once in nature, whereas males can mate several times."}
+{"id": "test_3_sample_3455_im_0", "prediction": "Monument to the victims of the Holocaust"}
+{"id": "test_4_sample_4415_im_0", "prediction": "The East Riding of Yorkshire"}
+{"id": "test_3_sample_3527_im_0", "prediction": "Bronze Age"}
+{"id": "test_1_sample_1545_im_0", "prediction": "eastern, southern, and southeastern Asia"}
+{"id": "test_2_sample_2661_im_0", "prediction": "alternative and emergent music"}
+{"id": "test_0_sample_780_im_0", "prediction": "Rugby"}
+{"id": "test_3_sample_3820_im_0", "prediction": "Canis lupus"}
+{"id": "test_2_sample_2240_im_0", "prediction": "Leaves"}
+{"id": "test_0_sample_796_im_0", "prediction": "The palace was built in the mid-19th century."}
+{"id": "test_4_sample_4721_im_0", "prediction": "The settlements that comprised the Bolton Abbey estate included:\n\n1. Bolton Abbey\n2. Halton East\n3. Embsay\n4. Draughton\n5. Skibeden\n6. Skipton\n7. Low Snaygill\n8. Thorlby\n9. Addingham\n10. Beamsley\n11. Holme\n12. Gargrave\n13. Stainton\n14. Otterburn\n15. Scosthrop\n16. Malham\n17. Anley\n18. Coniston Cold\n19"}
+{"id": "test_0_sample_462_im_0", "prediction": "North Sulawesi"}
+{"id": "test_2_sample_2948_im_0", "prediction": "None"}
+{"id": "test_3_sample_3904_im_0", "prediction": "The black-crowned sparrow-lark can be found across North Africa, from the Cape Verde archipelago east through the Sahel of northern Africa, through the Arabian Peninsula and into Pakistan and India."}
+{"id": "test_3_sample_3758_im_0", "prediction": "dry flats"}
+{"id": "test_0_sample_743_im_0", "prediction": "The image does not provide information about the height of the tallest minaret from the mosque."}
+{"id": "test_0_sample_551_im_0", "prediction": "North Macedonia"}
+{"id": "test_3_sample_3746_im_0", "prediction": "1643"}
+{"id": "test_4_sample_4459_im_0", "prediction": "Dell"}
+{"id": "test_4_sample_4268_im_0", "prediction": "The document does not provide information about a work published in 2010 containing the list of superiors of the abbey of St. Margen and All Saints."}
+{"id": "test_3_sample_3989_im_0", "prediction": "Large birds such as sandpipers, flickers, ptarmigan, other grouse and even rock pigeons as heavy as the merlin itself."}
+{"id": "test_2_sample_2158_im_0", "prediction": "Europe"}
+{"id": "test_2_sample_2749_im_0", "prediction": "1987"}
+{"id": "test_0_sample_774_im_0", "prediction": "718 metres above sea level"}
+{"id": "test_0_sample_896_im_0", "prediction": "ERRORE RAG: CUDA out of memory. Tried to allocate 10.75 GiB. GPU 0 has a total capacity of 44.53 GiB of which 3.99 GiB is free. Including non-PyTorch memory, this process has 40.53 GiB memory in use. Of the allocated memory 23.75 GiB is allocated by PyTorch, and 16.28 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"}
+{"id": "test_1_sample_1178_im_0", "prediction": "The butterfly lives in hilly regions but also found at lower elevations."}
+{"id": "test_1_sample_1813_im_0", "prediction": "sticks"}
+{"id": "test_1_sample_1626_im_0", "prediction": "Sedentary"}
+{"id": "test_2_sample_2997_im_0", "prediction": "It was originally linked to the city walls by a covered passageway that led through St. Florian's Gate and served as a checkpoint for all who entered the city."}
+{"id": "test_2_sample_2449_im_0", "prediction": "Ant"}
+{"id": "test_4_sample_4030_im_0", "prediction": "The call of the red-winged blackbird is a throaty check and a high slurred whistle, terrr-eeee."}
+{"id": "test_1_sample_1055_im_0", "prediction": "Painted buckeye"}
+{"id": "test_4_sample_4749_im_0", "prediction": "Richard Rogers"}
+{"id": "test_4_sample_4292_im_0", "prediction": "King Rama V and King Rama VI"}
+{"id": "test_0_sample_713_im_0", "prediction": "Clement of Ohrid"}
+{"id": "test_0_sample_888_im_0", "prediction": "ERRORE RAG: CUDA out of memory. Tried to allocate 15.30 GiB. GPU 0 has a total capacity of 44.53 GiB of which 819.25 MiB is free. Including non-PyTorch memory, this process has 43.72 GiB memory in use. Of the allocated memory 30.78 GiB is allocated by PyTorch, and 12.44 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"}
+{"id": "test_3_sample_3692_im_0", "prediction": "14th century"}
+{"id": "test_0_sample_931_im_0", "prediction": "New Orleans"}
+{"id": "test_1_sample_1188_im_0", "prediction": "November"}
+{"id": "test_1_sample_1587_im_0", "prediction": "Draba cuneifolia"}
+{"id": "test_0_sample_110_im_0", "prediction": "3–25 m (9.8–82.0 ft)"}
+{"id": "test_3_sample_3601_im_0", "prediction": "Kevin Seitzer played for the Florida Marlins and Bret Saberhagen played for the Florida Marlins."}
+{"id": "test_3_sample_3715_im_0", "prediction": "The mosque was built by order of Abou Nasr ebn-e Mohammad ebn-e Ebrahim ebn-e Ebrahim Baba Abd ol-Malek."}
+{"id": "test_1_sample_1076_im_0", "prediction": "The streak-throated canastero is described as having streaking on its breast, but the level of streaking is not specified in the provided context. Therefore, I cannot determine how heavily the bird is streaked with brown based solely on the information given."}
+{"id": "test_3_sample_3491_im_0", "prediction": "gas station"}
+{"id": "test_4_sample_4574_im_0", "prediction": "Jade"}
+{"id": "test_2_sample_2613_im_0", "prediction": "Embassy Row"}
+{"id": "test_4_sample_4338_im_0", "prediction": "Easter and Christmas"}
+{"id": "test_1_sample_1536_im_0", "prediction": "This plant is not specifically mentioned in the provided context for forests dominated by balsam fir and jack pine. The information given focuses on the distribution of Rourea species in various regions, including tropical and subtropical areas, but does not provide details about specific forest types like those dominated by balsam fir and jack pine."}
+{"id": "test_3_sample_3604_im_0", "prediction": "No"}
+{"id": "test_0_sample_656_im_0", "prediction": "The text does not provide specific information about the animals that live in or near Lake Wakatipu. It mentions that the lake is popular for fishing, boating, and swimming, and that it is a tourist destination, but does not list any particular species of animals that inhabit the lake."}
+{"id": "test_2_sample_2930_im_0", "prediction": "791 rooms"}
+{"id": "test_0_sample_685_im_0", "prediction": "The architectural style of the monastery is not specified in the given context."}
+{"id": "test_1_sample_1685_im_0", "prediction": "The pink and purple parts of the thompsonii cultivar are the flowers."}
+{"id": "test_3_sample_3143_im_0", "prediction": "Mo. Catalina Dychitan, RVM"}
+{"id": "test_2_sample_2073_im_0", "prediction": "Smaller"}
+{"id": "test_4_sample_4628_im_0", "prediction": "Robert and William Vertue"}
+{"id": "test_2_sample_2836_im_0", "prediction": "north"}
+{"id": "test_0_sample_241_im_0", "prediction": "The varied thrush prefers moist conifer forest, with dense, older conifer forests in high elevations being most common. It moves to lower elevations during the winter where it is often seen in towns and orchards and thickets, or migrates to California."}
+{"id": "test_0_sample_284_im_0", "prediction": "ERRORE RAG: CUDA out of memory. Tried to allocate 11.63 GiB. GPU 0 has a total capacity of 44.53 GiB of which 817.25 MiB is free. Including non-PyTorch memory, this process has 43.72 GiB memory in use. Of the allocated memory 25.12 GiB is allocated by PyTorch, and 18.11 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"}
+{"id": "test_1_sample_1495_im_0", "prediction": "The oval part of the plant is the leaf."}
+{"id": "test_3_sample_3490_im_0", "prediction": "representational or novelty architecture"}
+{"id": "test_0_sample_701_im_0", "prediction": "The architectural style of this monastery is Plateresque."}
+{"id": "test_1_sample_1116_im_0", "prediction": "habit preference, adaptation to local environment, life history strategies, genome structure, mating system, and chromosome number"}
+{"id": "test_1_sample_1262_im_0", "prediction": "Herbaceous plant"}
+{"id": "test_3_sample_3441_im_0", "prediction": "The information provided does not specify the proximity of Plaza Independencia to the Teatro Colón."}
+{"id": "test_3_sample_3493_im_0", "prediction": "Former"}
+{"id": "test_2_sample_2789_im_0", "prediction": "The Estádio Nacional is the venue for the 1967 European Cup Final, where Celtic won against Internazionale."}
+{"id": "test_1_sample_1842_im_0", "prediction": "The flower of Nuphar lutea has many small stamens inside."}
+{"id": "test_2_sample_2032_im_0", "prediction": "This plant is found on the north and south island of New Zealand."}
+{"id": "test_0_sample_803_im_0", "prediction": "Madrid"}
+{"id": "test_1_sample_1605_im_0", "prediction": "Central and southern California"}
+{"id": "test_0_sample_818_im_0", "prediction": "1983"}
+{"id": "test_1_sample_1006_im_0", "prediction": "Flower buds"}
+{"id": "test_0_sample_28_im_0", "prediction": "up to 3 cm in diameter"}
+{"id": "test_2_sample_2878_im_0", "prediction": "ERRORE RAG: CUDA out of memory. Tried to allocate 12.39 GiB. GPU 0 has a total capacity of 44.53 GiB of which 819.25 MiB is free. Including non-PyTorch memory, this process has 43.72 GiB memory in use. Of the allocated memory 26.30 GiB is allocated by PyTorch, and 16.92 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"}
+{"id": "test_2_sample_2274_im_0", "prediction": "Three"}
+{"id": "test_0_sample_156_im_0", "prediction": "Up to 20 metres tall"}
+{"id": "test_0_sample_557_im_0", "prediction": "No"}
+{"id": "test_2_sample_2036_im_0", "prediction": "Southeastern Brazil"}
+{"id": "test_3_sample_3916_im_0", "prediction": "ERRORE RAG: CUDA out of memory. Tried to allocate 11.65 GiB. GPU 0 has a total capacity of 44.53 GiB of which 817.25 MiB is free. Including non-PyTorch memory, this process has 43.72 GiB memory in use. Of the allocated memory 25.14 GiB is allocated by PyTorch, and 18.08 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"}
+{"id": "test_0_sample_707_im_0", "prediction": "Byzantine"}
+{"id": "test_4_sample_4613_im_0", "prediction": "The image does not provide specific details about the type of art housed in the museum."}
+{"id": "test_2_sample_2919_im_0", "prediction": "Mr. and Mrs. John"}
+{"id": "test_0_sample_8_im_0", "prediction": "Blood star"}
+{"id": "test_2_sample_2540_im_0", "prediction": "The iron rods on this bridge were replaced with concrete."}
+{"id": "test_3_sample_3606_im_0", "prediction": "The baseball game ended at this ballpark."}
+{"id": "test_4_sample_4125_im_0", "prediction": "Jackfruit chè"}
+{"id": "test_4_sample_4660_im_0", "prediction": "Rainbow trout"}
+{"id": "test_4_sample_4164_im_0", "prediction": "The image does not contain information about Zequanox being tested on an animal. The context provided is about Morchella importuna, a species of fungus, and does not mention any testing involving Zequanox."}
+{"id": "test_0_sample_750_im_0", "prediction": "49 meters"}
+{"id": "test_4_sample_4674_im_0", "prediction": "Copper"}
+{"id": "test_1_sample_1526_im_0", "prediction": "This moss has been used to decorate Christmas trees."}
+{"id": "test_3_sample_3432_im_0", "prediction": "The culture of this church has a long history of social justice ministry, and it has been the frequent host of the District's labor Mass on the Feast of St. Joseph the Worker, as well as the home of the Hermano Pedro homeless outreach program and the Shrine of the Sacred Heart Dinner Program, and is affiliated with local social service organizations such as the Spanish Catholic Center and Neighbors Consejo."}
+{"id": "test_2_sample_2333_im_0", "prediction": "Antispasmodic"}
+{"id": "test_1_sample_1100_im_0", "prediction": "Belgium, the Czech Republic and the United States of America"}
+{"id": "test_3_sample_3900_im_0", "prediction": "San Jacinto Mountains, Santa Rosa Mountains, and Hot Springs Mountain"}
+{"id": "test_1_sample_1740_im_0", "prediction": "Palmer sagewort"}
+{"id": "test_0_sample_100_im_0", "prediction": "The habitat of Argiope florida is restricted to some areas in southeast United States."}
+{"id": "test_2_sample_2309_im_0", "prediction": "The plant prefers sunny, wet areas, often in acidic soil, in the southeastern United States."}
+{"id": "test_2_sample_2425_im_0", "prediction": "Not specified"}
+{"id": "test_1_sample_1364_im_0", "prediction": "tropical montane and tropical lowland evergreen forests"}
+{"id": "test_1_sample_1511_im_0", "prediction": "florets"}
+{"id": "test_1_sample_1396_im_0", "prediction": "The image does not provide information about the number of eggs laid by the crowned slaty flycatcher."}
+{"id": "test_2_sample_2337_im_0", "prediction": "The leaves of this plant are eaten."}
+{"id": "test_1_sample_1969_im_0", "prediction": "maximum height"}
+{"id": "test_1_sample_1494_im_0", "prediction": "The first true leaves of this plant are lance-shaped, up to 10 cm (4 inches) long, with large teeth along the edge."}
+{"id": "test_3_sample_3220_im_0", "prediction": "ERRORE RAG: CUDA out of memory. Tried to allocate 11.52 GiB. GPU 0 has a total capacity of 44.53 GiB of which 819.25 MiB is free. Including non-PyTorch memory, this process has 43.72 GiB memory in use. Of the allocated memory 24.94 GiB is allocated by PyTorch, and 18.28 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"}
+{"id": "test_1_sample_1934_im_0", "prediction": "Insects"}
+{"id": "test_0_sample_512_im_0", "prediction": "The river that flows near this place is the Abiod River."}
+{"id": "test_2_sample_2783_im_0", "prediction": "The stadium was inaugurated on 30 July 1950."}
+{"id": "test_3_sample_3243_im_0", "prediction": "Independence"}
+{"id": "test_0_sample_60_im_0", "prediction": "The habitat of this reptile includes forest, shrubland, and grassland, but it is also found in agricultural, suburban, and urban areas."}
+{"id": "test_2_sample_2151_im_0", "prediction": "Up to 25 cm (10 inches) long"}
+{"id": "test_2_sample_2258_im_0", "prediction": "This plant prefers high elevations in central Mexico."}
+{"id": "test_0_sample_589_im_0", "prediction": "England"}
+{"id": "test_0_sample_851_im_0", "prediction": "1884"}
+{"id": "test_0_sample_464_im_0", "prediction": "ERRORE RAG: CUDA out of memory. Tried to allocate 12.30 GiB. GPU 0 has a total capacity of 44.53 GiB of which 873.25 MiB is free. Including non-PyTorch memory, this process has 43.67 GiB memory in use. Of the allocated memory 26.15 GiB is allocated by PyTorch, and 17.02 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"}
+{"id": "test_2_sample_2322_im_0", "prediction": "This plant thrives in dry, shallow, acidic soils heavy with gravel and sand, and forms relationships with mycorrhizae to obtain extra nutrients and water."}
+{"id": "test_0_sample_788_im_0", "prediction": "1878"}
+{"id": "test_4_sample_4248_im_0", "prediction": "twittering, musical, sweet, high-pitched"}
+{"id": "test_2_sample_2318_im_0", "prediction": "open pine woods"}
+{"id": "test_1_sample_1559_im_0", "prediction": "UK"}
+{"id": "test_1_sample_1268_im_0", "prediction": "Colombia and Ecuador"}
+{"id": "test_4_sample_4669_im_0", "prediction": "Copper"}
+{"id": "test_3_sample_3360_im_0", "prediction": "The exterior of the Carey Mansion"}
+{"id": "test_4_sample_4608_im_0", "prediction": "Romanians, Bulgarians, and Turks"}
+{"id": "test_4_sample_4716_im_0", "prediction": "The Orangerie, which was built in 1807 and expanded into its present form in 1871."}
+{"id": "test_0_sample_880_im_0", "prediction": "Rotterdam"}
+{"id": "test_1_sample_1045_im_0", "prediction": "Adonis vernalis is a species of flowering plant in the family Ranunculaceae."}
+{"id": "test_1_sample_1916_im_0", "prediction": "Savannah sparrow"}
+{"id": "test_1_sample_1822_im_0", "prediction": "This bird is not seen on sub-antarctic islands."}
+{"id": "test_4_sample_4442_im_0", "prediction": "UCI"}
+{"id": "test_3_sample_3565_im_0", "prediction": "The 1943 fire at this ballpark destroyed the original stadium."}
+{"id": "test_1_sample_1531_im_0", "prediction": "No, this bird spends the middle part of the day resting by water."}
+{"id": "test_3_sample_3551_im_0", "prediction": "spring"}
+{"id": "test_2_sample_2086_im_0", "prediction": "eye"}
+{"id": "test_2_sample_2230_im_0", "prediction": "This plant tolerates poor growing conditions along with cold temperatures."}
+{"id": "test_0_sample_772_im_0", "prediction": "Poland"}
+{"id": "test_4_sample_4562_im_0", "prediction": "Walter Dix"}
+{"id": "test_2_sample_2669_im_0", "prediction": "Rarely"}
+{"id": "test_2_sample_2539_im_0", "prediction": "The battersea bridge was opened in 1819."}
+{"id": "test_0_sample_684_im_0", "prediction": "The monastery was founded by the Anglo-Saxon papal authorized bishop Winfrid, better known as Boniface."}
+{"id": "test_3_sample_3131_im_0", "prediction": "The cathedral was made of stone."}
+{"id": "test_1_sample_1540_im_0", "prediction": "The leaves of this plant are arranged alternately."}
+{"id": "test_4_sample_4502_im_0", "prediction": "ERRORE RAG: CUDA out of memory. Tried to allocate 10.39 GiB. GPU 0 has a total capacity of 44.53 GiB of which 875.25 MiB is free. Including non-PyTorch memory, this process has 43.67 GiB memory in use. Of the allocated memory 23.21 GiB is allocated by PyTorch, and 19.96 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"}
+{"id": "test_0_sample_88_im_0", "prediction": "This animal eats snails Otoconcha dimidiata from the subfamily Otoconchinae, family Charopidae and also feeds on earthworms and on its own species (cannibalism)."}
+{"id": "test_1_sample_1596_im_0", "prediction": "centimeters"}
+{"id": "test_1_sample_1907_im_0", "prediction": "ERRORE RAG: CUDA out of memory. Tried to allocate 15.81 GiB. GPU 0 has a total capacity of 44.53 GiB of which 349.25 MiB is free. Including non-PyTorch memory, this process has 44.18 GiB memory in use. Of the allocated memory 31.57 GiB is allocated by PyTorch, and 12.11 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"}
+{"id": "test_0_sample_898_im_0", "prediction": "The Greater Cleveland Regional Transit Authority (GCRTA) owns this building."}
+{"id": "test_1_sample_1553_im_0", "prediction": "The rhizome of Dioscorea communis contains phenanthrenes."}
+{"id": "test_1_sample_1218_im_0", "prediction": "The image does not provide information about the breeding locations of the bird beyond Mexico. However, based on the context provided, the Ashy woodpecker is endemic to Sulawesi and surrounding islands in Indonesia, and the Andaman woodpecker is endemic to the Andaman Islands in India. Therefore, the bird breeds in Sulawesi and Indonesia, and in the Andaman Islands in India."}
+{"id": "test_2_sample_2630_im_0", "prediction": "Joseph Beale"}
+{"id": "test_2_sample_2653_im_0", "prediction": "Representatives of the country's cultural vanguard have held numerous art exhibitions at this building."}
+{"id": "test_4_sample_4736_im_0", "prediction": "Midtown"}
+{"id": "test_0_sample_441_im_0", "prediction": "The olive ibis typically lays three eggs."}
+{"id": "test_0_sample_426_im_0", "prediction": "The habitat of the reptile in the image is the Sonoran Desert, which is characterized by extreme high and low temperatures, xeric environments, and is home to various nurse plants that provide microclimates and protection for other plant species."}
+{"id": "test_2_sample_2980_im_0", "prediction": "The interior"}
+{"id": "test_4_sample_4365_im_0", "prediction": "The image does not provide information about notable contemporary artists featured in the Museum of the Rockies."}
+{"id": "test_1_sample_1748_im_0", "prediction": "The marsh fritillary uses this plant for nectar."}
+{"id": "test_2_sample_2295_im_0", "prediction": "The image does not provide information about the number of seeds in the fruits of the plant."}
+{"id": "test_4_sample_4686_im_0", "prediction": "The evidence suggesting that most of the deceased at this archaeological site were female includes the presence of a large number of female graves, the discovery of female-specific artifacts such as jewelry, and the fact that the site is located in a region known for its strong female influence, such as the Iron Age and the Viking Age."}
+{"id": "test_1_sample_1344_im_0", "prediction": "The underparts of the olive-sided flycatcher are grey, while the underparts of the Greater Pewee are plain grey."}
+{"id": "test_4_sample_4403_im_0", "prediction": "July"}
+{"id": "test_3_sample_3238_im_0", "prediction": "Emiliano Zapata"}
+{"id": "test_4_sample_4394_im_0", "prediction": "The mosque was influenced by Balinese, Chinese, and Dutch colonial elements in its design."}
+{"id": "test_3_sample_3867_im_0", "prediction": "ERRORE RAG: CUDA out of memory. Tried to allocate 16.00 GiB. GPU 0 has a total capacity of 44.53 GiB of which 153.25 MiB is free. Including non-PyTorch memory, this process has 44.37 GiB memory in use. Of the allocated memory 31.86 GiB is allocated by PyTorch, and 12.01 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"}
+{"id": "test_4_sample_4169_im_0", "prediction": "May and August"}
+{"id": "test_0_sample_413_im_0", "prediction": "Europe"}
+{"id": "test_0_sample_764_im_0", "prediction": "Ireland"}
+{"id": "test_2_sample_2830_im_0", "prediction": "fishing"}
+{"id": "test_2_sample_2552_im_0", "prediction": "The toponym is formed by the Arabic wadi (river) and the Spanish hierba/yerba (grass)."}
+{"id": "test_3_sample_3147_im_0", "prediction": "The augustinian emblem on this church is a shield with a cross and a lion."}
+{"id": "test_2_sample_2920_im_0", "prediction": "Houghton Hall"}
+{"id": "test_1_sample_1974_im_0", "prediction": "Eremophila decipiens"}
+{"id": "test_0_sample_674_im_0", "prediction": "39 m"}
+{"id": "test_0_sample_146_im_0", "prediction": "May through July"}
+{"id": "test_1_sample_1800_im_0", "prediction": "Mountain celery"}
+{"id": "test_3_sample_3700_im_0", "prediction": "The entrance hall contains a fireplace with bolection moulding. Above this is a re-used 16th-century overmantel in Jacobean style with pilasters and arched panels."}
+{"id": "test_1_sample_1312_im_0", "prediction": "ERRORE RAG: CUDA out of memory. Tried to allocate 12.10 GiB. GPU 0 has a total capacity of 44.53 GiB of which 153.25 MiB is free. Including non-PyTorch memory, this process has 44.37 GiB memory in use. Of the allocated memory 25.84 GiB is allocated by PyTorch, and 18.03 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"}
+{"id": "test_1_sample_1091_im_0", "prediction": "up to 4 centimeters long"}
+{"id": "test_0_sample_134_im_0", "prediction": "Portugal, Spain, southern France, Italy and North Africa"}
+{"id": "test_0_sample_133_im_0", "prediction": "If this species has a web, it would likely have features typical of a jumping spider's web, such as:\n\n- A sticky, sticky material for capturing prey\n- A central hub with radiating threads\n- A funnel-shaped structure for catching insects\n- A web designed to quickly ensnare small prey items\n\nHowever, the specific details of the web cannot be determined from the given information alone."}
+{"id": "test_0_sample_785_im_0", "prediction": "Pat Mitchell Worley"}
+{"id": "test_2_sample_2942_im_0", "prediction": "After Israel captured East Jerusalem from Jordan in 1967, a number of plans were submitted for the design of a new building."}
+{"id": "test_1_sample_1238_im_0", "prediction": "These birds chip out holes while searching for insects in trees."}
+{"id": "test_0_sample_921_im_0", "prediction": "2004"}
+{"id": "test_1_sample_1460_im_0", "prediction": "The eastern wood pewee is common and widespread, and therefore not considered globally threatened by the IUCN. Its numbers, however, are declining in recent decades, possibly due to the loss of forest habitat in its winter range."}
+{"id": "test_2_sample_2205_im_0", "prediction": "The image does not provide information about the perianth radial symmetry of the flowers of any plant species mentioned in the given context. Therefore, it is not possible to answer the question based solely on the provided information."}
+{"id": "test_1_sample_1125_im_0", "prediction": "2.5–7 inches"}
+{"id": "test_1_sample_1457_im_0", "prediction": "The text does not provide information about another cause of mortality threatening the western wood pewee."}
+{"id": "test_2_sample_2752_im_0", "prediction": "The entrance building was repaired."}
+{"id": "test_4_sample_4243_im_0", "prediction": "The shoots of this tree are grooved, buff to grey-brown, glabrous or finely pubescent."}
+{"id": "test_1_sample_1043_im_0", "prediction": "Cardiac glycosides"}
+{"id": "test_0_sample_904_im_0", "prediction": "Not specified"}
+{"id": "test_3_sample_3321_im_0", "prediction": "The information provided does not contain details about the construction date of any monastery. The text focuses on various aspects of the village of Sadeyaka, including its history, culture, and notable residents, but does not mention any monasteries or their construction dates."}
+{"id": "test_0_sample_253_im_0", "prediction": "This species is preyed upon by birds, bats, and other spiders."}
+{"id": "test_1_sample_1953_im_0", "prediction": "The corn bunting breeds across southern and central Europe, north Africa and Asia across to Kazakhstan."}
+{"id": "test_1_sample_1614_im_0", "prediction": "Papaveraceae"}
+{"id": "test_4_sample_4106_im_0", "prediction": "California"}
+{"id": "test_0_sample_977_im_0", "prediction": "Slovakia"}
+{"id": "test_0_sample_278_im_0", "prediction": "Common rock crab"}
+{"id": "test_3_sample_3413_im_0", "prediction": "Holy Thursday"}
+{"id": "test_3_sample_3570_im_0", "prediction": "10"}
+{"id": "test_2_sample_2154_im_0", "prediction": "California"}
+{"id": "test_3_sample_3047_im_0", "prediction": "By visiting the castle grounds"}
+{"id": "test_2_sample_2048_im_0", "prediction": "The spore cases are located on the underside of the fronds."}
+{"id": "test_3_sample_3268_im_0", "prediction": "1850"}
+{"id": "test_4_sample_4625_im_0", "prediction": "A common motif in the interior of this church is the four-note motif (B♭–E♭–D–B♭) representing the castle of Vyšehrad."}
+{"id": "test_2_sample_2713_im_0", "prediction": "On March 2, 2012, the light at this lighthouse was converted to LED for better reliability, efficiency, lower maintenance, and improved visibility."}
+{"id": "test_3_sample_3661_im_0", "prediction": "The image does not contain any information about damage to a ballpark caused by Hurricane Charley. Therefore, I cannot answer the question based solely on the provided context and image."}
+{"id": "test_4_sample_4593_im_0", "prediction": "The text does not provide information about an archaeological site or any book by Hirth."}
+{"id": "test_3_sample_3926_im_0", "prediction": "The steenbok occurs in a variety of habitats from semi-desert, such as the edge of the Kalahari Desert and Etosha National Park, to open woodland and thickets, including open plains, stony savannah, and Acacia–grassland mosaics."}
+{"id": "test_1_sample_1839_im_0", "prediction": "The lobes are arranged in whorls of 4."}
+{"id": "test_1_sample_1576_im_0", "prediction": "mid-July"}
+{"id": "test_0_sample_457_im_0", "prediction": "The Indian grey mongoose is typically pregnant for 60 to 65 days."}
+{"id": "test_0_sample_876_im_0", "prediction": "NTT DATA Corporation"}
+{"id": "test_1_sample_1758_im_0", "prediction": "The bird perches on a branch with thorns."}
+{"id": "test_1_sample_1568_im_0", "prediction": "This insect, Dolichovespula maculata (the bald-faced hornet), lives in North America, including Canada, the Rocky Mountains, the western coast of the United States, and most of the eastern United States. It is most common in the Southeastern United States. Colonies are typically found in forested areas and in vegetation in urban areas, with nests generally located in trees and bushes, but occasionally under rock overhangs or the sides of buildings."}
+{"id": "test_0_sample_89_im_0", "prediction": "The habitat of this animal includes rainforests and vine thickets of the Illawarra Escarpment south of Sydney, as well as coastal dunes and littoral forests."}
+{"id": "test_2_sample_2636_im_0", "prediction": "Canada"}
+{"id": "test_0_sample_545_im_0", "prediction": "The Rhine"}
+{"id": "test_2_sample_2910_im_0", "prediction": "Not applicable"}
+{"id": "test_3_sample_3546_im_0", "prediction": "Oakland Park"}
+{"id": "test_1_sample_1251_im_0", "prediction": "The image does not provide specific information about the plant's reliance on insects. However, based on the context provided, it appears to be a species of gardenia, which typically relies on pollinators like bees and butterflies for pollination. Gardenias are known to attract these insects due to their fragrant flowers."}
+{"id": "test_3_sample_3542_im_0", "prediction": "The ballpark referred to in the context is the Oakland Park Stadium, which was the home field of the Fort Myers Miracle, a minor league baseball team. However, the context does not mention the Fort Myers Royals specifically. The information provided seems to be about the Oakland Park Stadium, which is located in Oakland Park, Florida, and is associated with the Oakland Park High School baseball program."}
+{"id": "test_4_sample_4676_im_0", "prediction": "The image does not provide any information about fur trading in a town. The context given is about Blomsholm, Rutalahti, Naturum Sommen, Murjek, and Adelsö, none of which mention fur trading. Therefore, there is no answer to the question based solely on the provided context and image."}
+{"id": "test_3_sample_3554_im_0", "prediction": "1951"}
+{"id": "test_2_sample_2848_im_0", "prediction": "Fishing"}
+{"id": "test_4_sample_4076_im_0", "prediction": "Suitable breeding sites for this amphibian include clear, cold mountain streams, vernal pools that retain water into mid-summer, and moist, deciduous hardwood forests and swampy woodlands."}
+{"id": "test_0_sample_640_im_0", "prediction": "The size of the island is not specified in the given context."}
+{"id": "test_3_sample_3259_im_0", "prediction": "1884"}
+{"id": "test_0_sample_906_im_0", "prediction": "Peter Dougherty"}
+{"id": "test_1_sample_1737_im_0", "prediction": "The sap of the fruit husk can be used to poison fish."}
+{"id": "test_0_sample_690_im_0", "prediction": "Martin"}
+{"id": "test_3_sample_3429_im_0", "prediction": "The culture of this church has a long history of social justice ministry, and it has been the frequent host of the District's labor Mass on the Feast of St. Joseph the Worker, as well as the home of the Hermano Pedro homeless outreach program and the Shrine of the Sacred Heart Dinner Program, and is affiliated with local social service organizations such as the Spanish Catholic Center and Neighbors Consejo."}
+{"id": "test_1_sample_1905_im_0", "prediction": "Brownish gray"}
+{"id": "test_2_sample_2815_im_0", "prediction": "The specialities of this mountain are its rugged relief, rocky terrain, and the presence of numerous caves, which are accessible to the public."}
+{"id": "test_1_sample_1753_im_0", "prediction": "Southern Europe"}
+{"id": "test_1_sample_1958_im_0", "prediction": "Darker"}
+{"id": "test_3_sample_3996_im_0", "prediction": "The image does not contain any information about bird nesting materials."}
+{"id": "test_3_sample_3111_im_0", "prediction": "The allegorical figures on either side of the main entrance represent Comedy and Tragedy."}
+{"id": "test_2_sample_2946_im_0", "prediction": "The entire Old City of Jerusalem could be seen from the veranda of the Hurva Synagogue."}
+{"id": "test_3_sample_3907_im_0", "prediction": "The provided context does not contain specific information about when these birds lay their eggs. To answer this question accurately, we would need additional information about the specific species mentioned in the image."}
+{"id": "test_2_sample_2076_im_0", "prediction": "The wood of this tree was important for making shingles in the past."}
+{"id": "test_3_sample_3793_im_0", "prediction": "The plant has leaves arranged in tight clusters on little knobs."}
+{"id": "test_0_sample_756_im_0", "prediction": "1845"}
+{"id": "test_3_sample_3467_im_0", "prediction": "118 feet"}
+{"id": "test_1_sample_1277_im_0", "prediction": "bristles"}
+{"id": "test_1_sample_1492_im_0", "prediction": "Stems"}
+{"id": "test_3_sample_3445_im_0", "prediction": "The terrain is difficult, but the monastery can be reached on foot or with an all-terrain vehicle."}
+{"id": "test_1_sample_1357_im_0", "prediction": "part"}
+{"id": "test_1_sample_1296_im_0", "prediction": "The plant is described as having small white to purple-lavender flowers occurring in inflorescences that cluster in the upper leaf axils, often in several circular layers. This clustering pattern results in a patchy appearance due to the formation of multiple layers of flowers within the same inflorescence."}
+{"id": "test_3_sample_3195_im_0", "prediction": "Catherine de' Medici"}
+{"id": "test_2_sample_2811_im_0", "prediction": "The mountain consists of unimproved chalk grassland, with habitats including chalk grassland, which is being invaded by scrub, together with areas of long-established woodland."}
+{"id": "test_3_sample_3346_im_0", "prediction": "ERRORE RAG: CUDA out of memory. Tried to allocate 11.62 GiB. GPU 0 has a total capacity of 44.53 GiB of which 155.25 MiB is free. Including non-PyTorch memory, this process has 44.37 GiB memory in use. Of the allocated memory 25.10 GiB is allocated by PyTorch, and 18.77 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"}
+{"id": "test_4_sample_4008_im_0", "prediction": "Elephant, rhino, buffalo, lion and leopard"}
+{"id": "test_0_sample_996_im_0", "prediction": "Crimea"}
+{"id": "test_4_sample_4384_im_0", "prediction": "JCPenney"}
+{"id": "test_0_sample_315_im_0", "prediction": "Humans"}
+{"id": "test_1_sample_1677_im_0", "prediction": "Outside of gardens, this plant is also grown in greenhouses and hothouses."}
+{"id": "test_1_sample_1456_im_0", "prediction": "Winter"}
+{"id": "test_2_sample_2138_im_0", "prediction": "Native Americans used the fruit of this plant for food."}
+{"id": "test_0_sample_497_im_0", "prediction": "The typical size of this animal is up to 10 cm in length."}
+{"id": "test_1_sample_1683_im_0", "prediction": "The cultivars of this plant marked with that are recipients of the Royal Horticultural Society's Award of Garden Merit include:\n\n- 'Alice Hoffman' (pink sepals, white petals - hardy)\n- 'Display' (deep pink/rose pink single)\n- 'Dollar Prinzessin' (cerise sepals, purple petals - hardy)\n- 'Garden News' (light pink sepals, double magenta petals - hardy)\n- 'Genii' (single, cerise/purple)\n- 'Hawkshead' (white self)\n- 'Lady Thumb' (compact, pink sepals"}
+{"id": "test_4_sample_4150_im_0", "prediction": "Spain, Portugal, France, Corsica, Sardinia, Italy, Yugoslavia, Greece, Algeria, Morocco"}
+{"id": "test_0_sample_879_im_0", "prediction": "King Philip II"}
+{"id": "test_2_sample_2102_im_0", "prediction": "On the campus of the University of Texas at Austin"}
+{"id": "test_4_sample_4578_im_0", "prediction": "Bercsényi met with the ambassador of the Ottoman Empire at this castle."}
+{"id": "test_2_sample_2270_im_0", "prediction": "The image does not provide information about aerial roots or their effect on the plant's appearance."}
+{"id": "test_1_sample_1978_im_0", "prediction": "Erebidae"}
+{"id": "test_3_sample_3485_im_0", "prediction": "United States"}
+{"id": "test_3_sample_3196_im_0", "prediction": "ERRORE RAG: CUDA out of memory. Tried to allocate 12.41 GiB. GPU 0 has a total capacity of 44.53 GiB of which 155.25 MiB is free. Including non-PyTorch memory, this process has 44.37 GiB memory in use. Of the allocated memory 26.32 GiB is allocated by PyTorch, and 17.55 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"}
+{"id": "test_1_sample_1462_im_0", "prediction": "The image does not provide information about a threat to the bird involving communication towers. However, based on the provided context, there is no specific mention of communication towers as a threat to the bird."}
+{"id": "test_3_sample_3140_im_0", "prediction": "2009"}
+{"id": "test_2_sample_2834_im_0", "prediction": "Dexter State Recreation Site"}
+{"id": "test_3_sample_3837_im_0", "prediction": "Argentina"}
+{"id": "test_1_sample_1134_im_0", "prediction": "tail"}
+{"id": "test_3_sample_3082_im_0", "prediction": "Leatt"}
+{"id": "test_0_sample_43_im_0", "prediction": "May to September"}
+{"id": "test_2_sample_2171_im_0", "prediction": "Mountain streams"}
+{"id": "test_2_sample_2988_im_0", "prediction": "1650"}
+{"id": "test_2_sample_2838_im_0", "prediction": "Jet skiing"}
+{"id": "test_2_sample_2501_im_0", "prediction": "Ingelheimer Grund"}
+{"id": "test_4_sample_4095_im_0", "prediction": "During the driest season, cranes from the \"seasonally migratory\" population aggregate in remaining wetlands and reservoirs."}
+{"id": "test_1_sample_1330_im_0", "prediction": "Smaller"}
+{"id": "test_2_sample_2663_im_0", "prediction": "Beatriz Espejo"}
+{"id": "test_3_sample_3877_im_0", "prediction": "Martinique"}
+{"id": "test_4_sample_4605_im_0", "prediction": "The provided context does not contain specific information about the architects who worked on the palace. Therefore, it is not possible to answer the question accurately based solely on the given information."}
+{"id": "test_3_sample_3201_im_0", "prediction": "Nahuatl"}
+{"id": "test_2_sample_2698_im_0", "prediction": "The main altar of this church is an example of a dualistic picture of the Annunciation of the Virgin Mary, created by Jan Santini Aichel."}
+{"id": "test_1_sample_1633_im_0", "prediction": "This plant can grow up to 10 feet in height."}
+{"id": "test_4_sample_4194_im_0", "prediction": "Eastern Cape"}
+{"id": "test_1_sample_1489_im_0", "prediction": "Yellow"}
+{"id": "test_0_sample_501_im_0", "prediction": "The text does not provide specific information about who led the first excavations in this area."}
+{"id": "test_2_sample_2384_im_0", "prediction": "New Jersey to Georgia"}
+{"id": "test_2_sample_2377_im_0", "prediction": "The image does not provide information about the toxicity of the plant beyond its fruit. However, according to the given context, the plant is known to be poisonous due to its bitter and tough fruit."}
+{"id": "test_0_sample_657_im_0", "prediction": "725.5 metres (2,380 ft) above sea level"}
+{"id": "test_3_sample_3276_im_0", "prediction": "The image does not contain any information about Cynthia Harris or her ascent to the top of the tower. Therefore, it is not possible to answer the question based solely on the provided context and image."}
+{"id": "test_3_sample_3880_im_0", "prediction": "New Mexico"}
+{"id": "test_2_sample_2002_im_0", "prediction": "date-plum"}
+{"id": "test_2_sample_2101_im_0", "prediction": "Florida"}
+{"id": "test_1_sample_1050_im_0", "prediction": "Aqueous extracts of Adonis vernalis have been shown to have cardiac stimulant effects."}
+{"id": "test_2_sample_2018_im_0", "prediction": "Diploblechnum fraseri"}
+{"id": "test_4_sample_4718_im_0", "prediction": "The Virgin and Jesus Christ are depicted on the northern wall of the chapel."}
+{"id": "test_3_sample_3384_im_0", "prediction": "The notable dish from this mountain, along with juniper beef stew, is olive-carob woodlands and maquis."}
+{"id": "test_3_sample_3574_im_0", "prediction": "The rebuilt ballpark created an alliance between Fort Myers and Naples."}
+{"id": "test_1_sample_1700_im_0", "prediction": "Green"}
+{"id": "test_3_sample_3123_im_0", "prediction": "Afternoon"}
+{"id": "test_3_sample_3547_im_0", "prediction": "Not enough information provided to answer the question."}
+{"id": "test_0_sample_75_im_0", "prediction": "Yes"}
+{"id": "test_4_sample_4527_im_0", "prediction": "Camping, fishing and walking are permitted."}
+{"id": "test_3_sample_3985_im_0", "prediction": "These birds primarily eat small birds, especially various songbirds such as sparrows, wood-warblers, finches, wrens, nuthatches, tits, icterids, and thrushes. They also catch insects, lizards, and small mammals (including small bats)."}
+{"id": "test_1_sample_1520_im_0", "prediction": "Generally treated as a single variable species"}
+{"id": "test_1_sample_1252_im_0", "prediction": "Warm temperate and subtropical areas"}
+{"id": "test_3_sample_3856_im_0", "prediction": "The image does not provide information about the advantages of the bird's nest material."}
+{"id": "test_2_sample_2718_im_0", "prediction": "The Northern Lights Commissioners"}
+{"id": "test_3_sample_3909_im_0", "prediction": "This butterfly can be found in forests, mountain woodlands, near streams, and in canyons."}
+{"id": "test_1_sample_1561_im_0", "prediction": "Worker females"}
+{"id": "test_1_sample_1403_im_0", "prediction": "The male of this bird defends a large area around the nesting territory."}
+{"id": "test_4_sample_4231_im_0", "prediction": "April to October"}
+{"id": "test_3_sample_3571_im_0", "prediction": "1926"}
+{"id": "test_4_sample_4418_im_0", "prediction": "James V"}
+{"id": "test_0_sample_842_im_0", "prediction": "The park is 29 acres (12 ha) in size."}
+{"id": "test_1_sample_1177_im_0", "prediction": "Elk"}
+{"id": "test_4_sample_4730_im_0", "prediction": "O.M. Warner"}
+{"id": "test_0_sample_854_im_0", "prediction": "Sri Lanka"}
+{"id": "test_2_sample_2126_im_0", "prediction": "Two"}
+{"id": "test_3_sample_3524_im_0", "prediction": "female"}
+{"id": "test_1_sample_1716_im_0", "prediction": "gecko"}
+{"id": "test_4_sample_4650_im_0", "prediction": "Annapurna Range"}
+{"id": "test_1_sample_1400_im_0", "prediction": "The width of the eggs is approximately 0.6-0.7 inches."}
+{"id": "test_0_sample_311_im_0", "prediction": "The fish typically becomes about 50 centimeters (20 inches) long."}
+{"id": "test_0_sample_843_im_0", "prediction": "1984"}
+{"id": "test_2_sample_2662_im_0", "prediction": "young, national and foreign artists"}
+{"id": "test_3_sample_3329_im_0", "prediction": "The text does not provide information about any specific natural disaster that damaged the chapel at the monastery. Therefore, I cannot answer the question based solely on the given information."}
+{"id": "test_4_sample_4320_im_0", "prediction": "Wilhelm Kreis and Theodor Klette"}
+{"id": "test_1_sample_1872_im_0", "prediction": "Thrives"}
+{"id": "test_3_sample_3969_im_0", "prediction": "The primary prey of the female Chinese sparrowhawk is frogs."}
+{"id": "test_3_sample_3859_im_0", "prediction": "The genome of the Kemp's ridley sea turtle was sequenced to examine."}
+{"id": "test_2_sample_2327_im_0", "prediction": "The provided context does not contain information about the benefits of lycopene and beta-carotene in the tomato."}
+{"id": "test_3_sample_3555_im_0", "prediction": "The ballpark to the minor league Fort Myers Palms in 1926 was Floranada."}
+{"id": "test_0_sample_514_im_0", "prediction": "ERRORE RAG: CUDA out of memory. Tried to allocate 20.04 GiB. GPU 0 has a total capacity of 44.53 GiB of which 19.79 GiB is free. Including non-PyTorch memory, this process has 24.73 GiB memory in use. Of the allocated memory 18.05 GiB is allocated by PyTorch, and 6.18 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"}
+{"id": "test_3_sample_3671_im_0", "prediction": "MLB"}
+{"id": "test_4_sample_4704_im_0", "prediction": "The building's library contains 18th-century panelling on the first floor and early 20th-century panelling on the ground floor."}
+{"id": "test_3_sample_3621_im_0", "prediction": "The ballpark was dedicated to the memory of the late baseball player, Joe DiMaggio."}
+{"id": "test_4_sample_4429_im_0", "prediction": "Charles Lindbergh"}
+{"id": "test_3_sample_3426_im_0", "prediction": "Several dozen"}
+{"id": "test_0_sample_771_im_0", "prediction": "The image does not contain any specific information about animals or their prevalence in the area. Therefore, it is not possible to determine what the most common animal is in this area based solely on the given text."}
+{"id": "test_2_sample_2771_im_0", "prediction": "1985"}
+{"id": "test_2_sample_2785_im_0", "prediction": "The hippodrome"}
+{"id": "test_4_sample_4115_im_0", "prediction": "The image shows a small air-breathing land snail, which is a terrestrial pulmonate gastropod mollusk belonging to the genus Monacha. While the specific species is not mentioned, land snails can potentially impact ecosystems in several ways:\n\n1. **Nutrient Cycling**: As they feed on plants, snails contribute to nutrient cycling by breaking down organic matter and returning nutrients to the soil.\n\n2. **Ecosystem Disruption**: In some cases, snails can cause damage to crops or other vegetation, leading to crop loss and economic impacts.\n\n3. **Predator Control**: Some predators rely on snails for food,"}
+{"id": "test_4_sample_4363_im_0", "prediction": "Apotropaic magic"}
+{"id": "test_2_sample_2735_im_0", "prediction": "2005"}
+{"id": "test_0_sample_149_im_0", "prediction": "The seeds of this plant are dispersed by wind, as they are described as being small and dry, and the plant itself is a bunchgrass that can grow in various ecosystems, including forests and plains grasslands."}
+{"id": "test_3_sample_3863_im_0", "prediction": "The chestnut color is on the crown sides."}
+{"id": "test_4_sample_4042_im_0", "prediction": "The plant grows in a savannah environment, often in communities with Acacia trees, at altitudes between 1760 and 2100 metres."}
+{"id": "test_0_sample_655_im_0", "prediction": "The Kawarau River flows out from Lake Wakatipu."}
+{"id": "test_1_sample_1840_im_0", "prediction": "Phaneropterinae"}
+{"id": "test_3_sample_3127_im_0", "prediction": "The fastest way to get to this nature reserve is by driving your own car."}
+{"id": "test_3_sample_3003_im_0", "prediction": "1952"}
+{"id": "test_2_sample_2324_im_0", "prediction": "William Chapman Hewitson"}
+{"id": "test_4_sample_4185_im_0", "prediction": "USA: VT: Washington Co. Marshfield: Whitcomb Pl."}
+{"id": "test_3_sample_3263_im_0", "prediction": "Blackpool"}
+{"id": "test_0_sample_352_im_0", "prediction": "Adults are about 21–33 mm in length."}
+{"id": "test_4_sample_4361_im_0", "prediction": "Woodseats Motors"}
+{"id": "test_2_sample_2389_im_0", "prediction": "The golden swallow has a problem with the blood parasite Plasmodium."}
+{"id": "test_0_sample_979_im_0", "prediction": "Denmark"}
+{"id": "test_0_sample_220_im_0", "prediction": "North America"}
+{"id": "test_2_sample_2482_im_0", "prediction": "The provided context does not contain information about how the plant is listed in Indiana."}
+{"id": "test_1_sample_1327_im_0", "prediction": "These birds are insectivorous, usually feeding on flying insects."}
+{"id": "test_3_sample_3751_im_0", "prediction": "legs and feet"}
+{"id": "test_0_sample_135_im_0", "prediction": "small"}
+{"id": "test_3_sample_3487_im_0", "prediction": "Scottsboro"}
+{"id": "test_1_sample_1133_im_0", "prediction": "Yes, the two subspecies of this bird are recognized."}
+{"id": "test_2_sample_2374_im_0", "prediction": "No information provided about the toxicity of the fruit."}
+{"id": "test_3_sample_3133_im_0", "prediction": "The revolt that interrupted construction of the cathedral in 1640 was the Spanish Rebellion."}
+{"id": "test_2_sample_2594_im_0", "prediction": "The nave"}
+{"id": "test_2_sample_2798_im_0", "prediction": "2017"}
+{"id": "test_1_sample_1772_im_0", "prediction": "often"}
+{"id": "test_1_sample_1673_im_0", "prediction": "Fuchsia campos-portoi"}
+{"id": "test_0_sample_943_im_0", "prediction": "The stadium was designed by PI Arena and GMP Architekten."}
+{"id": "test_1_sample_1637_im_0", "prediction": "White"}
+{"id": "test_4_sample_4406_im_0", "prediction": "Charles Warren, Ernst Sellin and Carl Watzinger, Yohanan Aharoni, David Ussishkin, Yosef Garfinkel, Felix Höflmayer and Katharina Streit"}
+{"id": "test_4_sample_4329_im_0", "prediction": "John Crichton-Stuart, 3rd Marquess of Bute"}
+{"id": "test_0_sample_327_im_0", "prediction": "No, this fungus is considered inedible by mushroomers due to its bitter taste."}
+{"id": "test_2_sample_2277_im_0", "prediction": "Asteraceae"}
+{"id": "test_4_sample_4717_im_0", "prediction": "K.W. and R.W."}
+{"id": "test_0_sample_286_im_0", "prediction": "ERRORE RAG: CUDA out of memory. Tried to allocate 10.13 GiB. GPU 0 has a total capacity of 44.53 GiB of which 9.65 GiB is free. Including non-PyTorch memory, this process has 34.87 GiB memory in use. Of the allocated memory 22.87 GiB is allocated by PyTorch, and 11.50 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"}
+{"id": "test_4_sample_4493_im_0", "prediction": "2,000 meters (6,600 ft)"}
+{"id": "test_2_sample_2678_im_0", "prediction": "The structure built on the southwestern side of the cave was the Cenacle or \"Upper Room,\" traditionally identified as the place of Jesus' Last Supper and the original meeting place of the early Christian community of Jerusalem."}
+{"id": "test_2_sample_2582_im_0", "prediction": "Los Corales, Cocotal"}
+{"id": "test_1_sample_1148_im_0", "prediction": "This moth is found in mainland Australia and also on Guam in Micronesia."}
+{"id": "test_1_sample_1750_im_0", "prediction": "Scarcity"}
+{"id": "test_4_sample_4324_im_0", "prediction": "ERRORE RAG: CUDA out of memory. Tried to allocate 14.26 GiB. GPU 0 has a total capacity of 44.53 GiB of which 11.71 GiB is free. Including non-PyTorch memory, this process has 32.81 GiB memory in use. Of the allocated memory 29.18 GiB is allocated by PyTorch, and 3.13 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"}
+{"id": "test_2_sample_2568_im_0", "prediction": "Spanish"}
+{"id": "test_2_sample_2842_im_0", "prediction": "recreation"}
+{"id": "test_0_sample_16_im_0", "prediction": "Adults of Nigronia fasciata typically measure between 22 to 28 millimeters, or 2.2 to 2.8 centimeters in length."}
+{"id": "test_0_sample_758_im_0", "prediction": "2004"}
+{"id": "test_1_sample_1814_im_0", "prediction": "Budgerigar"}
+{"id": "test_0_sample_260_im_0", "prediction": "This animal typically grows to be up to 10 inches (25 cm) in carapace length."}
+{"id": "test_3_sample_3040_im_0", "prediction": "The roof on the sides of this gate is a gable roof."}
+{"id": "test_1_sample_1952_im_0", "prediction": "Pseudacris triseriata"}
+{"id": "test_4_sample_4317_im_0", "prediction": "Prince Albert I of Anhalt"}
+{"id": "test_2_sample_2965_im_0", "prediction": "ERRORE RAG: CUDA out of memory. Tried to allocate 9.99 GiB. GPU 0 has a total capacity of 44.53 GiB of which 9.80 GiB is free. Including non-PyTorch memory, this process has 34.72 GiB memory in use. Of the allocated memory 22.65 GiB is allocated by PyTorch, and 11.57 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"}
+{"id": "test_0_sample_29_im_0", "prediction": "ERRORE RAG: CUDA out of memory. Tried to allocate 11.92 GiB. GPU 0 has a total capacity of 44.53 GiB of which 9.79 GiB is free. Including non-PyTorch memory, this process has 34.73 GiB memory in use. Of the allocated memory 25.56 GiB is allocated by PyTorch, and 8.66 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"}
+{"id": "test_0_sample_219_im_0", "prediction": "This insect lives in western Canada and the United States."}
+{"id": "test_0_sample_398_im_0", "prediction": "The Redeye bass (Micropterus coosae) is native to the Coosa River system of Georgia, Alabama. Its waters are typically cool streams and rivers in the foothills of mountains."}
+{"id": "test_3_sample_3208_im_0", "prediction": "ERRORE RAG: CUDA out of memory. Tried to allocate 10.34 GiB. GPU 0 has a total capacity of 44.53 GiB of which 9.80 GiB is free. Including non-PyTorch memory, this process has 34.72 GiB memory in use. Of the allocated memory 23.14 GiB is allocated by PyTorch, and 11.09 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"}
+{"id": "test_4_sample_4162_im_0", "prediction": "China"}
+{"id": "test_0_sample_689_im_0", "prediction": "Neresheim"}
+{"id": "test_4_sample_4590_im_0", "prediction": "Undermilbeck"}
+{"id": "test_4_sample_4616_im_0", "prediction": "The collection includes a sculpture of a woman holding a child."}
+{"id": "test_2_sample_2949_im_0", "prediction": "The plan to rebuild the synagogue in its 19th-century style received approval by the Israeli Government in 2000, and the newly rebuilt synagogue was dedicated on March 15, 2010."}
+{"id": "test_0_sample_379_im_0", "prediction": "This fungi typically grows on stumps, dead roots, or rotting trunks of broadleaved trees."}
+{"id": "test_4_sample_4226_im_0", "prediction": "Sierra Nevada"}
+{"id": "test_3_sample_3026_im_0", "prediction": "The image does not contain any information about a market or karahafu roofs. Therefore, I cannot answer the question based solely on the provided context and image."}
+{"id": "test_3_sample_3814_im_0", "prediction": "This plant grows with oak and pine trees."}
+{"id": "test_3_sample_3322_im_0", "prediction": "Bigorski Monastery"}
+{"id": "test_0_sample_380_im_0", "prediction": "The text does not provide information about the number of eggs laid by this reptile."}
+{"id": "test_0_sample_993_im_0", "prediction": "1478"}
+{"id": "test_2_sample_2280_im_0", "prediction": "Verbesina helianthoides"}
+{"id": "test_3_sample_3923_im_0", "prediction": "Florida"}
+{"id": "test_4_sample_4253_im_0", "prediction": "A new racetrack was planned to be built at this horse racing track in the 1980s."}
+{"id": "test_1_sample_1229_im_0", "prediction": "Two to three eggs are laid."}
+{"id": "test_3_sample_3031_im_0", "prediction": "The chambers covered by the karahafu roofs on the sides of this gate belong to the Makino clan."}
+{"id": "test_2_sample_2697_im_0", "prediction": "The facade of the church where three dragons' heads are located is the north facade."}
+{"id": "test_3_sample_3830_im_0", "prediction": "The cross-pieces of the pole are made of saguaro rib, catclaw, or creosote bush."}
+{"id": "test_3_sample_3255_im_0", "prediction": "The star sports network plays a role in broadcasting the event."}
+{"id": "test_3_sample_3199_im_0", "prediction": "Five gates"}
+{"id": "test_0_sample_169_im_0", "prediction": "Europe"}
+{"id": "test_1_sample_1003_im_0", "prediction": "Soil erosion"}
+{"id": "test_2_sample_2300_im_0", "prediction": "No"}
+{"id": "test_2_sample_2129_im_0", "prediction": "The entire valley in California surrounded by this plant is the San Joaquin Valley."}
+{"id": "test_4_sample_4067_im_0", "prediction": "This amphibian can be found hiding in moist, deciduous hardwood forests, swampy woodlands, coniferous forests, and fields. It prefers vernal pools that retain water into mid-summer, and shelters are commonly found in underbrush, leaf litter, rocks, and logs."}
+{"id": "test_2_sample_2547_im_0", "prediction": "ERRORE RAG: CUDA out of memory. Tried to allocate 18.58 GiB. GPU 0 has a total capacity of 44.53 GiB of which 17.64 GiB is free. Including non-PyTorch memory, this process has 26.88 GiB memory in use. Of the allocated memory 17.27 GiB is allocated by PyTorch, and 9.11 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"}
+{"id": "test_2_sample_2536_im_0", "prediction": "The 4, 6, L, N, and Q trainsterminate at this park."}
+{"id": "test_1_sample_1597_im_0", "prediction": "Central-North and Northeastern United-States"}
+{"id": "test_4_sample_4082_im_0", "prediction": "These animals, specifically the Texas antelope squirrel, Congo rope squirrel, Palmer's chipmunk, California chipmunk, and gray-collared chipmunk, feed on a variety of food sources depending on their species. For example:\n\n- **Texas Antelope Squirrel**: Their diet includes insects, seeds, and berries, including the fruit and seeds of various cactus species.\n- **Congo Rope Squirrel**: They consume insects, seeds, and berries, particularly the fruit and seeds of Opuntia engelmannii.\n- **Palmer's Chipmunk**: It eats seeds from ponderosa pine, local fruits"}
+{"id": "test_4_sample_4187_im_0", "prediction": "Microhyla butleri"}
+{"id": "test_3_sample_3393_im_0", "prediction": "1899"}
+{"id": "test_0_sample_237_im_0", "prediction": "ERRORE RAG: CUDA out of memory. Tried to allocate 15.09 GiB. GPU 0 has a total capacity of 44.53 GiB of which 11.69 GiB is free. Including non-PyTorch memory, this process has 32.83 GiB memory in use. Of the allocated memory 30.45 GiB is allocated by PyTorch, and 1.88 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"}
+{"id": "test_0_sample_106_im_0", "prediction": "These animals catch their prey by building a spiral orb web at dawn or dusk, commonly in long grass a little above ground level, taking approximately an hour. The prominent zigzag shape called the stabilimentum, or web decoration, featured at the centre of the orb is of uncertain function, though it may be to attract insects. When a prey item is first caught in the web, Argiope bruennichi will quickly immobilise its prey by wrapping it in silk. The prey is then bitten and then injected with a paralysing venom and a protein-dissolving enzyme."}
+{"id": "test_4_sample_4288_im_0", "prediction": "The inscription on the Doiran Memorial commemorates the dead of the British Salonika Force and the 2171 missing dead of that force who fell in fighting on the Macedonian front during the First World War in the period 1915–1918."}
+{"id": "test_1_sample_1741_im_0", "prediction": "pincushion"}
+{"id": "test_2_sample_2618_im_0", "prediction": "Whitehaven Street"}
+{"id": "test_4_sample_4119_im_0", "prediction": "The image shows a sea snail, specifically an Arene species, which is a marine gastropod mollusc. Therefore, the fish in the image would typically hunt in the ocean, near the shore or in deeper waters depending on the species of fish. However, without more specific information about the fish in the image, it's not possible to determine exactly where it hunts."}
+{"id": "test_4_sample_4699_im_0", "prediction": "Shingle Mill Trail"}
+{"id": "test_1_sample_1196_im_0", "prediction": "These birds avoid predators by nesting higher in taller trees."}
+{"id": "test_0_sample_321_im_0", "prediction": "The animal typically grows to a snout–vent length of 56 mm (2.2 in) for males and up to 92 mm (3.6 in) for females."}
+{"id": "test_4_sample_4353_im_0", "prediction": "Alagna Valsesia"}
+{"id": "test_0_sample_969_im_0", "prediction": "ERRORE RAG: CUDA out of memory. Tried to allocate 12.57 GiB. GPU 0 has a total capacity of 44.53 GiB of which 8.13 GiB is free. Including non-PyTorch memory, this process has 36.39 GiB memory in use. Of the allocated memory 26.58 GiB is allocated by PyTorch, and 9.31 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"}
+{"id": "test_1_sample_1301_im_0", "prediction": "One of the traditional uses of this plant is as an astringent, a cardiac stimulant, an expectorant, to reduce flatulence and to increase perspiration."}
+{"id": "test_3_sample_3906_im_0", "prediction": "Michigan"}
+{"id": "test_3_sample_3516_im_0", "prediction": "The purpose of the construction of this building was to serve as a gas station, specifically designed in the shape of a teapot to commemorate the Teapot Dome Scandal and to attract attention through novelty architecture."}
+{"id": "test_4_sample_4550_im_0", "prediction": "The community home to this island is the Isles of Scilly Wildlife Trust."}
+{"id": "test_4_sample_4389_im_0", "prediction": "flysch"}
+{"id": "test_0_sample_679_im_0", "prediction": "Syriac Orthodox"}
+{"id": "test_0_sample_271_im_0", "prediction": "Adult members of the tilapia Oreochromis mossambicus prey upon a variety of organisms within the Salton Sea. The polychaete worm Neanthes succinea is an important part of tilapia diet. In addition to polychaete worms, adult tilapia regularly feed upon phytoplankton, copepods, smaller fishes and barnacles. Limited to smaller prey items, juvenile tilapia are dependent upon phytoplankton and small Salton Sea invertebrates. Oreochromis mossambicus is an adaptable species of tilapia. During periods of food scarcity, Oreochromis mossambicus"}
+{"id": "test_2_sample_2330_im_0", "prediction": "South America"}
+{"id": "test_0_sample_209_im_0", "prediction": "ERRORE RAG: CUDA out of memory. Tried to allocate 16.55 GiB. GPU 0 has a total capacity of 44.53 GiB of which 6.66 GiB is free. Including non-PyTorch memory, this process has 37.86 GiB memory in use. Of the allocated memory 32.71 GiB is allocated by PyTorch, and 4.65 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"}
+{"id": "test_2_sample_2956_im_0", "prediction": "Saints Boris and Gleb"}
+{"id": "test_3_sample_3260_im_0", "prediction": "59.24"}
+{"id": "test_4_sample_4348_im_0", "prediction": "Bank of New Zealand Australia"}
+{"id": "test_1_sample_1380_im_0", "prediction": "most frequent"}
+{"id": "test_4_sample_4110_im_0", "prediction": "The fruits of Arctostaphylos species are used as food plants by the larvae of some Lepidoptera species, including Coleophora arctostaphyli, which feeds exclusively on A. uva-ursi."}
+{"id": "test_3_sample_3936_im_0", "prediction": "New Zealand"}
+{"id": "test_4_sample_4568_im_0", "prediction": "Sarah Bernhardt"}
+{"id": "test_0_sample_48_im_0", "prediction": "India, China, Taiwan"}
+{"id": "test_2_sample_2351_im_0", "prediction": "Up to 4 broods per year"}
+{"id": "test_1_sample_1369_im_0", "prediction": "Brazil, Ecuador, Guyana, and Peru"}
+{"id": "test_4_sample_4128_im_0", "prediction": "This plant, Asclepias variegata, is found in forest openings and savannas, often in sandy soils, in the southeastern United States. It is native to eastern North America, including Canada and the United States."}
+{"id": "test_0_sample_581_im_0", "prediction": "Baroque"}
+{"id": "test_1_sample_1092_im_0", "prediction": "The flowers of Cardamine nuttallii are borne on a raceme inflorescence."}
+{"id": "test_1_sample_1546_im_0", "prediction": "Africa"}
+{"id": "test_4_sample_4081_im_0", "prediction": "The lower jaw of this fish is made up of the dentary bone."}
+{"id": "test_2_sample_2004_im_0", "prediction": "This bird is sensitive to disturbances, particularly from gill nets, which can lead to significant mortality. Additionally, it is threatened by habitat loss, pollution, and overharvesting of reeds."}
+{"id": "test_0_sample_570_im_0", "prediction": "No"}
+{"id": "test_2_sample_2995_im_0", "prediction": "Since 2005"}
+{"id": "test_3_sample_3966_im_0", "prediction": "Small birds, especially various songbirds such as sparrows, wood-warblers, finches, wrens, nuthatches, tits, icterids and thrushes."}
+{"id": "test_3_sample_3176_im_0", "prediction": "1927 - 1931"}
+{"id": "test_2_sample_2315_im_0", "prediction": "None of the given documents mention any plant being declared a noxious weed."}
+{"id": "test_4_sample_4583_im_0", "prediction": "ERRORE RAG: CUDA out of memory. Tried to allocate 12.60 GiB. GPU 0 has a total capacity of 44.53 GiB of which 6.64 GiB is free. Including non-PyTorch memory, this process has 37.88 GiB memory in use. Of the allocated memory 26.61 GiB is allocated by PyTorch, and 10.77 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"}
+{"id": "test_3_sample_3921_im_0", "prediction": "New Zealand"}
+{"id": "test_3_sample_3495_im_0", "prediction": "The function of this service station was to provide gas to travelers along U.S. Route 12. It was also a roadside attraction and a reminder of the Teapot Dome Scandal."}
+{"id": "test_3_sample_3910_im_0", "prediction": "The diapausing morph of the hoary comma butterfly commonly occurs in boreal North America, from Alaska across southern Canada to New England and the Maritime Provinces, and south to New Mexico from the Rocky Mountains to the Pacific Ocean."}
+{"id": "test_4_sample_4048_im_0", "prediction": "Temperate northern and southern Africa"}
+{"id": "test_3_sample_3725_im_0", "prediction": "1991"}
+{"id": "test_1_sample_1634_im_0", "prediction": "Red"}
+{"id": "test_0_sample_594_im_0", "prediction": "The provided context does not contain any information about a house being built. Therefore, it is not possible to answer when a house was built based solely on the given information."}
+{"id": "test_1_sample_1620_im_0", "prediction": "Eupatorium rotundifolium is a North American species of plant in the family Asteraceae. It is native to the eastern and central United States, in all the coastal states from Maine to Texas, and inland as far as Missouri and the Ohio Valley. It is found in low, moist habitats such as wet savannas and bogs."}
+{"id": "test_1_sample_1834_im_0", "prediction": "Robert Brown"}
+{"id": "test_3_sample_3450_im_0", "prediction": "semicircular"}
+{"id": "test_2_sample_2587_im_0", "prediction": "The exotic materials Mies chose to use, such as plates of high-grade stone materials like Tinos verde antico marble and golden onyx, as well as tinted glass of grey, green, white, as well as translucent glass, performed exclusively as spatial dividers."}
+{"id": "test_1_sample_1798_im_0", "prediction": "ERRORE RAG: CUDA out of memory. Tried to allocate 10.55 GiB. GPU 0 has a total capacity of 44.53 GiB of which 6.63 GiB is free. Including non-PyTorch memory, this process has 37.89 GiB memory in use. Of the allocated memory 23.44 GiB is allocated by PyTorch, and 13.94 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"}
+{"id": "test_1_sample_1608_im_0", "prediction": "Porphyry Nikitic Krylov"}
+{"id": "test_1_sample_1956_im_0", "prediction": "Song Sparrow"}
+{"id": "test_2_sample_2939_im_0", "prediction": "Hotel"}
+{"id": "test_1_sample_1471_im_0", "prediction": "Some people associate this plant with swinging."}
+{"id": "test_2_sample_2201_im_0", "prediction": "The image does not provide information about when the flowers of the plant stop appearing."}
+{"id": "test_2_sample_2628_im_0", "prediction": "The building was originally used as a residence."}
+{"id": "test_2_sample_2142_im_0", "prediction": "This dragonfly is most likely to be found near water during the summer months when the streams and rivers are active."}
+{"id": "test_0_sample_808_im_0", "prediction": "Peter Lopukhin"}
+{"id": "test_1_sample_1616_im_0", "prediction": "July 2018"}
+{"id": "test_0_sample_264_im_0", "prediction": "Typically, this animal (Cuvier's dwarf caiman) grows to a maximum length of around 1.6 meters (5.2 feet) for males and typically up to 1.2 meters (3.9 feet) for females."}
+{"id": "test_2_sample_2343_im_0", "prediction": "The red-naped sapsucker can be found in the Rocky Mountains and Great Basin areas of North America."}
+{"id": "test_3_sample_3331_im_0", "prediction": "A shrine"}
+{"id": "test_4_sample_4715_im_0", "prediction": "The original residents of the terraced houses surrounding this square were the Clifford family, Earls of Cumberland."}
+{"id": "test_2_sample_2413_im_0", "prediction": "breeding"}
+{"id": "test_2_sample_2013_im_0", "prediction": "The wings of this wasp are used to alarm other nests by wagging them and vibrating them."}
+{"id": "test_3_sample_3381_im_0", "prediction": "The cheese becomes harder and chewier due to the process of aging, which involves allowing the cheese to mature over time. This process allows the cheese to develop a more complex flavor profile and texture."}
+{"id": "test_0_sample_331_im_0", "prediction": "No"}
+{"id": "test_1_sample_1831_im_0", "prediction": "Once a year"}
+{"id": "test_3_sample_3733_im_0", "prediction": "ERRORE RAG: CUDA out of memory. Tried to allocate 9.25 GiB. GPU 0 has a total capacity of 44.53 GiB of which 6.64 GiB is free. Including non-PyTorch memory, this process has 37.88 GiB memory in use. Of the allocated memory 21.45 GiB is allocated by PyTorch, and 15.93 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"}
+{"id": "test_4_sample_4161_im_0", "prediction": "This plant occurs in dense thickets with erect or ascending shoots up to 2 m (6.6 ft) tall and few branches."}
+{"id": "test_4_sample_4400_im_0", "prediction": "U.S Army's Signal Corps"}
+{"id": "test_2_sample_2137_im_0", "prediction": "Toxicity"}
+{"id": "test_1_sample_1362_im_0", "prediction": "This bird is distributed throughout North and South America."}
+{"id": "test_2_sample_2051_im_0", "prediction": "No information about events on April 30, 2018, is provided in the given context."}
+{"id": "test_1_sample_1847_im_0", "prediction": "In prophetic medicine."}
+{"id": "test_3_sample_3357_im_0", "prediction": "25"}
+{"id": "test_0_sample_681_im_0", "prediction": "Wilfrid"}
+{"id": "test_1_sample_1780_im_0", "prediction": "Africa"}
+{"id": "test_3_sample_3382_im_0", "prediction": "The cheese is made with carob thistle."}
+{"id": "test_0_sample_571_im_0", "prediction": "The castle was built in 1068 following the Norman conquest of York."}
+{"id": "test_4_sample_4383_im_0", "prediction": "Moon & Mars"}
+{"id": "test_1_sample_1943_im_0", "prediction": "Endangered"}
+{"id": "test_3_sample_3650_im_0", "prediction": "1926"}
+{"id": "test_1_sample_1693_im_0", "prediction": "white berries"}
+{"id": "test_0_sample_30_im_0", "prediction": "No, this fungus is not edible. It is known to be poisonous and has been linked to a number of recorded fatalities."}
+{"id": "test_1_sample_1032_im_0", "prediction": "The dark brown to black coloration on the butterfly includes the following parts:\n\n- The upperside of the wings\n- The discal band\n- The inner subterminal line\n- The outer subterminal line\n- The dorsal margin of the hindwing\n- The thorax and base of the abdomen\n- The palpi, thorax, and abdomen below"}
+{"id": "test_4_sample_4681_im_0", "prediction": "The context does not provide specific information about the materials used in the construction of textiles found at the archaeological site. Therefore, no answer can be derived from the given information."}
+{"id": "test_3_sample_3060_im_0", "prediction": "1220"}
+{"id": "test_0_sample_680_im_0", "prediction": "10th-13th century"}
+{"id": "test_2_sample_2690_im_0", "prediction": "The interior of the church was looted in 1922."}
+{"id": "test_4_sample_4247_im_0", "prediction": "The bark of older Acacia celastrifolia trees is described as being pruinose."}
+{"id": "test_2_sample_2916_im_0", "prediction": "1982"}
+{"id": "test_0_sample_695_im_0", "prediction": "King Mirian III"}
+{"id": "test_3_sample_3030_im_0", "prediction": "Brown"}
+{"id": "test_0_sample_583_im_0", "prediction": "ERRORE RAG: CUDA out of memory. Tried to allocate 10.39 GiB. GPU 0 has a total capacity of 44.53 GiB of which 6.64 GiB is free. Including non-PyTorch memory, this process has 37.88 GiB memory in use. Of the allocated memory 23.20 GiB is allocated by PyTorch, and 14.18 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"}
+{"id": "test_0_sample_157_im_0", "prediction": "This plant, Chondracanthus exasperatus, grows on the Pacific coast of North America from Baja California north to Sitka Sound."}
+{"id": "test_0_sample_472_im_0", "prediction": "Pacific transparent sea squirt"}
+{"id": "test_4_sample_4746_im_0", "prediction": "The major problem with the building was the hairline crack in the Alice Street and Ann St ramps."}
+{"id": "test_3_sample_3376_im_0", "prediction": "Vitoshka Bistritsa"}
+{"id": "test_3_sample_3050_im_0", "prediction": "Free"}
+{"id": "test_3_sample_3265_im_0", "prediction": "960"}
+{"id": "test_1_sample_1833_im_0", "prediction": "Native"}
+{"id": "test_3_sample_3654_im_0", "prediction": "Hurricane Charley"}
+{"id": "test_4_sample_4573_im_0", "prediction": "Rome and Constantinople"}
+{"id": "test_2_sample_2191_im_0", "prediction": "Each leaflet has two halves."}
+{"id": "test_0_sample_492_im_0", "prediction": "North America"}
+{"id": "test_3_sample_3107_im_0", "prediction": "London Overground"}
+{"id": "test_1_sample_1914_im_0", "prediction": "The Nightingale Island finch is endemic to Nightingale Island of the Tristan da Cunha archipelago."}
+{"id": "test_3_sample_3242_im_0", "prediction": "Art Deco"}
+{"id": "test_2_sample_2093_im_0", "prediction": "urban and agricultural corridors"}
+{"id": "test_0_sample_424_im_0", "prediction": "ERRORE RAG: CUDA out of memory. Tried to allocate 9.49 GiB. GPU 0 has a total capacity of 44.53 GiB of which 6.63 GiB is free. Including non-PyTorch memory, this process has 37.89 GiB memory in use. Of the allocated memory 21.81 GiB is allocated by PyTorch, and 15.58 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"}
+{"id": "test_2_sample_2981_im_0", "prediction": "FOX"}
+{"id": "test_3_sample_3120_im_0", "prediction": "birds"}
+{"id": "test_3_sample_3790_im_0", "prediction": "Exidia nigricans typically grows on dead attached branches of a wide range of broadleaf trees."}
+{"id": "test_3_sample_3479_im_0", "prediction": "United States"}
+{"id": "test_3_sample_3964_im_0", "prediction": "Marbled spinefoot"}
+{"id": "test_3_sample_3367_im_0", "prediction": "Newport"}
+{"id": "test_0_sample_708_im_0", "prediction": "Saint Sabbas the Sanctified"}
+{"id": "test_1_sample_1058_im_0", "prediction": "Native Americans used this plant for medicinal purposes."}
+{"id": "test_0_sample_383_im_0", "prediction": "The typical size of this fungus is 3 to 6 centimeters (1 1/4 to 2 1/4 inches) in diameter."}
+{"id": "test_2_sample_2310_im_0", "prediction": "The plant prefers altitudes in the range of 1 meter to 70 centimeters, depending on the specific species and habitat."}
+{"id": "test_2_sample_2624_im_0", "prediction": "The Patterson Mansion is listed on the National Register of Historic Places."}
+{"id": "test_0_sample_37_im_0", "prediction": "This insect, specifically the Eueides isabella, lives in the rainforest where it remains in the canopy. It can be found from sea level to about 1500 meters above sea level, and its distribution includes regions such as Mexico, the Amazon basin, and the West Indies."}
+{"id": "test_2_sample_2260_im_0", "prediction": "This plant prefers higher light."}
+{"id": "test_0_sample_910_im_0", "prediction": "Russia"}
+{"id": "test_0_sample_295_im_0", "prediction": "This animal lives in Asia, has been introduced into the Americas, Madeira, Canary Islands, Europe, Egypt, Madagascar, Pacific islands, and New Zealand."}
+{"id": "test_4_sample_4576_im_0", "prediction": "The god venerated at this Shinto shrine is Shimazu Nariakira, whose posthumous name is Terukuni Daimyōjin."}
+{"id": "test_1_sample_1817_im_0", "prediction": "semi-sprawling"}
+{"id": "test_1_sample_1390_im_0", "prediction": "The image shows a bird perched on top of a tree, but it does not provide any information about the bird's singing behavior. To answer the question accurately, we would need more specific details about the bird's vocalizations, which are not available in the given context."}
+{"id": "test_3_sample_3074_im_0", "prediction": "Olympic Park"}
+{"id": "test_2_sample_2016_im_0", "prediction": "Cyathea"}
+{"id": "test_2_sample_2150_im_0", "prediction": "Asia"}
+{"id": "test_3_sample_3580_im_0", "prediction": "The rebuilt ballpark created by the Pittsburgh Pirates between Fort Myers and the team's home stadium in Pittsburgh was the McKechnie Field."}
+{"id": "test_4_sample_4587_im_0", "prediction": "Suleiman I"}
+{"id": "test_0_sample_223_im_0", "prediction": "42–50"}
+{"id": "test_0_sample_925_im_0", "prediction": "ERRORE RAG: CUDA out of memory. Tried to allocate 12.72 GiB. GPU 0 has a total capacity of 44.53 GiB of which 6.52 GiB is free. Including non-PyTorch memory, this process has 38.00 GiB memory in use. Of the allocated memory 26.80 GiB is allocated by PyTorch, and 10.71 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"}
+{"id": "test_3_sample_3607_im_0", "prediction": "baseball"}
+{"id": "test_4_sample_4596_im_0", "prediction": "January"}
+{"id": "test_3_sample_3572_im_0", "prediction": "The ballpark that created an alliance between Fort Myers and the Pittsburgh Pirates is the Fort Myers Miracle Stadium."}
+{"id": "test_3_sample_3655_im_0", "prediction": "Not enough information provided to answer the question."}
+{"id": "test_4_sample_4677_im_0", "prediction": "Saint Comgall"}
+{"id": "test_3_sample_3528_im_0", "prediction": "Fallen warriors"}
+{"id": "test_3_sample_3124_im_0", "prediction": "Sahel"}
+{"id": "test_2_sample_2445_im_0", "prediction": "The provided context does not contain any information about the specific behavior or habitat of Silene samojedorum on cliffs and rocky places. Therefore, I cannot answer the question based solely on the given information."}
+{"id": "test_1_sample_1618_im_0", "prediction": "Endangered in Massachusetts, and as \"historical\" in Rhode Island. It is listed as species of special concern and believed extirpated in Connecticut."}
+{"id": "test_2_sample_2285_im_0", "prediction": "The plant is used in Mexican traditional medicine to treat fever and rheumatism."}
+{"id": "test_1_sample_1078_im_0", "prediction": "ERRORE RAG: CUDA out of memory. Tried to allocate 20.06 GiB. GPU 0 has a total capacity of 44.53 GiB of which 3.01 GiB is free. Including non-PyTorch memory, this process has 41.51 GiB memory in use. Of the allocated memory 38.11 GiB is allocated by PyTorch, and 2.89 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"}
+{"id": "test_0_sample_616_im_0", "prediction": "InterContinental"}
+{"id": "test_2_sample_2370_im_0", "prediction": "Tamalia coweni (manzanita leaf gall aphid)"}
+{"id": "test_2_sample_2960_im_0", "prediction": "type"}
+{"id": "test_0_sample_558_im_0", "prediction": "Norway"}
+{"id": "test_3_sample_3353_im_0", "prediction": "Cafeteria"}
+{"id": "test_0_sample_36_im_0", "prediction": "The butterfly in the image, Acraea althoffi, is a member of the Nymphalidae family and is found in various African countries. It is described as being large and having distinctive markings on its wings. The butterfly is known for its habitat in forests."}
+{"id": "test_3_sample_3633_im_0", "prediction": "Walter Dix"}
+{"id": "test_1_sample_1247_im_0", "prediction": "This is a Carduus plant, specifically a type of thistle."}
+{"id": "test_2_sample_2755_im_0", "prediction": "Books, model railway items and other memorabilia can be found in the small shop at the entrance of this museum."}
+{"id": "test_3_sample_3037_im_0", "prediction": "The chambers covered by the karahafu roofs on the sides of this gate belong to the Makino clan."}
+{"id": "test_2_sample_2070_im_0", "prediction": "First instar"}
+{"id": "test_3_sample_3951_im_0", "prediction": "New Brunswick, Quebec, Ontario, Washington, Oregon, Idaho, Montana, North and South Dakota, Minnesota, Wisconsin, Michigan"}
+{"id": "test_3_sample_3245_im_0", "prediction": "History Museum"}
+{"id": "test_1_sample_1478_im_0", "prediction": "ERRORE RAG: CUDA out of memory. Tried to allocate 10.62 GiB. GPU 0 has a total capacity of 44.53 GiB of which 3.01 GiB is free. Including non-PyTorch memory, this process has 41.51 GiB memory in use. Of the allocated memory 23.54 GiB is allocated by PyTorch, and 17.46 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"}
+{"id": "test_2_sample_2550_im_0", "prediction": "29 May 2018"}
+{"id": "test_3_sample_3314_im_0", "prediction": "The Rosary Basilica has a capacity of 1,500 worshippers."}
+{"id": "test_1_sample_1946_im_0", "prediction": "The yellow-browed bunting is a small passerine bird in the bunting family Emberizidae. It is characterized by its distinctive plumage, which includes a black head with a white crown and moustachial stripes, and a bright yellow eyebrow stripe. The underparts are white with an orange hue on the flanks and some fine dark streaks. The stout beak is pink. The breeding male has a black head with white crown and moustachial stripes and throat, while females and young birds have a weaker head pattern with brown instead of black."}
+{"id": "test_1_sample_1240_im_0", "prediction": "The female builds a new nest after her first brood fledge."}
+{"id": "test_0_sample_175_im_0", "prediction": "This plant grows in the southeastern coast of North America, in the United States from Virginia to southeast Texas, in Mexico in Veracruz, and in the Caribbean on the Bahamas, Cuba, and Puerto Rico."}
+{"id": "test_3_sample_3579_im_0", "prediction": "Manual training"}
+{"id": "test_0_sample_120_im_0", "prediction": "The blue-throated wrasse typically occurs in sheltered to exposed rocky reefs, with some records indicating it can be found as deep as 160 meters (520 feet). However, the text specifies that the adults are normally found near the sea bed and prefer deeper waters than the juvenile fish."}
+{"id": "test_1_sample_1535_im_0", "prediction": "No immediate threat"}
+{"id": "test_1_sample_1756_im_0", "prediction": "Rarely"}
+{"id": "test_0_sample_374_im_0", "prediction": "The text does not provide a specific age for how long narwhals typically live. It mentions that narwhals can live up to 50 years, but this is not a typical lifespan. The text states that narwhals have been estimated to live up to 50 years, but this is not a typical lifespan."}
+{"id": "test_3_sample_3637_im_0", "prediction": "Walter Dix"}
+{"id": "test_0_sample_1_im_0", "prediction": "Europe and Asia"}
+{"id": "test_0_sample_142_im_0", "prediction": "The plant's sap is toxic to rapidly replicating human tissue and has long been used as a traditional remedy for common skin lesions. The active ingredient in the sap is a diterpene ester called ingenol mebutate. A pharmaceutical-grade ingenol mebutate gel has approval from the US Food and Drug Administration for treatment of actinic keratosis."}
+{"id": "test_4_sample_4466_im_0", "prediction": "Chiang Kai-shek"}
+{"id": "test_3_sample_3134_im_0", "prediction": "The 1863 earthquake caused significant damage to the church and convent of Guiguinto. Specifically, the earthquake resulted in great damage to the church and convent, leading to repair works being conducted in 1864."}
+{"id": "test_2_sample_2543_im_0", "prediction": "Poederoijen"}
+{"id": "test_1_sample_1795_im_0", "prediction": "This plant is native to the Eastern United States."}
+{"id": "test_3_sample_3102_im_0", "prediction": "The southern embankment of this bridge formed a river channel during the late Neolithic era."}
+{"id": "test_0_sample_998_im_0", "prediction": "The castle was conquered by the Ottoman Empire in 1484."}
+{"id": "test_1_sample_1376_im_0", "prediction": "The call of this bird is frequent."}
+{"id": "test_1_sample_1850_im_0", "prediction": "erosion"}
+{"id": "test_4_sample_4710_im_0", "prediction": "The Hunt–Sitterding House, located at 901 Floyd Avenue in Richmond, Virginia, is a notable example of Richmond's late 19th century town house architecture. It was originally constructed to serve as residence and office for the architect and contractor Gilbert J. Hunt, Jr. (1843–1921)."}
+{"id": "test_0_sample_363_im_0", "prediction": "The habitat of this animal is primary and secondary tropical humid forest at elevations of 50–900 m (160–2,950 ft) above sea level. It lives in leaf-litter near water, and presumably breeds in streams."}
+{"id": "test_1_sample_1444_im_0", "prediction": "Subtropical or tropical moist montane forests"}
+{"id": "test_0_sample_366_im_0", "prediction": "The habitat of this reptile is pine and mixed-pine hardwood forests, where they can be found in damp woodlands, under bark and in rotten logs and stumps."}
+{"id": "test_1_sample_1729_im_0", "prediction": "wing span"}
+{"id": "test_2_sample_2306_im_0", "prediction": "North and Central America"}
+{"id": "test_2_sample_2358_im_0", "prediction": "Caprifoliaceae"}
+{"id": "test_0_sample_787_im_0", "prediction": "The museum derives its name from the Fenyes Estate, which is located on the grounds of the museum."}
+{"id": "test_1_sample_1186_im_0", "prediction": "ERRORE RAG: CUDA out of memory. Tried to allocate 18.59 GiB. GPU 0 has a total capacity of 44.53 GiB of which 3.01 GiB is free. Including non-PyTorch memory, this process has 41.51 GiB memory in use. Of the allocated memory 17.26 GiB is allocated by PyTorch, and 23.75 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"}
+{"id": "test_3_sample_3278_im_0", "prediction": "2000"}
+{"id": "test_1_sample_1464_im_0", "prediction": "The image does not provide information about the impact of human activities on the Herero chat. However, based on the information given, the Herero chat is endemic to the Namibian savanna woodlands, which suggests that human activities such as deforestation, habitat destruction, and pollution could negatively impact its natural habitat. Additionally, the lack of information about the bird's diet and behavior means that we cannot determine how human activities might affect its survival."}
+{"id": "test_0_sample_588_im_0", "prediction": "1574"}
+{"id": "test_4_sample_4635_im_0", "prediction": "The museum aimed to preserve and exhibit the historical mining equipment and buildings of Llywernog Mine, including the 50-foot water wheel and the 40-foot water wheel, as well as the main shaft and other mine buildings."}
+{"id": "test_2_sample_2715_im_0", "prediction": "A new first-order dioptric optic was installed."}
+{"id": "test_0_sample_984_im_0", "prediction": "1195"}
+{"id": "test_4_sample_4630_im_0", "prediction": "ERRORE RAG: CUDA out of memory. Tried to allocate 11.35 GiB. GPU 0 has a total capacity of 44.53 GiB of which 3.01 GiB is free. Including non-PyTorch memory, this process has 41.51 GiB memory in use. Of the allocated memory 24.70 GiB is allocated by PyTorch, and 16.31 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"}
+{"id": "test_4_sample_4250_im_0", "prediction": "Saint Louis, St. Charles, and St. Napoleon"}
+{"id": "test_3_sample_3146_im_0", "prediction": "Specially notable about the embellishments on the facade are embossed shells found at the base of the pediment and plant motifs found in the retablo on the pediment."}
+{"id": "test_4_sample_4464_im_0", "prediction": "Inter-city trains at this railway station are operated by Via Rail and Amtrak."}
+{"id": "test_3_sample_3815_im_0", "prediction": "The Magellanic woodpecker makes several vocalizations, including an explosive, nasal call (tsie-yaa or pi-caa) and a gargling call (prrr-prr-prrr or weeerr-weeeeerr)."}
+{"id": "test_0_sample_913_im_0", "prediction": "Javier Goerlich"}
+{"id": "test_1_sample_1175_im_0", "prediction": "The terminal inflorescences of this plant are small, clustered, and mildly scented, similar to acacia."}
+{"id": "test_1_sample_1876_im_0", "prediction": "Very intolerant of shade"}
+{"id": "test_2_sample_2609_im_0", "prediction": "Northwest"}
+{"id": "test_3_sample_3453_im_0", "prediction": "1994"}
+{"id": "test_1_sample_1710_im_0", "prediction": "3"}
+{"id": "test_2_sample_2447_im_0", "prediction": "The seeds of Euphorbia telephioides germinate into a tuberous root system, which helps the plant survive in dry seasons and in sandy soils that retain little water."}
+{"id": "test_2_sample_2089_im_0", "prediction": "The Great-tailed grackle mating season"}
+{"id": "test_2_sample_2396_im_0", "prediction": "The Tristan albatross has an occurrence range of 14,000,000 km² (5,400,000 sq mi) and a breeding range of 80 km² (31 sq mi)."}
+{"id": "test_0_sample_267_im_0", "prediction": "These animals catch their prey by detecting vibrations they cause in the web."}
+{"id": "test_1_sample_1355_im_0", "prediction": "Namibornis"}
+{"id": "test_2_sample_2583_im_0", "prediction": "The golf course in this city is not mentioned in the provided context."}
+{"id": "test_1_sample_1120_im_0", "prediction": "Anacardiaceae"}
+{"id": "test_4_sample_4443_im_0", "prediction": "Petrozavodsk"}
+{"id": "test_0_sample_829_im_0", "prediction": "The latest renovations or repairs in this park were completed in 2000."}
+{"id": "test_3_sample_3469_im_0", "prediction": "lock cottage"}
+{"id": "test_1_sample_1809_im_0", "prediction": "Leaves"}
+{"id": "test_2_sample_2673_im_0", "prediction": "Reinforced concrete"}
+{"id": "test_3_sample_3117_im_0", "prediction": "Noordoewer"}
+{"id": "test_3_sample_3532_im_0", "prediction": "later"}
+{"id": "test_4_sample_4449_im_0", "prediction": "Jorge Mosquera Paniagua"}
+{"id": "test_1_sample_1470_im_0", "prediction": "White"}
+{"id": "test_2_sample_2462_im_0", "prediction": "The flowers of this plant grow in the period from early summer to late summer, rarely in the spring."}
+{"id": "test_2_sample_2149_im_0", "prediction": "The stem"}
+{"id": "test_1_sample_1379_im_0", "prediction": "Longer"}
+{"id": "test_0_sample_608_im_0", "prediction": "Between 1480 and 1600"}
+{"id": "test_2_sample_2892_im_0", "prediction": "The entire 40 halls and pavilions are all built on cliffs which are over 30 metres (98 ft) from the ground."}
+{"id": "test_2_sample_2228_im_0", "prediction": "The plant has been recorded to grow on walls and trellising, in large pots, and as a groundcover on slopes."}
+{"id": "test_3_sample_3137_im_0", "prediction": "1980s and early 1990s"}
+{"id": "test_2_sample_2595_im_0", "prediction": "English Heritage administers Belsay Hall and maintains it in a condition of benign decay, allowing it to be used as a setting for bespoke art installations each summer."}
+{"id": "test_1_sample_1779_im_0", "prediction": "form"}
+{"id": "test_2_sample_2313_im_0", "prediction": "Tecticornia"}
+{"id": "test_3_sample_3949_im_0", "prediction": "The bird inhabits the Great Barrier Reef coastline."}
+{"id": "test_4_sample_4020_im_0", "prediction": "Cymarin"}
+{"id": "test_2_sample_2007_im_0", "prediction": "Cuticular hydrocarbons are found on the body of the insect, specifically on the scutellum and tergite 1."}
+{"id": "test_0_sample_451_im_0", "prediction": "ERRORE RAG: CUDA out of memory. Tried to allocate 11.62 GiB. GPU 0 has a total capacity of 44.53 GiB of which 3.01 GiB is free. Including non-PyTorch memory, this process has 41.51 GiB memory in use. Of the allocated memory 25.11 GiB is allocated by PyTorch, and 15.90 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"}
+{"id": "test_3_sample_3161_im_0", "prediction": "Theodoro"}
+{"id": "test_4_sample_4684_im_0", "prediction": "The objects found in graves at this archaeological site were bronze axes, bronze knives, and bronze spearheads."}
+{"id": "test_3_sample_3541_im_0", "prediction": "1925"}
+{"id": "test_0_sample_509_im_0", "prediction": "The ancient people or civilization that inhabited this area include the Israelites, who are mentioned in the Hebrew Bible as crossing the Jordan River into the Promised Land. Additionally, the area is associated with the Egyptian civilization, as indicated by the mention of the Nile in the context of the Jordan River's etymology."}
+{"id": "test_0_sample_371_im_0", "prediction": "The gray whale (Eschrichtius robustus) lives in the Pacific Ocean, specifically in the eastern and western North Pacific regions. It migrates between feeding and breeding grounds annually, with the eastern population traveling between the Sea of Okhotsk and southern Korea, and the western population between the waters off northernmost Alaska and Baja California Sur."}
+{"id": "test_0_sample_392_im_0", "prediction": "The southern kingcroaker is preyed upon by larger fish, including sharks and other marine predators. It also serves as food for various marine birds and mammals. Additionally, it is consumed by humans, both commercially and recreationally."}
+{"id": "test_4_sample_4468_im_0", "prediction": "Zubin Mehta"}
+{"id": "test_1_sample_1653_im_0", "prediction": "Australia"}
+{"id": "test_4_sample_4727_im_0", "prediction": "The climate influence present at this commune is the presence of the Alps, which provides a mountainous environment."}
+{"id": "test_3_sample_3035_im_0", "prediction": "The karahafu roofs on the sides of this gate cover the entrance to the gate."}
+{"id": "test_1_sample_1955_im_0", "prediction": "northern, central and Pacific coastal"}
+{"id": "test_1_sample_1664_im_0", "prediction": "James Lee paid for the plant for the trade."}
+{"id": "test_0_sample_940_im_0", "prediction": "ERRORE RAG: CUDA out of memory. Tried to allocate 14.59 GiB. GPU 0 has a total capacity of 44.53 GiB of which 3.01 GiB is free. Including non-PyTorch memory, this process has 41.51 GiB memory in use. Of the allocated memory 29.69 GiB is allocated by PyTorch, and 11.32 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"}
+{"id": "test_1_sample_1856_im_0", "prediction": "The fruit of Opuntia humifusa is called \"ladyfinger\" in peninsular Spanish."}
+{"id": "test_3_sample_3401_im_0", "prediction": "Shrine of the Sacred Heart"}
+{"id": "test_2_sample_2668_im_0", "prediction": "The building hosts fairs, art exhibitions, and a museum."}
+{"id": "test_0_sample_438_im_0", "prediction": "In the seas around northern Japan"}
+{"id": "test_0_sample_598_im_0", "prediction": "Leominster"}
+{"id": "test_2_sample_2474_im_0", "prediction": "Southern South America, including southern Chile."}
+{"id": "test_1_sample_1446_im_0", "prediction": "The authors of the study built a model which considered mean canopy height as the most important factor to consider for the olive-sided flycatcher."}
+{"id": "test_0_sample_395_im_0", "prediction": "5 to 11 eggs"}
+{"id": "test_3_sample_3676_im_0", "prediction": "baseball field"}
+{"id": "test_3_sample_3410_im_0", "prediction": "three weeks"}
+{"id": "test_3_sample_3611_im_0", "prediction": "The text does not provide specific information about sports events played at the ballpark. It mentions that the building is associated with the Dreyfoos School of the Arts, but does not specify any particular sports events or teams that have played there."}
+{"id": "test_1_sample_1434_im_0", "prediction": "threatened"}
+{"id": "test_2_sample_2375_im_0", "prediction": "Eating the fruit of this plant causes bitterness and toughness."}
+{"id": "test_3_sample_3350_im_0", "prediction": "The kite festival is held annually at this castle."}
+{"id": "test_0_sample_211_im_0", "prediction": "ERRORE RAG: CUDA out of memory. Tried to allocate 19.86 GiB. GPU 0 has a total capacity of 44.53 GiB of which 3.01 GiB is free. Including non-PyTorch memory, this process has 41.51 GiB memory in use. Of the allocated memory 17.95 GiB is allocated by PyTorch, and 23.06 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"}
+{"id": "test_3_sample_3204_im_0", "prediction": "ERRORE RAG: CUDA out of memory. Tried to allocate 10.34 GiB. GPU 0 has a total capacity of 44.53 GiB of which 3.01 GiB is free. Including non-PyTorch memory, this process has 41.51 GiB memory in use. Of the allocated memory 23.13 GiB is allocated by PyTorch, and 17.87 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"}
+{"id": "test_4_sample_4121_im_0", "prediction": "The fungus fruits on the ground in forested areas, specifically on the ground."}
+{"id": "test_0_sample_525_im_0", "prediction": "Philippe Starck"}
+{"id": "test_1_sample_1040_im_0", "prediction": "This plant was used to treat Dr. José Baselga's epilepsy."}
+{"id": "test_4_sample_4064_im_0", "prediction": "None of the provided information mentions the presence of this amphibian in Alaska. The context focuses on amphibians found in various regions including Georgia, Turkey, Italy, and the United States, but does not include any information about Alaska."}
+{"id": "test_1_sample_1837_im_0", "prediction": "New Zealand"}
+{"id": "test_3_sample_3569_im_0", "prediction": "Not enough information provided to answer the question."}
+{"id": "test_3_sample_3592_im_0", "prediction": "grass"}
+{"id": "test_3_sample_3244_im_0", "prediction": "The design of this monument has touches of the French Renaissance style."}
+{"id": "test_1_sample_1886_im_0", "prediction": "The cactus is described as low-growing and forming a crown of over 3 meters in diameter."}
+{"id": "test_4_sample_4595_im_0", "prediction": "The temperature is constant at about 13 °C."}
+{"id": "test_0_sample_676_im_0", "prediction": "United States"}
+{"id": "test_1_sample_1398_im_0", "prediction": "197 feet"}
+{"id": "test_0_sample_69_im_0", "prediction": "Yes"}
+{"id": "test_0_sample_287_im_0", "prediction": "ERRORE RAG: CUDA out of memory. Tried to allocate 16.59 GiB. GPU 0 has a total capacity of 44.53 GiB of which 3.01 GiB is free. Including non-PyTorch memory, this process has 41.51 GiB memory in use. Of the allocated memory 16.18 GiB is allocated by PyTorch, and 24.83 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"}
+{"id": "test_4_sample_4357_im_0", "prediction": "Banksy"}
+{"id": "test_1_sample_1675_im_0", "prediction": "To protect this plant from hard frosts, it should be moved indoors or placed in a protected area such as a greenhouse or cold frame."}
+{"id": "test_2_sample_2856_im_0", "prediction": "Chinook salmon"}
+{"id": "test_0_sample_34_im_0", "prediction": "The insect in the image is a bumblebee, specifically Bombus ignitus. According to the provided information, bumblebees are nectarivores, meaning they primarily acquire nutrients from the sugar-rich nectar of flowering plants. They also feed on pollen, which they use to produce honey. The long tongue of bumblebees allows them to reach into longer, deeper flowers to extract nectar before other competitors do."}
+{"id": "test_3_sample_3470_im_0", "prediction": "A dam was removed from this canal."}
+{"id": "test_0_sample_207_im_0", "prediction": "ERRORE RAG: CUDA out of memory. Tried to allocate 16.10 GiB. GPU 0 has a total capacity of 44.53 GiB of which 15.73 GiB is free. Including non-PyTorch memory, this process has 28.79 GiB memory in use. Of the allocated memory 15.91 GiB is allocated by PyTorch, and 12.38 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"}
+{"id": "test_4_sample_4480_im_0", "prediction": "Newgrange"}
+{"id": "test_1_sample_1433_im_0", "prediction": "These birds perch on a branch and call out to the nestlings, keeping contact and providing them with food until the young are able to fly to join them."}
+{"id": "test_0_sample_272_im_0", "prediction": "The image does not provide specific information about what the animal eats. However, based on the context provided, it seems to be a land snail belonging to the genus Nitor. Land snails typically feed on various organic materials such as leaves, fruits, and other plant matter. They also consume algae and fungi. The exact diet of Nitor species would require additional research to determine."}
+{"id": "test_2_sample_2196_im_0", "prediction": "Obovate"}
+{"id": "test_3_sample_3054_im_0", "prediction": "Shitomi"}
+{"id": "test_0_sample_346_im_0", "prediction": "The habitat of the animal is bamboo forests of the Bale Mountains."}
+{"id": "test_1_sample_1046_im_0", "prediction": "This plant contains yellow sepals, petals, and stamens."}
+{"id": "test_2_sample_2348_im_0", "prediction": "10"}
+{"id": "test_2_sample_2651_im_0", "prediction": "1906"}
+{"id": "test_3_sample_3283_im_0", "prediction": "A clock"}
+{"id": "test_0_sample_479_im_0", "prediction": "South-East Asia"}
+{"id": "test_1_sample_1033_im_0", "prediction": "June to July"}
+{"id": "test_0_sample_139_im_0", "prediction": "Sea birds and fish"}
+{"id": "test_4_sample_4089_im_0", "prediction": "ERRORE RAG: CUDA out of memory. Tried to allocate 17.87 GiB. GPU 0 has a total capacity of 44.53 GiB of which 15.73 GiB is free. Including non-PyTorch memory, this process has 28.79 GiB memory in use. Of the allocated memory 16.87 GiB is allocated by PyTorch, and 11.42 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"}
+{"id": "test_1_sample_1727_im_0", "prediction": "This moth is found in Europe."}
+{"id": "test_1_sample_1577_im_0", "prediction": "female workers"}
+{"id": "test_0_sample_923_im_0", "prediction": "Portugal"}
+{"id": "test_1_sample_1147_im_0", "prediction": "present"}
+{"id": "test_2_sample_2231_im_0", "prediction": "Mild, moist conditions"}
+{"id": "test_0_sample_493_im_0", "prediction": "The habitat of this animal includes rivers, intermittent rivers, and freshwater springs."}
+{"id": "test_3_sample_3471_im_0", "prediction": "locomotive"}
+{"id": "test_0_sample_166_im_0", "prediction": "Yes, you can eat this plant. It fruits."}
+{"id": "test_3_sample_3750_im_0", "prediction": "New Zealand"}
+{"id": "test_4_sample_4546_im_0", "prediction": "Taiwan"}
+{"id": "test_0_sample_873_im_0", "prediction": "Pike, muskellunge, bass, perch, crappie, and bluegill."}
+{"id": "test_0_sample_549_im_0", "prediction": "450 feet"}
+{"id": "test_2_sample_2174_im_0", "prediction": "Most people think there are two separate fronds on this plant because the sterile leaf arises halfway up the stalk and the fertile leaf exists at the tip."}
+{"id": "test_4_sample_4153_im_0", "prediction": "China"}
+{"id": "test_0_sample_348_im_0", "prediction": "871"}
+{"id": "test_2_sample_2680_im_0", "prediction": "No one visited this cave in 1210."}
+{"id": "test_4_sample_4047_im_0", "prediction": "ERRORE RAG: CUDA out of memory. Tried to allocate 10.49 GiB. GPU 0 has a total capacity of 44.53 GiB of which 5.24 GiB is free. Including non-PyTorch memory, this process has 39.28 GiB memory in use. Of the allocated memory 23.41 GiB is allocated by PyTorch, and 15.37 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"}
+{"id": "test_2_sample_2646_im_0", "prediction": "1994"}
+{"id": "test_0_sample_420_im_0", "prediction": "Australia"}
+{"id": "test_2_sample_2858_im_0", "prediction": "Fishing"}
+{"id": "test_1_sample_1581_im_0", "prediction": "female workers"}
+{"id": "test_4_sample_4053_im_0", "prediction": "The origin of this amphibian is the Caucasian region, specifically the Caucasus Mountains, in Georgia and Turkey."}
+{"id": "test_3_sample_3563_im_0", "prediction": "The destruction of the ballpark in 1943 was caused by a fire."}
+{"id": "test_0_sample_700_im_0", "prediction": "Trinitarian"}
+{"id": "test_3_sample_3461_im_0", "prediction": "The canal raises 220 feet."}
+{"id": "test_3_sample_3875_im_0", "prediction": "Lord Howe Island"}
+{"id": "test_3_sample_3457_im_0", "prediction": "The hall in the town hall in the middle ages was a cathedral."}
+{"id": "test_0_sample_213_im_0", "prediction": "ERRORE RAG: CUDA out of memory. Tried to allocate 19.78 GiB. GPU 0 has a total capacity of 44.53 GiB of which 5.24 GiB is free. Including non-PyTorch memory, this process has 39.28 GiB memory in use. Of the allocated memory 17.91 GiB is allocated by PyTorch, and 20.87 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"}
+{"id": "test_2_sample_2106_im_0", "prediction": "Central"}
+{"id": "test_4_sample_4588_im_0", "prediction": "ERRORE RAG: CUDA out of memory. Tried to allocate 14.71 GiB. GPU 0 has a total capacity of 44.53 GiB of which 5.24 GiB is free. Including non-PyTorch memory, this process has 39.28 GiB memory in use. Of the allocated memory 29.87 GiB is allocated by PyTorch, and 8.91 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"}
+{"id": "test_0_sample_130_im_0", "prediction": "Typically, this animal becomes as large as 45 mm (1.8 in) SVL for females and 52 mm (2.0 in) SVL for males."}
+{"id": "test_0_sample_347_im_0", "prediction": "The text does not provide specific information about how old cats typically become."}
+{"id": "test_3_sample_3019_im_0", "prediction": "July"}
+{"id": "test_3_sample_3992_im_0", "prediction": "The small mammal sometimes eaten by this bird is the Indian pipistrelle (Pipistrellus coromandra)."}
+{"id": "test_0_sample_757_im_0", "prediction": "1834"}
+{"id": "test_4_sample_4249_im_0", "prediction": "Australia"}
+{"id": "test_3_sample_3709_im_0", "prediction": "England"}
+{"id": "test_2_sample_2696_im_0", "prediction": "Local legend"}
+{"id": "test_2_sample_2709_im_0", "prediction": "The image does not provide any information about a garden or its condition at a museum's opening in 1995. Therefore, it is not possible to answer the question based solely on the given text."}
+{"id": "test_0_sample_123_im_0", "prediction": "Brazil"}
+{"id": "test_2_sample_2627_im_0", "prediction": "Nellie Patterson"}
+{"id": "test_4_sample_4223_im_0", "prediction": "Morocco"}
+{"id": "test_1_sample_1385_im_0", "prediction": "Male Contopus cooperi sing during the breeding season."}
+{"id": "test_3_sample_3226_im_0", "prediction": "The Hedjaz Jordan Railway"}
+{"id": "test_4_sample_4257_im_0", "prediction": "ERRORE RAG: CUDA out of memory. Tried to allocate 16.95 GiB. GPU 0 has a total capacity of 44.53 GiB of which 5.24 GiB is free. Including non-PyTorch memory, this process has 39.28 GiB memory in use. Of the allocated memory 33.32 GiB is allocated by PyTorch, and 5.45 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"}
+{"id": "test_4_sample_4341_im_0", "prediction": "Esher"}
+{"id": "test_2_sample_2471_im_0", "prediction": "dry areas"}
+{"id": "test_0_sample_425_im_0", "prediction": "This animal typically reaches a length of 25–39 centimeters (9.8–15.4 inches)."}
+{"id": "test_1_sample_1986_im_0", "prediction": "Europe"}
+{"id": "test_0_sample_196_im_0", "prediction": "The Andaman Islands in the Bay of Bengal."}
+{"id": "test_3_sample_3152_im_0", "prediction": "The Virgin Mary"}
+{"id": "test_1_sample_1211_im_0", "prediction": "Asteraceae"}
+{"id": "test_4_sample_4553_im_0", "prediction": "The South Eastern and Chatham Railway (SECR)"}
+{"id": "test_1_sample_1163_im_0", "prediction": "The owl suddenly launches a silent attack."}
+{"id": "test_0_sample_672_im_0", "prediction": "1982"}
+{"id": "test_4_sample_4467_im_0", "prediction": "Armenia"}
+{"id": "test_1_sample_1037_im_0", "prediction": "Albania"}
+{"id": "test_2_sample_2338_im_0", "prediction": "Kahoukapu"}
+{"id": "test_4_sample_4193_im_0", "prediction": "The text provided does not contain any information about Native American people using the wood of the plant for building. Therefore, I cannot answer the question based solely on the given context."}
+{"id": "test_2_sample_2708_im_0", "prediction": "The temple was constructed in 1753."}
+{"id": "test_1_sample_1066_im_0", "prediction": "disturbed habitats"}
+{"id": "test_0_sample_14_im_0", "prediction": "North America"}
+{"id": "test_3_sample_3328_im_0", "prediction": "large monastic complex"}
+{"id": "test_4_sample_4284_im_0", "prediction": "The construction phases found at the Almendres Cromlech are:\n\n1. Almendres I: 6000 BC (Early Neolithic)\n2. Almendres II: 5000 BC (Middle Neolithic)\n3. Almendres III: 4000 BC (Late Neolithic)"}
+{"id": "test_1_sample_1399_im_0", "prediction": "The male defends the nest site against other males."}
+{"id": "test_3_sample_3869_im_0", "prediction": "This vegetable is used in Ethiopian cuisine."}
+{"id": "test_0_sample_402_im_0", "prediction": "Typically, this fish becomes about 80 cm (31 in) in length and weighs up to about 9 kg (20 lb)."}
+{"id": "test_3_sample_3139_im_0", "prediction": "The text does not provide specific information about a cathedral or the installation of a bishop. It discusses the Ayuntamiento de Manila, which is the City Hall of Manila, and does not mention any cathedral or bishop installation. Therefore, there is insufficient information to answer the question accurately based solely on the provided context and image."}
+{"id": "test_0_sample_187_im_0", "prediction": "This bird eats almost exclusively seeds, which make up more than 99% of its diet."}
+{"id": "test_0_sample_646_im_0", "prediction": "Joseph of Arimathea landed here with the Christ Child."}
+{"id": "test_1_sample_1458_im_0", "prediction": "Great foraging habitats"}
+{"id": "test_1_sample_1573_im_0", "prediction": "The bald-faced hornet defends its nest by repeatedly stinging invaders."}
+{"id": "test_2_sample_2877_im_0", "prediction": "The family that takes their official summer photos at this palace is the Moltke family."}
+{"id": "test_3_sample_3768_im_0", "prediction": "The pods of the diphysus variety can be eaten fresh, boiled, or salted by the Zuni people."}
+{"id": "test_1_sample_1086_im_0", "prediction": "This is a plant from the genus Hackelia, specifically Hackelia amethystina, commonly known as the amethyst stickseed."}
+{"id": "test_4_sample_4135_im_0", "prediction": "Habitat loss"}
+{"id": "test_4_sample_4040_im_0", "prediction": "Dry season"}
+{"id": "test_3_sample_3891_im_0", "prediction": "ERRORE RAG: CUDA out of memory. Tried to allocate 10.99 GiB. GPU 0 has a total capacity of 44.53 GiB of which 5.24 GiB is free. Including non-PyTorch memory, this process has 39.28 GiB memory in use. Of the allocated memory 24.13 GiB is allocated by PyTorch, and 14.65 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"}
+{"id": "test_1_sample_1594_im_0", "prediction": "Two oblique basal purple fascia"}
+{"id": "test_3_sample_3548_im_0", "prediction": "The Terry family sold the land that became this ballpark."}
+{"id": "test_1_sample_1426_im_0", "prediction": "The crowned slaty flycatcher migrates into the mostly western and central Amazon basin as a non-breeding resident, except in the southeast bordering the Cerrado and Pantanal, where it is resident in much of the western cerrado and southwards; the migration occurs during the austral winter."}
+{"id": "test_3_sample_3224_im_0", "prediction": "July 14, 1943"}
+{"id": "test_3_sample_3641_im_0", "prediction": "1925"}
+{"id": "test_4_sample_4631_im_0", "prediction": "Henry VIII gave this abbey to Sir Anthony Browne when the abbey was demolished."}
+{"id": "test_4_sample_4575_im_0", "prediction": "2019-02-01"}
+{"id": "test_2_sample_2821_im_0", "prediction": "The canteen replaced the original stone magazine at Fort York."}
+{"id": "test_3_sample_3351_im_0", "prediction": "2003"}
+{"id": "test_4_sample_4724_im_0", "prediction": "Prime Minister Recep Tayyip Erdoğan"}
+{"id": "test_2_sample_2615_im_0", "prediction": "Neoclassical"}
+{"id": "test_2_sample_2367_im_0", "prediction": "There are 15 varieties of Symphoricarpos."}
+{"id": "test_2_sample_2529_im_0", "prediction": "The estate was purchased by the Colles family in 1886."}
+{"id": "test_1_sample_1334_im_0", "prediction": "Perch"}
+{"id": "test_2_sample_2565_im_0", "prediction": "2%"}
+{"id": "test_0_sample_469_im_0", "prediction": "Yes, this plant is highly toxic."}
+{"id": "test_2_sample_2823_im_0", "prediction": "Southwest"}
+{"id": "test_2_sample_2508_im_0", "prediction": "St Gall"}
+{"id": "test_0_sample_340_im_0", "prediction": "This fungus typically grows on mature conifers, particularly Picea abies and Larix decidua."}
+{"id": "test_3_sample_3766_im_0", "prediction": "The butterfly is rare in Germany according to the information provided."}
+{"id": "test_0_sample_908_im_0", "prediction": "Paiján"}
+{"id": "test_3_sample_3600_im_0", "prediction": "May 30, 1991"}
+{"id": "test_0_sample_112_im_0", "prediction": "No specific information about parasites is provided in the given context."}
+{"id": "test_3_sample_3342_im_0", "prediction": "Sangla"}
+{"id": "test_0_sample_989_im_0", "prediction": "Not specified"}
+{"id": "test_2_sample_2281_im_0", "prediction": "Matchweed"}
+{"id": "test_1_sample_1139_im_0", "prediction": "The moth in the image is grey."}
+{"id": "test_4_sample_4423_im_0", "prediction": "New Delhi"}
+{"id": "test_3_sample_3326_im_0", "prediction": "The interior stone of this church has not been painted."}
+{"id": "test_3_sample_3024_im_0", "prediction": "smaller"}
+{"id": "test_4_sample_4285_im_0", "prediction": "Cevide"}
+{"id": "test_3_sample_3943_im_0", "prediction": "ERRORE RAG: CUDA out of memory. Tried to allocate 11.97 GiB. GPU 0 has a total capacity of 44.53 GiB of which 5.24 GiB is free. Including non-PyTorch memory, this process has 39.28 GiB memory in use. Of the allocated memory 25.65 GiB is allocated by PyTorch, and 13.13 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"}
+{"id": "test_4_sample_4743_im_0", "prediction": "Brighton"}
+{"id": "test_3_sample_3722_im_0", "prediction": "12th century"}
+{"id": "test_4_sample_4213_im_0", "prediction": "This crab can be found in both rocky and hard-mud soft seashores of the northeastern and northwestern Pacific Ocean. In North America, it occurs from central Oregon, south through California to near Ensenada, Baja California, Mexico. There is an isolated population with a wide range disjunction at Bamfield on Vancouver Island, Canada. The western Pacific population, including both Korea and Japan, is isolated with a divergence time from the eastern Pacific population estimated between 0.8 and 1.2 Mya."}
+{"id": "test_0_sample_62_im_0", "prediction": "16 eggs"}
+{"id": "test_2_sample_2746_im_0", "prediction": "The Covesea Lighthouse Community Company Limited registered the lighthouse property in July 2012."}
+{"id": "test_4_sample_4705_im_0", "prediction": "RAF servicemen and women"}
+{"id": "test_0_sample_641_im_0", "prediction": "Oahu"}
+{"id": "test_0_sample_552_im_0", "prediction": "Nonthaburi 1 Road, on the east side of the river, and Bang Si Mueang - Wat Bot Don Phrom Road and Ratchaphruek Road, on the west side of the river."}
+{"id": "test_3_sample_3007_im_0", "prediction": "1765"}
+{"id": "test_3_sample_3409_im_0", "prediction": "spiritual home"}
+{"id": "test_1_sample_1154_im_0", "prediction": "Young jackfruit"}
+{"id": "test_3_sample_3934_im_0", "prediction": "Sonora"}
+{"id": "test_1_sample_1250_im_0", "prediction": "Leaves"}
+{"id": "test_1_sample_1647_im_0", "prediction": "F. magellanica"}
+{"id": "test_0_sample_559_im_0", "prediction": "The Lendians (Lendizi), who were a West Slavic tribe descended from the White Croats."}
+{"id": "test_3_sample_3189_im_0", "prediction": "ERRORE RAG: CUDA out of memory. Tried to allocate 14.82 GiB. GPU 0 has a total capacity of 44.53 GiB of which 5.24 GiB is free. Including non-PyTorch memory, this process has 39.28 GiB memory in use. Of the allocated memory 30.05 GiB is allocated by PyTorch, and 8.73 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"}
+{"id": "test_3_sample_3397_im_0", "prediction": "shingle"}
+{"id": "test_2_sample_2915_im_0", "prediction": "a non-threatening, wholesome image"}
+{"id": "test_3_sample_3825_im_0", "prediction": "Azolla"}
+{"id": "test_2_sample_2845_im_0", "prediction": "Water skiing"}
+{"id": "test_1_sample_1691_im_0", "prediction": "1773"}
+{"id": "test_1_sample_1606_im_0", "prediction": "white to light pink"}
+{"id": "test_3_sample_3855_im_0", "prediction": "forewings"}
+{"id": "test_4_sample_4122_im_0", "prediction": "The text does not provide information about a chemotype of the plant being discovered in a specific publication."}
+{"id": "test_1_sample_1539_im_0", "prediction": "Piper"}
+{"id": "test_0_sample_820_im_0", "prediction": "2008"}
+{"id": "test_2_sample_2223_im_0", "prediction": "The endocarp of this plant contains five of the following:\n\n- Leaves\n- Petioles\n- Branchlets\n- Juvenile plants\n- Adult plants"}
+{"id": "test_1_sample_1983_im_0", "prediction": "This plant forms clump-forming clumps."}
+{"id": "test_3_sample_3608_im_0", "prediction": "Oakland Park"}
+{"id": "test_3_sample_3952_im_0", "prediction": "This bird is found in Venezuela."}
+{"id": "test_2_sample_2847_im_0", "prediction": "Water skiing"}
+{"id": "test_2_sample_2182_im_0", "prediction": "None of the plants mentioned in the provided context are native to Hainan Province."}
+{"id": "test_2_sample_2832_im_0", "prediction": "Whatcom County park"}
+{"id": "test_3_sample_3995_im_0", "prediction": "Colpocephalum turbinatum"}
+{"id": "test_0_sample_647_im_0", "prediction": "France"}
+{"id": "test_0_sample_244_im_0", "prediction": "ERRORE RAG: CUDA out of memory. Tried to allocate 10.29 GiB. GPU 0 has a total capacity of 44.53 GiB of which 5.24 GiB is free. Including non-PyTorch memory, this process has 39.28 GiB memory in use. Of the allocated memory 23.03 GiB is allocated by PyTorch, and 15.74 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"}
+{"id": "test_3_sample_3347_im_0", "prediction": "decline in importance"}
+{"id": "test_2_sample_2255_im_0", "prediction": "The provided context does not contain any information about animals ingesting the plant Ternstroemia lineata or the effects on their tissues. Therefore, it is not possible to answer the question based solely on the given information."}
+{"id": "test_3_sample_3415_im_0", "prediction": "nestled in between"}
+{"id": "test_0_sample_518_im_0", "prediction": "The information provided does not specify any particular ancient people or civilization that inhabited the area. The context given includes details about various locations such as Grgeteg, Želetice, Gradac, Hures-la-Parade, and Galichya Gora, but none of these are associated with ancient civilizations. Therefore, there is no specific answer to this question based solely on the information provided."}
+{"id": "test_3_sample_3973_im_0", "prediction": "ERRORE RAG: CUDA out of memory. Tried to allocate 10.66 GiB. GPU 0 has a total capacity of 44.53 GiB of which 5.24 GiB is free. Including non-PyTorch memory, this process has 39.28 GiB memory in use. Of the allocated memory 23.61 GiB is allocated by PyTorch, and 15.16 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"}
+{"id": "test_1_sample_1183_im_0", "prediction": "No"}
+{"id": "test_0_sample_192_im_0", "prediction": "Dragonflies eat other insects such as mosquitoes, flies, and other damselflies."}
+{"id": "test_2_sample_2903_im_0", "prediction": "The temple has a layout that is described as having a \"mountainous\" and \"rocky\" environment, suggesting a natural and possibly rugged setting. This could imply that the temple might be built into the side of a mountain or surrounded by rocky terrain, creating a unique and perhaps secluded location."}
+{"id": "test_4_sample_4396_im_0", "prediction": "1520"}
+{"id": "test_0_sample_81_im_0", "prediction": "The animal in the image is a sea snail, specifically a member of the genus Aspa, which is a genus of sea snails, marine gastropod mollusks in the family Bursidae. Sea snails are carnivorous, meaning they prey on other small organisms such as plankton, small fish, and other invertebrates. They use their single foot for crawling fast to search for food, which typically includes stranded organisms."}
+{"id": "test_3_sample_3497_im_0", "prediction": "United States"}
+{"id": "test_1_sample_1849_im_0", "prediction": "specifically"}
+{"id": "test_4_sample_4167_im_0", "prediction": "Sonora"}
+{"id": "test_1_sample_1119_im_0", "prediction": "The plant blooms in the spring."}
+{"id": "test_0_sample_846_im_0", "prediction": "Germany"}
+{"id": "test_2_sample_2147_im_0", "prediction": "low and fluttering"}
+{"id": "test_4_sample_4301_im_0", "prediction": "The image does not provide information about the type of soil present at the arboretum."}
+{"id": "test_3_sample_3170_im_0", "prediction": "ERRORE RAG: CUDA out of memory. Tried to allocate 14.77 GiB. GPU 0 has a total capacity of 44.53 GiB of which 5.24 GiB is free. Including non-PyTorch memory, this process has 39.28 GiB memory in use. Of the allocated memory 29.97 GiB is allocated by PyTorch, and 8.81 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"}
+{"id": "test_4_sample_4184_im_0", "prediction": "The hindwings"}
+{"id": "test_4_sample_4645_im_0", "prediction": "The Norreys family was associated with this park."}
+{"id": "test_1_sample_1170_im_0", "prediction": "Legume"}
+{"id": "test_2_sample_2742_im_0", "prediction": "The Barns Ness Lighthouse was turned off on March 2, 2012."}
+{"id": "test_0_sample_522_im_0", "prediction": "Adolf Loos"}
+{"id": "test_1_sample_1778_im_0", "prediction": "This plant can be pruned back hard during the winter months."}
+{"id": "test_0_sample_191_im_0", "prediction": "South Africa"}
+{"id": "test_3_sample_3275_im_0", "prediction": "broadcasting area"}
+{"id": "test_2_sample_2985_im_0", "prediction": "electricity"}
+{"id": "test_1_sample_1289_im_0", "prediction": "The leaves of this plant have square stalks."}
+{"id": "test_0_sample_807_im_0", "prediction": "Mexico"}

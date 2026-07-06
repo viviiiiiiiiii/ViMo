@@ -36,3 +36,6 @@ __pycache__/
 *.jsonlrm -f .git/index.lock
 *.swp
 *.swo
+# Large local data
+dati/encyclopedic_kb_wiki.zip
+dati/kb_images/
